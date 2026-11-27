@@ -564,17 +564,3 @@ body.ay-on { padding-bottom: 150px; }
 .ayah .w.wh { color: var(--gold2); background: rgba(212,177,94,.28); border-radius: 6px; box-shadow: 0 0 0 2px rgba(212,177,94,.18); }
 .ayah .kw { display: inline; }
 
-/* diacritics: give marks room, keep Amiri's mark positioning and ligatures on */
-.ayahs, .mp-body, .surah-title h3, .surah-title .bsm, .ay-info b, .sheet-ayah, .rw-h, .ex-t, h1, h2, h3 {
-  font-kerning: normal; text-rendering: optimizeLegibility;
-  font-variant-ligatures: common-ligatures contextual;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "ccmp" 1, "mark" 1, "mkmk" 1;
-  letter-spacing: 0; word-spacing: .06em;
-}
-.surah-title h3 { line-height: 1.9; padding-top: .15em; }
-.surah-title .bsm { line-height: 2.2; }
-.ay-info b { line-height: 2; padding: .2em 0 .1em; font-size: 1.02rem; }
-.hero h1 { line-height: 1.5; }
-.sec-head h2 { line-height: 1.6; }
-.ayah .w { padding: .25em 0; }
-.ayah .w.wh { padding: .2em .06em; margin: 0 -.06em; }
