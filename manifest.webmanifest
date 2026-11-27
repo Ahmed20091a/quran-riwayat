@@ -1,0 +1,11 @@
+{
+  "name": "روايات — القرآن الكريم",
+  "short_name": "روايات",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1210",
+  "theme_color": "#0b1210",
+  "icons": []
+}
