@@ -97,4 +97,7 @@
   var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
   if (saved && saved.length === 3 && isFinite(saved[0]) && isFinite(saved[1])) setLoc(saved[0], saved[1], String(saved[2]), false);
   else { var c = CITIES[0]; setLoc(c[1], c[2], c[0] + ' (افتراضي)', false); }
+  /* nothing but the needle moves: portrait is locked in the app while this screen is open */
+  function lockP() { try { if (window.QuranApp && QuranApp.lockPortrait) QuranApp.lockPortrait(location.hash === '#qibla'); } catch (e) {} }
+  window.addEventListener('hashchange', lockP); lockP();
 })();

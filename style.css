@@ -1445,3 +1445,10 @@ html.in-mushaf .mushaf-wrap { padding-inline: 8px !important; }
 html.in-mushaf .mushaf-page, html.in-mushaf .mushaf-page.sc-wrap { background-image: none !important; background-color: transparent !important; }
 html.in-mushaf .tap-hint, html.in-mushaf .reader-hint { display: none !important; }
 html.in-mushaf .mushaf-page.sc-wrap { border: 0 !important; padding-inline: .9rem; }
+
+/* Qibla: fixed layout so only the needle moves */
+.qb-note { height: 8.6em; overflow: hidden; }
+#qibla { overscroll-behavior: none; }
+.qb-dial, #qbRing { will-change: transform; }
+.qb-dial { transition: none !important; }
+html:has(#qibla.on), html:has(#qibla.on) body { overscroll-behavior: none; }
