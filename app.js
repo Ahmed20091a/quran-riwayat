@@ -425,18 +425,43 @@
   });
 
   /* ---------- offline download ---------- */
-  $('#offlineBtn').addEventListener('click', async function (e) {
-    var btn = e.target;
-    btn.disabled = true;
-    var c = await caches.open('quran-text-v2');
-    try { await c.add('data/pages.json'); } catch (err) {}
-    for (var i = 1; i <= 114; i++) {
-      btn.textContent = '⬇ ' + arNum(i) + ' / ١١٤';
-      try { await c.add('data/surah/' + String(i).padStart(3, '0') + '.json'); } catch (err) { /* retry later */ }
-    }
-    btn.textContent = '✓ محفوظ للقراءة بدون نت';
-  });
-
+  var OFF_CACHE = 'quran-text-v7', offRunning = false;
+  async function offlineAll(btn) {
+    if (offRunning || !window.caches) return;
+    offRunning = true;
+    try {
+      var c = await caches.open(OFF_CACHE);
+      var urls = ['data/pages.json', 'data/tajweed.json', 'data/search.txt'];
+      for (var i = 1; i <= 114; i++) urls.push('data/surah/' + String(i).padStart(3, '0') + '.json');
+      try {
+        var rm = await (await fetch('data/rw/manifest.json')).json();
+        rm.riwayat.forEach(function (r) { for (var i = 1; i <= 114; i++) urls.push('data/rw/' + r.id + '/' + String(i).padStart(3, '0') + '.json'); });
+      } catch (err) {}
+      var todo = [];
+      for (var k = 0; k < urls.length; k++) { if (!(await c.match(urls[k]))) todo.push(urls[k]); }
+      var done = 0, failed = 0, q = todo.slice();
+      var tick = function () { if (btn) btn.textContent = '⬇ ' + arNum(done) + ' / ' + arNum(todo.length); };
+      var worker = async function () {
+        while (q.length) {
+          var u = q.shift();
+          try { var r = await fetch(u); if (r.ok) await c.put(u, r); else failed++; } catch (err) { failed++; }
+          done++; tick();
+        }
+      };
+      await Promise.all([worker(), worker()]);
+      if (!failed) { try { localStorage.setItem('offlineAll', OFF_CACHE); } catch (err) {} }
+      if (btn) btn.textContent = failed ? '⚠ لم يكتمل — أعد المحاولة' : '✓ محفوظ للقراءة بدون نت';
+    } finally { offRunning = false; if (btn) btn.disabled = false; }
+  }
+  $('#offlineBtn').addEventListener('click', function (e) { e.target.disabled = true; offlineAll(e.target); });
+  (function () {
+    var btn = $('#offlineBtn'), ok = false;
+    try { ok = localStorage.getItem('offlineAll') === OFF_CACHE; } catch (e) {}
+    if (ok) { btn.textContent = '✓ محفوظ للقراءة بدون نت'; return; }
+    /* automatic: after the first visit settles, quietly save all the text (about 3 MB compressed) in the background */
+    if (navigator.onLine === false) return;
+    setTimeout(function () { btn.disabled = true; offlineAll(btn); }, 6000);
+  })();
 
   /* ---------- ayah sheet: tafsir · per-ayah recitation · bookmark ---------- */
   var AYAH_RECITERS = [
