@@ -1249,7 +1249,7 @@ html[data-site=light] .poem-v small { color: var(--muted) !important; }
 
 /* in-page book chip (left, end of page), hizb markers, no verified badge */
 .verified { display: none !important; }
-html.in-mushaf #reader > .reader-bar .rb-pg, .pg-fab { display: none !important; }
+html.in-mushaf #reader > .reader-bar .rb-pg { display: none !important; }
 .mp-foot, .sc-no { display: flex !important; justify-content: flex-start; direction: ltr; padding: .3rem .2rem 0; border: 0; }
 .mp-foot .pg-no, .sc-no b { display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 36px; min-width: 0; padding: 0 0 3px; border: 0; border-radius: 0; font: 800 .8rem 'Cairo', sans-serif; color: #f6e3a1; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 50' fill='none'%3E%3Cpath d='M39 10C30 4 17 4 5 8v33c12-4 25-4 34 2 9-6 22-6 34-2V8C61 4 48 4 39 10z' fill='%230a120e' fill-opacity='.94' stroke='%23d4b15e' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M39 10v33' stroke='%23d4b15e' stroke-width='1.2'/%3E%3Cpath d='M10 15c8-2 17-1 24 2M10 22c8-2 17-1 24 2M44 17c7-3 16-4 24-2M44 24c7-3 16-4 24-2' stroke='%23d4b15e' stroke-opacity='.4' stroke-width='1'/%3E%3C/svg%3E") center/100% 100% no-repeat; }
 html[data-site=light] .mp-foot .pg-no, html[data-site=light] .sc-no b, #reader[data-th=light] .mp-foot .pg-no { color: #3b2806; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 50' fill='none'%3E%3Cpath d='M39 10C30 4 17 4 5 8v33c12-4 25-4 34 2 9-6 22-6 34-2V8C61 4 48 4 39 10z' fill='%23f7eed4' stroke='%238a6414' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M39 10v33' stroke='%238a6414' stroke-width='1.2'/%3E%3C/svg%3E") center/100% 100% no-repeat; }
@@ -1277,7 +1277,7 @@ html.in-mushaf #themeSw { left: 60px !important; }
 /* hizb markers sit in the page margin beside the ayah where they start */
 .mp-inner, .sc-text { position: relative; }
 .hz { position: absolute; right: -1.15rem; display: block !important; margin: 0 !important; width: 1rem; writing-mode: vertical-rl; text-orientation: mixed; white-space: nowrap; font: 600 .62rem/1 'Cairo', sans-serif !important; color: var(--muted); text-align: start; line-height: 1; letter-spacing: 0; }
-.mp-body, .sc-wrap .sc-page { overflow: visible; }
+.sc-wrap .sc-page { overflow: visible; }
 /* prayer times in light: same shapes, light tints */
 html[data-site=light] .sl-ic { background: color-mix(in srgb, var(--tint) 18%, #f7eed4) !important; border-color: color-mix(in srgb, var(--tint) 55%, transparent) !important; }
 html[data-site=light] .sl-p.next .sl-ic { background: var(--tint) !important; color: #fff !important; }
@@ -1287,3 +1287,14 @@ html[data-site=light] .sl-pill, html[data-site=light] .sl-pill select, html[data
 html[data-site=light] .sl-pill select option { color: #231b0c; background: #f7eed4; }
 html[data-site=light] .sl-pill { background: rgba(8,14,12,.45) !important; }
 html[data-site=light] .foot-links a, html[data-site=light] footer a { background: none !important; border: 0 !important; box-shadow: none !important; }
+/* page end: small book chip with the number sitting above a thin divider line */
+.mp-foot, .sc-no { display: flex !important; justify-content: flex-start; direction: ltr; padding: .5rem 0 .3rem !important; margin: .4rem 0 1rem; border: 0 !important; border-bottom: 1px solid var(--line) !important; }
+html[data-site=light] .mp-foot, html[data-site=light] .sc-no { border-bottom-color: rgba(110,80,20,.4) !important; }
+/* light: all reading text uses the theme ink, same as green uses its own */
+html[data-site=light] .ayahs, html[data-site=light] .rw-body, html[data-site=light] .rw-body .ayah, html[data-site=light] .sheet-ayah, html[data-site=light] .sc-text, html[data-site=light] .mp-body, html[data-site=light] .bsm { color: var(--ink) !important; }
+html[data-site=light] .rw-body .an, html[data-site=light] .ayahs .an { color: var(--gold2); }
+/* page arrows on the sides of the page, vertically centred (page-by-page mode) */
+html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)):not(.sheet-open) .pg-fab { bottom: auto !important; top: 50% !important; transform: translateY(-50%); width: 36px !important; height: 36px !important; opacity: .88; }
+#pgFabNext { left: 6px !important; right: auto !important; }
+#pgFabPrev { right: 6px !important; left: auto !important; }
+@media (min-width: 900px) { #pgFabNext { left: calc(50% - 360px) !important; } #pgFabPrev { right: calc(50% - 360px) !important; } }
