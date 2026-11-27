@@ -215,8 +215,8 @@
         if (sg.s !== 1 && sg.s !== 9 && d.ayahs[0].indexOf('بِسْمِ') !== 0) html += '<div class="mp-bsm">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
       }
       for (var a = sg.fa; a <= sg.ta; a++) {
-        html += '<span class="ayah" data-s="' + sg.s + '" data-a="' + a + '">' + d.ayahs[a - 1] +
-          ' <span class="an">﴿' + arNum(a) + '﴾</span></span> ';
+        html += '<div class="ayah-line" data-s="' + sg.s + '" data-a="' + a + '">' +
+          '<span class="an">﴿' + arNum(a) + '﴾</span><span class="at">' + d.ayahs[a - 1] + '</span></div>';
       }
     });
     html += '</div></div><div class="mp-foot">— ' + arNum(p) + ' —</div>';
@@ -245,16 +245,27 @@
     }
   }
 
-  function fitPageText() {
-    var body = $('#mpBody');
-    if (!body) return;
-    var inner = document.getElementById('mpInner');
-    if (!inner) return;
+  function fitOnce(body, inner) {
     var lo = 12, hi = 36, best = lo;
     for (var it = 0; it < 12; it++) {
       var mid = (lo + hi) / 2;
       body.style.fontSize = mid + 'px';
       if (inner.scrollHeight <= body.clientHeight + 1) { best = mid; lo = mid; } else { hi = mid; }
+    }
+    return best;
+  }
+
+  function fitPageText() {
+    var body = $('#mpBody');
+    if (!body) return;
+    var inner = document.getElementById('mpInner');
+    if (!inner) return;
+    body.classList.remove('tight');
+    var best = fitOnce(body, inner);
+    /* very dense page: trade a little air between ayahs for a readable size */
+    if (best < 15) {
+      body.classList.add('tight');
+      best = fitOnce(body, inner);
     }
     body.style.fontSize = best.toFixed(2) + 'px';
   }
