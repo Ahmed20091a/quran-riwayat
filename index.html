@@ -31,6 +31,7 @@
     <a href="#tilawa">التلاوة</a>
     <a href="#riwayat">الروايات</a>
     <a href="#tajweed">التجويد</a>
+    <a href="#sebha">السبحة</a>
   </div>
 </nav>
 
@@ -146,6 +147,28 @@
   <p class="diff-note reveal">هذه الاختلافات من السعة والرحمة؛ جميعها متواتر عن النبي ﷺ ومعانيها متكاملة لا متناقضة.</p>
 </section>
 
+<section id="sebha">
+  <div class="sec-head reveal">
+    <div class="kicker">الأذكار</div>
+    <h2>السبحة</h2>
+    <p>اضغط على الدائرة للعدّ. العدّاد محفوظ على جهازك ويعمل بدون إنترنت.</p>
+  </div>
+  <div class="sb-wrap">
+    <div class="sb-chips" id="sbChips" role="tablist"></div>
+    <div class="sb-phrase" id="sbPhrase"></div>
+    <button class="sb-tap" id="sbTap" aria-label="اضغط للعدّ"><span class="sb-count" id="sbCount">٠</span><span class="sb-of" id="sbOf"></span></button>
+    <div class="sb-bar"><i id="sbBar"></i></div>
+    <div class="sb-opts">
+      <label>الهدف
+        <select id="sbTarget"><option value="0">بدون هدف</option><option value="33">٣٣</option><option value="100">١٠٠</option></select>
+      </label>
+      <label class="sb-vib"><input type="checkbox" id="sbVib"> اهتزاز</label>
+      <button class="btn" id="sbReset">تصفير</button>
+    </div>
+    <div class="sb-total" id="sbTotal"></div>
+  </div>
+</section>
+
 <section id="tajweed">
   <div class="sec-head reveal">
     <div class="kicker">أحكام التجويد</div>
@@ -204,6 +227,7 @@
 <audio id="ayahAudio" preload="none"></audio>
 <script src="app.js"></script>
 <script src="rw.js"></script>
+<script src="sebha.js"></script>
 
 
 

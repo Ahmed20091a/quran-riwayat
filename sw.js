@@ -1,11 +1,11 @@
 /* روايات — service worker: offline shell + cached surahs and audio */
-var SHELL = 'quran-shell-v18';
+var SHELL = 'quran-shell-v19';
 var TEXT = 'quran-text-v7';
 var TAF = 'quran-tafsir-v1';
 var SHELL_FILES = [
   './', 'index.html', 'style.css', 'app.js',
   'fonts/amiri-arabic.woff2', 'fonts/cairo-arabic.woff2',
-  'data/manifest.json', 'data/rw/manifest.json', 'rw.js', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'data/pages.json', 'data/tajweed.json', 'manifest.webmanifest'
+  'data/manifest.json', 'data/rw/manifest.json', 'rw.js', 'sebha.js', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'data/pages.json', 'data/tajweed.json', 'manifest.webmanifest'
 ];
 
 self.addEventListener('install', function (e) {
