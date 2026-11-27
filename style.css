@@ -573,8 +573,8 @@ body.ay-on { padding-bottom: 150px; }
 }
 .surah-title h3 { line-height: 1.9; padding-top: .15em; }
 .surah-title .bsm { line-height: 2.2; }
-.ay-info b { line-height: 2; padding: .2em 0 .1em; }
+.ay-info b { line-height: 2; padding: .2em 0 .1em; font-size: 1.02rem; }
 .hero h1 { line-height: 1.5; }
 .sec-head h2 { line-height: 1.6; }
 .ayah .w { padding: .25em 0; }
-.ayah .w.wh { padding: .3em .08em; margin: 0 -.08em; }
+.ayah .w.wh { padding: .2em .06em; margin: 0 -.06em; }
