@@ -1996,22 +1996,23 @@
 
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 
-/* copy protection (best effort): block copy/cut/context menu/drag outside the allowed areas */
+/* copy protection: no free selection anywhere (inputs excepted); copying goes through explicit "نسخ" buttons */
+window.qrCopy = function (text, btn) {
+  function done(ok) { if (!btn) return; var s = btn.querySelector('span') || btn, old = btn.getAttribute('data-l') || s.textContent; btn.setAttribute('data-l', old); s.textContent = ok ? 'تم النسخ ✓' : 'تعذر النسخ'; setTimeout(function () { s.textContent = old; }, 1500); }
+  function fb() {
+    try { var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;top:0;left:0;opacity:0;'; document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length); var ok = document.execCommand('copy'); document.body.removeChild(t); done(ok); } catch (e) { done(false); }
+  }
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { done(true); }, fb); else fb();
+};
 (function () {
-  var ALLOW = '#readerBody, .ayahs, .mushaf-page, #tajBody, #duaBody, .hs-sheet, .hs-text, #riwayat, .hs-wrap .hs-item';
-  function ok(n) {
-    if (!n) return false;
-    var e = n.nodeType === 1 ? n : n.parentElement;
-    return !!(e && e.closest && (e.closest(ALLOW) || e.closest('input,textarea')));
-  }
-  function selOk() {
-    var ae = document.activeElement;
-    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return true;
-    var s = window.getSelection && window.getSelection();
-    if (!s || s.isCollapsed) return false;
-    return ok(s.anchorNode) && ok(s.focusNode);
-  }
-  ['copy', 'cut'].forEach(function (t) { document.addEventListener(t, function (e) { if (!selOk()) { e.preventDefault(); } }, true); });
+  var sc = document.getElementById('sheetCopy');
+  if (sc) sc.addEventListener('click', function () {
+    var ay = document.getElementById('sheetAyah'), rf = document.getElementById('sheetRef');
+    var t = ay ? ay.textContent.trim() : ''; if (!t) return;
+    window.qrCopy(t + (rf && rf.textContent.trim() ? '\n[' + rf.textContent.trim() + ']' : ''), sc);
+  });
+  function ok(n) { var e = n && (n.nodeType === 1 ? n : n.parentElement); return !!(e && e.closest && e.closest('input,textarea')); }
+  ['copy', 'cut'].forEach(function (t) { document.addEventListener(t, function (e) { var ae = document.activeElement; if (!(ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA'))) e.preventDefault(); }, true); });
   document.addEventListener('contextmenu', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
   document.addEventListener('dragstart', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
   document.addEventListener('selectstart', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);

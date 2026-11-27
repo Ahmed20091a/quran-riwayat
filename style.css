@@ -828,7 +828,7 @@ input[type=checkbox]:focus-visible { outline: 2px solid var(--gold2); outline-of
 html, body, body * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 input, textarea, [contenteditable=true] { -webkit-user-select: text !important; user-select: text !important; -webkit-touch-callout: default; }
 #readerBody, .ayahs, .mushaf-page, #tajBody, #duaBody, .hs-sheet, .hs-text, #riwayat, .hs-wrap .hs-item,
-#readerBody *, .ayahs *, .mushaf-page *, #tajBody *, #duaBody *, .hs-sheet *, .hs-text *, #riwayat *, .hs-wrap .hs-item * { -webkit-user-select: text !important; user-select: text !important; -webkit-touch-callout: default !important; }
+
 
 /* ===== mushaf page: own design, thin frame ===== */
 .mushaf-page { border: 1px solid rgba(212,177,94,.4); outline: 0; border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.35); padding: .8rem 1.1rem .7rem; }
@@ -1095,7 +1095,7 @@ html:not(.in-mushaf) .rb-pg { display: none; }
 .hd-meta b { color: var(--gold2); }
 .hd-meta i { font-style: normal; }
 .hd-meta span { direction: ltr; }
-.hd-text { font-family: 'Scheherazade New', 'Amiri', serif; font-size: 1.25rem; line-height: 2.1; color: #f4efe3; -webkit-user-select: text !important; user-select: text !important; }
+.hd-text { font-family: 'Scheherazade New', 'Amiri', serif; font-size: 1.25rem; line-height: 2.1; color: #f4efe3; }
 .hd-more { width: 100%; margin-top: .8rem; height: 40px; }
 .hd-src { color: var(--muted); font-size: .74rem; line-height: 1.9; margin-top: 1.4rem; }
 #reader .vo-panel .vo-nav { display: none !important; }
@@ -1321,3 +1321,7 @@ html[data-site=light] .rw-st { border-color: rgba(120,85,25,.4); background: rgb
 html[data-site=light] .rw-body .an i { color: #7a5a14; }
 .rw-body .an::before, .rw-body .an::after { content: none; }
 .rw-body .an { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; width: 1.6em; height: 1.6em; margin: 0 .15em; padding: 0; border: 0; border-radius: 50%; }
+
+.sheet-copy { margin-inline-start: auto; }
+.hd-copy { margin-inline-start: auto; border: 1px solid var(--line); background: transparent; color: var(--gold2); border-radius: 10px; padding: .15rem .7rem; font: inherit; font-size: .78rem; cursor: pointer; }
+html[data-site=light] .hd-copy { color: #6b4a10; border-color: rgba(120,85,25,.4); }

@@ -29,6 +29,9 @@
     if (row[1]) m.appendChild(el('i', '', 'ترقيم الكتاب: ' + row[1]));
     var bk = IDX[c].books.filter(function (x) { return x.id === b; })[0];
     if (bk) m.appendChild(el('span', '', bkName(c, bk)));
+    var cb = el('button', 'hd-copy', 'نسخ'); cb.type = 'button';
+    cb.addEventListener('click', function () { window.qrCopy(row[2] + '\n[' + IDX[c].name + ' · حديث ' + arNum(row[0]) + ']', cb); });
+    m.appendChild(cb);
     d.appendChild(m); d.appendChild(el('div', 'hd-text', row[2]));
     return d;
   }
