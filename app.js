@@ -131,8 +131,8 @@
       if (v >= 1 && v <= PAGES.length) renderPage(v);
     }
     $('#pageGo').addEventListener('click', jump);
-    $('#pgFabNext').addEventListener('click', function () { if (RIW !== 'hafs') gotoSurah(currentSurah + 1); else $('#pageNext').click(); });
-    $('#pgFabPrev').addEventListener('click', function () { if (RIW !== 'hafs') gotoSurah(currentSurah - 1); else $('#pagePrev').click(); });
+    $('#pgFabNext').addEventListener('click', function () { if (RIW !== 'hafs' || MODE === 'surah') gotoSurah(currentSurah + 1); else $('#pageNext').click(); });
+    $('#pgFabPrev').addEventListener('click', function () { if (RIW !== 'hafs' || MODE === 'surah') gotoSurah(currentSurah - 1); else $('#pagePrev').click(); });
     $('#pageInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') jump(); });
     document.addEventListener('keydown', function (e) {
       if (!PAGES || MODE !== 'page') return;
@@ -145,6 +145,8 @@
     var rb = $('#readerBody');
     rb.addEventListener('touchstart', function (e) { tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY; }, { passive: true });
     rb.addEventListener('touchend', function (e) {
+      var dx0 = e.changedTouches[0].clientX - tx0, dy0 = e.changedTouches[0].clientY - ty0;
+      if (MODE === 'surah' && !(document.getElementById('ayahSheet') && !document.getElementById('ayahSheet').hidden)) { if (Math.abs(dx0) > 70 && Math.abs(dx0) > 2 * Math.abs(dy0)) gotoSurah(currentSurah + (dx0 < 0 ? 1 : -1)); return; }
       if (!PAGES || MODE !== 'page') return;
       var dx = e.changedTouches[0].clientX - tx0, dy = e.changedTouches[0].clientY - ty0;
       if (Math.abs(dx) > 55 && Math.abs(dx) > 2 * Math.abs(dy)) renderPage(currentPage + (dx < 0 ? 1 : -1));
@@ -474,7 +476,7 @@
       var b = e.target.closest('button'); if (!b) return; var v = viewState();
       if (b.hasAttribute('data-sj')) { pan.hidden = true; gotoSurah(+b.getAttribute('data-sj')); return; }
       if (b.hasAttribute('data-riw')) { pan.hidden = true; btn.setAttribute('aria-expanded', 'false'); setRiw(b.getAttribute('data-riw')); }
-      if (b.hasAttribute('data-mode')) setMode(b.getAttribute('data-mode'));
+      if (b.hasAttribute('data-mode')) { pan.hidden = true; btn.setAttribute('aria-expanded', 'false'); setMode(b.getAttribute('data-mode')); }
       if (b.hasAttribute('data-th')) { v.theme = b.getAttribute('data-th'); viewSave(v); applyTheme(); if (window.qrSetTheme) window.qrSetTheme(v.theme); }
       if (b.hasAttribute('data-font')) { v.font = b.getAttribute('data-font'); viewSave(v); applyTheme(); setTimeout(fitPageText, 80); setTimeout(fitPageText, 500); }
       if (b.hasAttribute('data-flow')) { v.flow = b.getAttribute('data-flow'); viewSave(v); if (MODE === 'page' && PAGES) { pan.hidden = true; btn.setAttribute('aria-expanded', 'false'); requestAnimationFrame(function () { setTimeout(function () { renderPage(currentPage); }, 0); }); } }
@@ -497,7 +499,7 @@
   /* ---------- surah (scroll) mode ---------- */
   function loadSurah(n, keepBadge) {
     if (RIW !== 'hafs') return loadRiw(n);
-    if (PAGES) { MODE = 'page'; $('#pageNav').style.display = 'flex'; return renderPage(surahPage(n)); }
+    if (PAGES) return renderSurahView(n);
     currentSurah = n;
     if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#mushaf');
     $('#surahSelect').value = n;
@@ -531,6 +533,32 @@
     $('#readerBody').innerHTML = html + '</div>';
   }
 
+
+
+  /* ---------- Hafs surah by surah, same Mushaf styling ---------- */
+  async function renderSurahView(n) {
+    currentSurah = n;
+    try { $('#surahSelect').value = n; $('#pSurah').value = n; } catch (e) {}
+    if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#mushaf');
+    var body = $('#readerBody'), badge = $('#verifyBadge');
+    badge.hidden = true;
+    body.innerHTML = '<div class="reader-loading">جارٍ تحميل السورة…</div>';
+    var d = await loadSurahFile(n);
+    if (currentSurah !== n || MODE !== 'surah' || RIW !== 'hafs') return;
+    if (!d) { body.innerHTML = '<div class="reader-loading">⚠ تعذر التحقق من سلامة نص السورة، لم يُعرض حمايةً للنص.</div>'; return; }
+    var html = '', sb = splitBsm(n, d.ayahs[0])[0];
+    html += banner(n);
+    if (sb) html += '<div class="mp-bsm" data-bs="' + n + '">' + sb + '</div>';
+    for (var i = 1; i <= d.ayahs.length; i++) {
+      if (n === 1 && i === 1) { html += '<div class="mp-bsm"><span class="ayah" data-s="1" data-a="1">' + d.ayahs[0] + '</span></div>'; continue; }
+      html += hzMark(n, i) + '<span class="ayah" data-s="' + n + '" data-a="' + i + '">' + (i === 1 ? splitBsm(n, d.ayahs[0])[1] : d.ayahs[i - 1]) + ' <span class="an"><i>' + arNum(i) + '</i></span></span> ';
+    }
+    body.innerHTML = '<div class="mushaf-wrap"><div class="mushaf-page sc-wrap riw sv" id="scWrap"><div class="sc-page"><div class="sc-juz">حفص عن عاصم</div><div class="sc-text">' + html + '</div><div class="sc-no"><b>' + arNum(n) + '</b></div></div></div></div>';
+    applyScrollScale();
+    badge.hidden = false;
+    updatePlayerInfo();
+    window.scrollTo(0, 0);
+  }
 
   /* ---------- other riwayat inside the Mushaf reader ---------- */
   function escT(t) { return String(t).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }

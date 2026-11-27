@@ -1443,3 +1443,5 @@ html.in-mushaf #readerBody { border: 0 !important; background: none !important; 
 html.in-mushaf #reader { margin-inline: 0 !important; width: 100% !important; max-width: none !important; padding-inline: 0 !important; }
 html.in-mushaf .mushaf-wrap { padding-inline: 8px !important; }
 html.in-mushaf .mushaf-page, html.in-mushaf .mushaf-page.sc-wrap { background-image: none !important; background-color: transparent !important; }
+html.in-mushaf .tap-hint, html.in-mushaf .reader-hint { display: none !important; }
+html.in-mushaf .mushaf-page.sc-wrap { border: 0 !important; padding-inline: .9rem; }
