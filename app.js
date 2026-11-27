@@ -735,7 +735,7 @@
   ];
 
   /* slugs listed here are hidden from the tafsir list (licensing not verified); decided with the owner */
-  var TAF_HIDE = ['ar-tafsir-al-mukhtasar', 'ar-tafsir-al-wasit', 'ar-tafsir-muyassar', 'ar-tafsir-ibn-kathir'];
+  var TAF_HIDE = [];
   TAFSIRS = TAFSIRS.filter(function (t) { return TAF_HIDE.indexOf(t.slug) === -1; });
   var TAF_BASE = 'https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/';
   var sheetState = { s: 0, a: 0, tab: 'play', cache: {} };
