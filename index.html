@@ -84,6 +84,7 @@
           <div class="vo-row"><button type="button" data-flow="scroll">تمرير متواصل</button><button type="button" data-flow="page">سحب صفحة بصفحة</button></div></div>
           <div class="vo-card"><div class="vo-h"><span class="vo-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>طريقة العرض</div>
           <div class="vo-row"><button type="button" data-mode="page">صفحات المصحف</button><button type="button" data-mode="surah">السورة كاملة</button></div></div>
+          <div class="vo-card"><div class="vo-h"><span class="vo-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z"/></svg></span><span>الرواية</span></div><div class="vo-row vo-riw" id="voRiw"></div></div>
           <div class="vo-card"><div class="vo-h"><span class="vo-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19l5-13 5 13M6 14h6M16 19v-8m0 0c0-2 4-2 4 0v8"/></svg></span>نوع الخط</div>
           <div class="vo-row"><button type="button" data-font="sch">شهرزاد</button><button type="button" data-font="amiri">أميري</button><button type="button" data-font="noto">نوتو نسخ</button></div></div>
           <div class="vo-card"><div class="vo-h"><span class="vo-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19l4.5-12L13 19M6 14.5h5M15 19l3-8 3 8M16 16.5h4"/></svg></span>حجم الخط</div>
@@ -93,6 +94,7 @@
           <button type="button" class="vo-link" id="voSearch"><span class="vo-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg></span><span>بحث</span><span class="vo-chev"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></span></button>
           <button type="button" class="vo-link" id="voOffline"><span class="vo-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg></span><span>حفظ للقراءة بدون نت</span><span class="vo-chev"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></span></button>
           <div class="vo-card"><div class="vo-h"><span class="vo-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg></span>التفسير</div>
+          <details class="vo-card vo-cred"><summary>المصادر والحقوق</summary><p>أرقام الصفحات والأجزاء: Tanzil.net (CC BY 3.0). نصوص الروايات الأخرى: quran-json عن Qur'anpedia، وترقيم آياتها حسب مصحف كل رواية. الأحاديث والتفاسير والتلاوات من مصادرها المذكورة في كل شاشة.</p></details>
           <p class="vo-note">اضغط على أي آية في المصحف: تظهر نافذة فيها التفسير والتلاوة بالآية وحفظ موضعك.</p></div>
         </div></div>
       <button class="btn mode-btn" id="modeToggle">عرض السورة كاملة</button>
@@ -170,15 +172,6 @@
     <div class="qari"><h4>أبو جعفر المدني</h4><div class="rawis">روايتاه: <b>ابن وردان</b> و <b>ابن جماز</b></div><small>من القراءات المدنية</small></div>
     <div class="qari"><h4>يعقوب الحضرمي</h4><div class="rawis">روايتاه: <b>رويس</b> و <b>روح</b></div><small>من القراءات البصرية</small></div>
     <div class="qari"><h4>خلف البزار</h4><div class="rawis">روايتاه: <b>إسحاق</b> و <b>إدريس</b></div><small>العاشر من العشرة الصغرى</small></div>
-  </div>
-
-  <div class="rw-box reveal" id="rwBox">
-    <h3 class="rw-h">اقرأ المصحف برواية أخرى</h3>
-    <p class="rw-note">نص كل رواية من Qur'anpedia (مرخّص) ويُحمَّل سورة سورة عند الاختيار فقط. التفسير والتلاوة بالآية متاحان في رواية حفص أعلاه.</p>
-    <div class="chips" id="rwChips"></div>
-    <div class="reader-bar rw-bar"><button type="button" class="rw-st" id="rwNext" aria-label="السورة التالية"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><select id="rwSurah" aria-label="اختر السورة"></select><button type="button" class="rw-st" id="rwPrev" aria-label="السورة السابقة"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button><span class="verified" id="rwBadge" hidden></span></div>
-    <div id="rwBody" class="rw-body"><div class="reader-loading">اختر رواية لتبدأ القراءة.</div></div>
-    <p class="rw-src">المصدر: <a href="https://quran-json.risanb.com/" rel="noopener">quran-json</a> عن Qur'anpedia. ترقيم الآيات حسب مصحف كل رواية، فقد يختلف عن حفص.</p>
   </div>
 
   <table class="diff-table reveal">

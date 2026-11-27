@@ -21,6 +21,7 @@
   function hzMark(s, a) { var q = HQ[s + ':' + a]; if (!q) return ''; var h = Math.ceil(q / 4), r = (q - 1) % 4; return '<span class="hz">' + (r === 0 ? 'الحزب ' + arNum(h) : ['', 'ربع الحزب', 'نصف الحزب', 'ثلاثة أرباع الحزب'][r]) + '</span>'; }
   var PAGES = null;            /* verified page map: every surah starts on its own page */
   var MODE = 'page';           /* 'page' | 'surah' */
+  var RIW = 'hafs', RIWM = null;
   var currentSurah = 1;
   var currentPage = 1;
   var currentReciter = null;
@@ -127,8 +128,8 @@
       if (v >= 1 && v <= PAGES.length) renderPage(v);
     }
     $('#pageGo').addEventListener('click', jump);
-    $('#pgFabNext').addEventListener('click', function () { $('#pageNext').click(); });
-    $('#pgFabPrev').addEventListener('click', function () { $('#pagePrev').click(); });
+    $('#pgFabNext').addEventListener('click', function () { if (RIW !== 'hafs') gotoSurah(currentSurah + 1); else $('#pageNext').click(); });
+    $('#pgFabPrev').addEventListener('click', function () { if (RIW !== 'hafs') gotoSurah(currentSurah - 1); else $('#pagePrev').click(); });
     $('#pageInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') jump(); });
     document.addEventListener('keydown', function (e) {
       if (!PAGES || MODE !== 'page') return;
@@ -154,6 +155,7 @@
   var CAP = '<svg class="cap" viewBox="0 0 48 56" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><g><path d="M16 28C11.5 21 11.5 15 16 10.5C20.5 15 20.5 21 16 28Z"/><path d="M16 28C11.5 35 11.5 41 16 45.5C20.5 41 20.5 35 16 28Z"/></g><path d="M16 28L21.5 22.5M16 28L10.5 22.5M16 28L21.5 33.5M16 28L10.5 33.5" opacity=".6"/><circle cx="16" cy="28" r="2.4"/><path d="M26 28H46"/><path d="M30 28c3-6.5 8-7.5 11.5-4.5"/><path d="M30 28c3 6.5 8 7.5 11.5 4.5"/><circle cx="46" cy="28" r="1.4" fill="currentColor"/></g></svg>';
   function banner(n) { return '<div class="mp-shead"><span class="orn-l">' + ORN + '</span><span class="cap-r">' + CAP + '</span><span class="mp-sname">سورة ' + MANIFEST.surahs[n - 1].name + '</span><span class="cap-l">' + CAP + '</span><span class="orn-r">' + ORN + '</span></div>'; }
   function setMode(m) {
+    if (RIW !== 'hafs') m = 'surah';
     if (m === 'page' && !PAGES) return;
     MODE = m;
     $('#pageNav').style.display = (m === 'page') ? 'flex' : 'none';
@@ -408,6 +410,7 @@
     applyTheme();
     function sync() {
       var v = viewState();
+      pan.querySelectorAll('[data-riw]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-riw') === RIW); });
       pan.querySelectorAll('[data-mode]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-mode') === MODE); });
       pan.querySelectorAll('[data-font]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-font') === v.font); });
       pan.querySelectorAll('[data-flow]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-flow') === v.flow); });
@@ -467,6 +470,7 @@
     pan.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return; var v = viewState();
       if (b.hasAttribute('data-sj')) { pan.hidden = true; gotoSurah(+b.getAttribute('data-sj')); return; }
+      if (b.hasAttribute('data-riw')) { pan.hidden = true; btn.setAttribute('aria-expanded', 'false'); setRiw(b.getAttribute('data-riw')); }
       if (b.hasAttribute('data-mode')) setMode(b.getAttribute('data-mode'));
       if (b.hasAttribute('data-th')) { v.theme = b.getAttribute('data-th'); viewSave(v); applyTheme(); }
       if (b.hasAttribute('data-font')) { v.font = b.getAttribute('data-font'); viewSave(v); applyTheme(); setTimeout(fitPageText, 80); setTimeout(fitPageText, 500); }
@@ -489,6 +493,7 @@
 
   /* ---------- surah (scroll) mode ---------- */
   function loadSurah(n, keepBadge) {
+    if (RIW !== 'hafs') return loadRiw(n);
     currentSurah = n;
     if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#mushaf');
     $('#surahSelect').value = n;
@@ -521,6 +526,49 @@
     });
     $('#readerBody').innerHTML = html + '</div>';
   }
+
+
+  /* ---------- other riwayat inside the Mushaf reader ---------- */
+  function escT(t) { return String(t).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  function riwName(id) { if (id === 'hafs') return 'حفص عن عاصم'; var r = (RIWM || []).filter(function (x) { return x.id === id; })[0]; return r ? r.name : id; }
+  async function loadRiw(n) {
+    currentSurah = n; try { $('#surahSelect').value = n; $('#pSurah').value = n; } catch (e) {}
+    var id = RIW, body = $('#readerBody');
+    body.innerHTML = '<div class="reader-loading">جارٍ تحميل السورة…</div>';
+    var ri = (RIWM || []).filter(function (x) { return x.id === id; })[0], v;
+    try {
+      var raw = await (await fetch('data/rw/' + id + '/' + String(n).padStart(3, '0') + '.json')).text();
+      if ((await sha256hex(raw)) !== ri.sha256[n - 1]) throw new Error('integrity');
+      v = JSON.parse(raw).v;
+    } catch (e) { if (RIW === id && currentSurah === n) body.innerHTML = '<div class="reader-loading">⚠ تعذر التحقق من سلامة النص، لم يُعرض حمايةً للنص.</div>'; return; }
+    if (RIW !== id || currentSurah !== n) return;
+    var skip = (id === 'shubah' && n === 1), html = banner(n);
+    if (skip) html += '<div class="mp-bsm">' + escT(v[0]) + '</div>';
+    else if (n !== 9) html += '<div class="mp-bsm">' + escT(ri.bismillah) + '</div>';
+    v.forEach(function (t, i) { if (skip && i === 0) return; html += '<span class="ayah rwa">' + escT(t) + ' <span class="an"><i>' + arNum(i + 1) + '</i></span></span> '; });
+    body.innerHTML = '<div class="mushaf-wrap"><div class="mushaf-page sc-wrap riw" id="scWrap"><div class="sc-page"><div class="sc-juz">' + escT(riwName(id)) + '</div><div class="sc-text">' + html + '</div><div class="sc-no"><b>' + arNum(n) + '</b></div></div></div></div>';
+    applyScrollScale();
+    var bar = $('#reader'); if (bar && bar.getBoundingClientRect().top < -10) bar.scrollIntoView({ block: 'start' });
+  }
+  function setRiw(id) {
+    if (id === RIW) return;
+    RIW = id; document.documentElement.classList.toggle('riw-mode', id !== 'hafs');
+    var mt = $('#modeToggle');
+    if (id !== 'hafs') { MODE = 'surah'; $('#pageNav').style.display = 'none'; if (mt) mt.textContent = 'عرض صفحات المصحف'; loadSurah(currentSurah); }
+    else setMode(PAGES ? 'page' : 'surah');
+  }
+  window.qrOpenRiw = function (id) {
+    function go() { var l = document.querySelector('a[href="#mushaf"]'); if (l) l.click(); else location.hash = '#mushaf'; var t = 0, iv = setInterval(function () { t++; if ((MANIFEST && document.querySelector('#readerBody .mushaf-page')) || t > 40) { clearInterval(iv); if (id === RIW) { RIW = ''; } setRiw(id); var o = $('#reader'); if (o) o.scrollIntoView({ block: 'start' }); } }, 150); }
+    if (RIWM) go(); else fetch('data/rw/manifest.json').then(function (r) { return r.json(); }).then(function (m) { RIWM = m.riwayat; go(); });
+  };
+  fetch('data/rw/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
+    RIWM = m.riwayat;
+    var row = document.getElementById('voRiw'); if (!row) return;
+    [{ id: 'hafs', name: 'حفص عن عاصم' }].concat(RIWM).forEach(function (r) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('data-riw', r.id); b.textContent = r.name.replace(' عن نافع', '').replace(' عن أبي عمرو', '').replace(' عن عاصم', ''); b.title = r.name;
+      if (r.id === RIW) b.classList.add('on'); row.appendChild(b);
+    });
+  }).catch(function () {});
 
   /* ---------- reciters & player ---------- */
   function buildChips() {
@@ -1752,7 +1800,7 @@
     'المتجانسان': 'حرفان اتفقا في المخرج واختلفا في الصفة والتقيا، فيُدغم الأول في الثاني.',
     'المتقاربان': 'حرفان تقاربا في المخرج أو الصفة والتقيا، فيُدغم الأول في الثاني.'
   };
-  function loadSurah(n) {
+  function loadSurahAyahs(n) {
     if (SURAH_C[n]) return Promise.resolve(SURAH_C[n]);
     return fetch('data/surah/' + String(n).padStart(3, '0') + '.json').then(function (r) { return r.json(); }).then(function (d) { SURAH_C[n] = d.ayahs; return d.ayahs; });
   }
@@ -1858,7 +1906,7 @@
         var arr = D.g[cur];
         var need = {};
         arr.forEach(function (e) { need[e[0]] = 1; });
-        Promise.all(Object.keys(need).map(function (n) { return loadSurah(+n); })).then(function () {
+        Promise.all(Object.keys(need).map(function (n) { return loadSurahAyahs(+n); })).then(function () {
           arr.slice(0, shown).forEach(function (e) { list.appendChild(exNode(r.name, cur, e)); });
           if (arr.length > shown) {
             var more = document.createElement('button'); more.type = 'button'; more.className = 'dl-act';
@@ -2016,4 +2064,18 @@ window.qrCopy = function (text, btn) {
   document.addEventListener('contextmenu', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
   document.addEventListener('dragstart', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
   document.addEventListener('selectstart', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
+})();
+
+/* Riwayat screen: the ten qurra with their ruwat; tap a held riwaya to read it in the Mushaf reader */
+(function () {
+  var HELD = { 'نافع المدني': { 'ورش': 'warsh', 'قالون': 'qalun' }, 'أبو عمرو البصري': { 'الدوري': 'duri', 'السوسي': 'susi' }, 'عاصم الكوفي': { 'شعبة': 'shubah', 'حفص': 'hafs' } };
+  document.querySelectorAll('#riwayat .qari').forEach(function (c) {
+    var h = c.querySelector('h4'), map = h && HELD[h.textContent.trim()], st = document.createElement('div'); st.className = 'qari-st';
+    if (map) {
+      var got = [];
+      c.querySelectorAll('.rawis b').forEach(function (b) { var id = map[b.textContent.trim()]; if (!id) return; got.push(b.textContent.trim()); var x = document.createElement('button'); x.type = 'button'; x.className = 'qari-go'; x.textContent = b.textContent; x.setAttribute('aria-label', 'اقرأ برواية ' + b.textContent); x.addEventListener('click', function () { window.qrOpenRiw(id); }); b.replaceWith(x); });
+      st.textContent = 'النص متاح: ' + got.join(' و '); st.className += ' ok';
+    } else { st.textContent = 'النص غير متاح بعد (لا يوجد مصدر موثّق)'; st.className += ' no'; }
+    c.appendChild(st);
+  });
 })();
