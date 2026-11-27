@@ -1,11 +1,11 @@
 /* روايات — service worker: offline shell + cached surahs and audio */
-var SHELL = 'quran-shell-v5';
-var TEXT = 'quran-text-v5';
+var SHELL = 'quran-shell-v6';
+var TEXT = 'quran-text-v6';
 var TAF = 'quran-tafsir-v1';
 var SHELL_FILES = [
   './', 'index.html', 'style.css', 'app.js',
   'fonts/amiri-arabic.woff2', 'fonts/cairo-arabic.woff2',
-  'data/manifest.json', 'data/pages.json', 'manifest.webmanifest'
+  'data/manifest.json', 'data/pages.json', 'data/tajweed.json', 'manifest.webmanifest'
 ];
 
 self.addEventListener('install', function (e) {

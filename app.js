@@ -801,6 +801,118 @@
     box.hidden = true;
   });
 
+  /* ---------- tajweed: categories + detail page ---------- */
+  var TAJ_CATS = [
+    { id: 'noon', title: 'أحكام النون الساكنة والتنوين', sub: 'إظهار · إدغام · إقلاب · إخفاء', n: 5 },
+    { id: 'meem', title: 'أحكام الميم الساكنة', sub: 'إخفاء شفوي · إدغام شفوي · إظهار', n: 3 },
+    { id: 'madd', title: 'المدود', sub: 'طبيعي · متصل · منفصل · لازم · عارض · بدل · لين · صلة', n: 9 },
+    { id: 'qalqala', title: 'القلقلة والغنة', sub: 'اضطراب الصوت · الغنة في المشددتين', n: 3 },
+    { id: 'tafkhim', title: 'التفخيم والترقيق', sub: 'لام الجلالة · الراءات · الحروف المستعلية', n: 4 },
+    { id: 'lamat', title: 'اللامات وهمزتا الوصل والقطع', sub: 'قمرية · شمسية · وصل · قطع', n: 4 },
+    { id: 'mutamathil', title: 'المتماثلان والمتقاربان والمتجانسان', sub: 'إدغام الحروف المتقابلة', n: 3 },
+    { id: 'waqf', title: 'الوقف والابتداء', sub: 'أنواع الوقف · علاماته · السكتات · الحروف المقطعة', n: 6 }
+  ];
+  var TAJ_DATA = null;
+  var TAJ_LOADING = false;
+
+  function tajHl(s) {
+    return s.replace(/«([^»]*)»/g, '<span class="hl">$1</span>');
+  }
+
+  function tajCards() {
+    var wrap = document.getElementById('tajCats');
+    if (!wrap || wrap.childNodes.length) return;
+    TAJ_CATS.forEach(function (c) {
+      var b = document.createElement('button');
+      b.className = 'taj-cat';
+      b.innerHTML = '<b>' + c.title + '</b><small>' + c.n + ' أحكام</small><i>' + c.sub + '</i>';
+      b.addEventListener('click', function () { openTaj(c.id); });
+      wrap.appendChild(b);
+    });
+  }
+
+  function loadTaj(cb) {
+    if (TAJ_DATA) return cb(TAJ_DATA);
+    if (TAJ_LOADING) return;
+    TAJ_LOADING = true;
+    fetch('data/tajweed.json').then(function (r) { return r.json(); }).then(function (d) {
+      TAJ_DATA = d;
+      TAJ_LOADING = false;
+      cb(d);
+    }).catch(function () {
+      TAJ_LOADING = false;
+      cb(null);
+    });
+  }
+
+  function tajChips(activeId) {
+    var wrap = document.getElementById('tajChips');
+    wrap.innerHTML = '';
+    TAJ_CATS.forEach(function (c) {
+      var b = document.createElement('button');
+      b.className = 'taj-chip' + (c.id === activeId ? ' on' : '');
+      b.textContent = c.title;
+      b.addEventListener('click', function () { renderTaj(c.id); });
+      wrap.appendChild(b);
+    });
+  }
+
+  function renderTaj(id) {
+    if (!TAJ_DATA) return;
+    var cat = null;
+    for (var i = 0; i < TAJ_DATA.categories.length; i++) {
+      if (TAJ_DATA.categories[i].id === id) cat = TAJ_DATA.categories[i];
+    }
+    if (!cat) cat = TAJ_DATA.categories[0];
+    document.getElementById('tajTitle').textContent = cat.title;
+    tajChips(cat.id);
+    var body = document.getElementById('tajBody');
+    body.innerHTML = '';
+    cat.rules.forEach(function (r, idx) {
+      var card = document.createElement('div');
+      card.className = 'rule full';
+      var html = '<h4>' + arNum(idx + 1) + ' — ' + r.name + '</h4>';
+      if (r.letters) html += '<div class="rule-letters">حروفه: <span>' + r.letters + '</span></div>';
+      html += '<p>' + r.how + '</p>';
+      html += '<div class="ex-list">';
+      r.examples.forEach(function (ex) {
+        html += '<div class="ex"><div class="ex-t">' + tajHl(ex.t) + '</div>' +
+                '<div class="ex-w">' + ex.why + '</div></div>';
+      });
+      html += '</div>';
+      card.innerHTML = html;
+      body.appendChild(card);
+    });
+    body.scrollTop = 0;
+    var page = document.getElementById('tajPage');
+    page.scrollTop = 0;
+  }
+
+  function openTaj(id) {
+    var page = document.getElementById('tajPage');
+    page.hidden = false;
+    document.body.classList.add('taj-open');
+    loadTaj(function (d) {
+      if (!d) {
+        page.hidden = true;
+        document.body.classList.remove('taj-open');
+        return;
+      }
+      renderTaj(id);
+    });
+  }
+
+  function closeTaj() {
+    document.getElementById('tajPage').hidden = true;
+    document.body.classList.remove('taj-open');
+  }
+
+  document.getElementById('tajBack').addEventListener('click', closeTaj);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !document.getElementById('tajPage').hidden) closeTaj();
+  });
+  tajCards();
+
   /* ---------- hero particles ---------- */
   var cv = $('#stars'), ctx = cv.getContext('2d'), pts = [];
   function resize() {
