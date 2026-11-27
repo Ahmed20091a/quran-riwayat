@@ -1562,6 +1562,22 @@
       });
       card.appendChild(sp);
     }
+    var spBtn = card.querySelector('.dl-act');
+    fetch('audio/taj/map.json').then(function (x) { return x.json(); }).then(function (m) {
+      var n = m[r.name]; if (!n) return;
+      if (spBtn) spBtn.remove();
+      var pb = document.createElement('button'); pb.type = 'button'; pb.className = 'dl-act'; pb.textContent = 'استمع للشرح بصوت المعلم';
+      pb.addEventListener('click', function () {
+        if (window.__tajAud && !window.__tajAud.paused) { window.__tajAud.pause(); pb.textContent = 'استمع للشرح بصوت المعلم'; return; }
+        if (window.__tajAud) window.__tajAud.pause();
+        var au = new Audio('audio/taj/' + n + '.mp3'); window.__tajAud = au;
+        pb.textContent = 'إيقاف';
+        au.addEventListener('ended', function () { pb.textContent = 'استمع للشرح بصوت المعلم'; });
+        au.addEventListener('error', function () { pb.textContent = 'تعذّر التشغيل، تحقق من الاتصال'; });
+        au.play().catch(function () {});
+      });
+      var anchor = card.querySelector('p'); if (anchor) anchor.after(pb); else card.appendChild(pb);
+    }).catch(function () {});
     var qh = document.createElement('h5'); qh.className = 'ex-h'; qh.textContent = 'أمثلة توضيحية'; card.appendChild(qh);
     var l1 = document.createElement('div'); l1.className = 'ex-list';
     r.examples.forEach(function (ex) {

@@ -1,5 +1,5 @@
 /* روايات — service worker: offline shell + cached surahs and audio */
-var SHELL = 'quran-shell-v27';
+var SHELL = 'quran-shell-v28';
 var TEXT = 'quran-text-v7';
 var TAF = 'quran-tafsir-v1';
 var SHELL_FILES = [
@@ -27,7 +27,7 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(e.request.url);
 
   // surah text + audio: cache first, then network (and store for offline)
-  if (url.pathname.indexOf('/data/surah/') !== -1 || url.pathname.indexOf('/data/rw/') !== -1 || url.hostname === 'cdn.mp3quran.net') {
+  if (url.pathname.indexOf('/data/surah/') !== -1 || url.pathname.indexOf('/data/rw/') !== -1 || url.pathname.indexOf('/audio/taj/') !== -1 || url.hostname === 'cdn.mp3quran.net') {
     e.respondWith(
       caches.open(TEXT).then(function (c) {
         return c.match(e.request).then(function (hit) {
