@@ -1205,3 +1205,12 @@ html.in-mushaf #reader > .reader-bar .rb-pg { width: 54px; height: 36px; font-si
 html[data-site=light] .home-tiles a, html[data-site=light] #hadith .hd-tabs button, html[data-site=light] #hadith button:not(.on):not(.hd-go) { background: #f7eed4 !important; color: #231b0c !important; border-color: rgba(110,80,20,.4) !important; }
 html[data-site=light] #hadith button.on { background: #e5d19a !important; color: #3b2806 !important; }
 html.in-inner #navBtn svg { stroke-width: 2.6; }
+
+/* light theme: menu drawer and panels, cream with dark text */
+html[data-site=light] #navLinks, html[data-site=light] .nav-links, html[data-site=light] .vo-panel, html[data-site=light] #ayahSheet .sheet-card, html[data-site=light] #idxScreen, html[data-site=light] .idx-screen, html[data-site=light] .ay-bar, html[data-site=light] #ayBar, html[data-site=light] .toast, html[data-site=light] .rd-item, html[data-site=light] .modal-card { background: #f4e9c9 !important; color: #231b0c !important; border-color: rgba(110,80,20,.4) !important; }
+html[data-site=light] #navLinks a, html[data-site=light] .nav-links a, html[data-site=light] .vo-panel *, html[data-site=light] #ayahSheet .sheet-card *, html[data-site=light] #idxScreen *, html[data-site=light] .idx-row *, html[data-site=light] .rd-item * { color: #231b0c !important; border-color: rgba(110,80,20,.25); }
+html[data-site=light] #navLinks a.cur, html[data-site=light] .nav-links a.cur { color: #7a5410 !important; font-weight: 800; }
+html[data-site=light] .vo-panel button.on, html[data-site=light] .vo-row button.on { background: #e5d19a !important; }
+html[data-site=light] #ayahSheet .sheet-card button { background: #efe2bd; }
+/* page chip: much smaller, bottom-right */
+html.in-mushaf #reader > .reader-bar .rb-pg { left: auto; right: 10px; bottom: 10px; width: 40px; height: 27px; font-size: .62rem; padding-bottom: 2px; }

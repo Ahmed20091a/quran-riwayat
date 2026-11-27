@@ -20,13 +20,15 @@
     var k = c + '/' + b; if (cache[k]) return Promise.resolve(cache[k]);
     return fetch('data/hadith/' + c + '/' + b + '.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { cache[k] = j; return j; });
   }
+  /* the source only has English book names, so show Arabic numbering instead */
+  function bkName(c, b) { return b.id === 0 ? (c === 'muslim' ? 'المقدمة' : 'أحاديث إضافية') : 'الكتاب ' + arNum(b.id); }
   function card(c, b, row) {
     var d = el('div', 'hd-card');
     var m = el('div', 'hd-meta');
     m.appendChild(el('b', '', IDX[c].name + ' · حديث ' + arNum(row[0])));
     if (row[1]) m.appendChild(el('i', '', 'ترقيم الكتاب: ' + row[1]));
     var bk = IDX[c].books.filter(function (x) { return x.id === b; })[0];
-    if (bk) m.appendChild(el('span', '', bk.en));
+    if (bk) m.appendChild(el('span', '', bkName(c, bk)));
     d.appendChild(m); d.appendChild(el('div', 'hd-text', row[2]));
     return d;
   }
@@ -39,7 +41,7 @@
       c.books.forEach(function (b) {
         var r = el('button', 'hd-row'); r.type = 'button';
         r.appendChild(el('span', 'hd-n', arNum(b.id)));
-        r.appendChild(el('span', 'hd-t', b.en));
+        r.appendChild(el('span', 'hd-t', bkName(coll, b)));
         r.appendChild(el('span', 'hd-c', arNum(b.count)));
         r.addEventListener('click', function () { showBook(b.id, 0); });
         list.appendChild(r);
@@ -53,7 +55,7 @@
       say('');
       var bk = IDX[coll].books.filter(function (x) { return x.id === b; })[0];
       body.appendChild(backBtn('كل الكتب', showBooks));
-      body.appendChild(el('div', 'hd-h', bk.en + ' · ' + arNum(rows.length) + ' حديثًا'));
+      body.appendChild(el('div', 'hd-h', bkName(coll, bk) + ' · ' + arNum(rows.length) + ' حديثًا'));
       var box = el('div', 'hd-cards'); body.appendChild(box);
       var from = off;
       if (focus != null) { var ix = rows.findIndex(function (r) { return r[0] === focus; }); if (ix > -1) from = Math.floor(ix / PAGE) * PAGE; }
