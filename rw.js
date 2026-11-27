@@ -60,6 +60,10 @@
       box.appendChild(b);
     });
     $('#rwSurah').addEventListener('change', show);
+    function step(d) { var s = $('#rwSurah'), n = +s.value + d; if (n < 1 || n > 114) return; s.value = n; if (!cur) { var f = box.querySelector('.chip'); if (f) f.click(); return; } show(); var t = $('#rwBox'); if (t) t.scrollIntoView({ block: 'start' }); }
+    $('#rwPrev').addEventListener('click', function () { step(-1); });
+    $('#rwNext').addEventListener('click', function () { step(1); });
+    var hf = document.createElement('button'); hf.className = 'chip'; hf.textContent = 'حفص عن عاصم'; hf.title = 'المصحف'; hf.addEventListener('click', function () { var a = document.querySelector('a[href="#mushaf"]'); if (a) a.click(); else location.hash = '#mushaf'; }); box.insertBefore(hf, box.firstChild);
   }
   init();
 })();
