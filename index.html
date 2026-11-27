@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' https://cdn.mp3quran.net; connect-src 'self' https://cdn.mp3quran.net; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' https://cdn.mp3quran.net https://cdn.islamic.network; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>روايات — القرآن الكريم بجميع الروايات</title>
 <meta name="description" content="اقرأ القرآن الكريم واستمع إليه بجميع الروايات والقراءات العشر، مع شرح أحكام التجويد والروايات.">
 <link rel="stylesheet" href="style.css">
@@ -66,6 +66,12 @@
       <button class="btn offline-btn" id="offlineBtn" title="حمّل المصحف كاملًا لقراءته بدون إنترنت">⬇ حفظ للقراءة بدون نت</button>
       <span class="verified" id="verifyBadge" hidden>✓ نص موثّق</span>
     </div>
+    <button class="resume-chip" id="resumeChip" hidden></button>
+    <div class="ayah-search">
+      <input id="ayahSearch" type="search" placeholder="ابحث عن آية بالكلمات… (من غير تشكيل)" aria-label="بحث في نص القرآن">
+      <button class="btn ayah-search-btn" id="ayahSearchBtn">ابحث</button>
+      <div class="ayah-results" id="ayahResults" hidden></div>
+    </div>
     <div class="page-nav" id="pageNav">
       <button class="pnav" id="pageNext">التالية ›</button>
       <div class="page-jump">
@@ -79,6 +85,7 @@
     <div id="readerBody">
       <div class="reader-loading">جارٍ تحميل المصحف…</div>
     </div>
+    <p class="tap-hint">اضغط على أي آية: تسمعها بصوت شيخ تختاره، أو تقرأ تفسيرها، أو تحفظ موضعك وتكمل بعدين.</p>
   </div>
 </section>
 
@@ -127,68 +134,223 @@
   <div class="sec-head reveal">
     <div class="kicker">أحكام التجويد</div>
     <h2>تعلّم أحكام التلاوة</h2>
-    <p>خلاصة أهم الأحكام بالأمثلة من المصحف، والحروف المقصودة ملوّنة.</p>
+    <p>الشرح الكامل لأبواب التجويد على رواية حفص عن عاصم، بأمثلة من المصحف والحروف المقصودة ملوّنة.</p>
   </div>
+
+  <div class="taj-group reveal"><h3>أولًا: أحكام النون الساكنة والتنوين</h3></div>
   <div class="taj-grid reveal">
     <div class="rule">
       <h4>١ — الإظهار الحلقي</h4>
-      <p>إذا جاء بعد النون الساكنة أو التنوين أحد حروف الحلق الستة (ء، هـ، ع، ح، غ، خ) تُنطق النون واضحة بلا غنة.</p>
-      <div class="example">مِنْ <span class="hl">هَادٍ</span> ۝ <span class="hl">عَذَابٍ</span> أَلِيمٍ</div>
+      <p>إذا جاء بعد النون الساكنة أو التنوين أحد حروف الحلق الستة (ء، هـ، ع، ح، غ، خ) تُنطق النون واضحة بلا غنة ولا إخفاء، مقدارها حركتان فقط.</p>
+      <div class="example">مِنْ <span class="hl">هَادٍ</span> ۝ <span class="hl">عَذَابٌ</span> أَلِيمٌ ۝ أَنْعَمْتَ <span class="hl">عَلَيْهِمْ</span></div>
     </div>
     <div class="rule">
-      <h4>٢ — الإدغام</h4>
-      <p>إذا جاء بعدها أحد حروف «يرملون» تُدغم: بغنة عند (ي، ن، م، و)، وبغير غنة عند (ل، ر).</p>
-      <div class="example">مَنْ <span class="hl">يَعْمَلْ</span> ۝ مِنْ <span class="hl">رَبِّهِمْ</span></div>
+      <h4>٢ — الإدغام بغنة</h4>
+      <p>إذا جاء بعدها أحد حروف (ي، ن، م، و) تُدغم النون في الحرف التالي إدغامًا كاملًا مع غنة مقدارها حركتان.</p>
+      <div class="example">فَمَنْ <span class="hl">يَعْمَلْ</span> ۝ مِنْ <span class="hl">نُّطْفَةٍ</span> ۝ خَيْرًا <span class="hl">يَرَهُ</span></div>
     </div>
     <div class="rule">
-      <h4>٣ — الإقلاب</h4>
-      <p>إذا جاءت الباء بعد النون الساكنة أو التنوين تُقلب النون ميمًا مع الغنة والإخفاء.</p>
-      <div class="example">مِنْ <span class="hl">بَعْدِ</span> ۝ سَمِيعٌ <span class="hl">بَصِيرٌ</span></div>
+      <h4>٣ — الإدغام بغير غنة</h4>
+      <p>عند اللام والراء تُدغم النون فيهما إدغامًا كاملًا بلا غنة.</p>
+      <div class="example">مِنْ <span class="hl">رَّبِّهِمْ</span> ۝ فَإِنَّ <span class="hl">لَّمْ</span> تَفْعَلُوا</div>
     </div>
     <div class="rule">
-      <h4>٤ — الإخفاء الحقيقي</h4>
-      <p>عند باقي الحروف الخمسة عشر تُخفى النون بغنة مقدارها حركتان، ولا تُشدَّد الشفة.</p>
-      <div class="example">مِنْ <span class="hl">شَرِّ</span> ۝ أَنْ <span class="hl">تَقُولُوا</span></div>
+      <h4>٤ — الإقلاب</h4>
+      <p>إذا جاءت الباء بعد النون الساكنة أو التنوين تُقلب النون ميمًا مخفاة بغنة، مع إخفاء الشفتين.</p>
+      <div class="example">مِنْ <span class="hl">بَعْدِ</span> ۝ سَمِيعٌ <span class="hl">بَصِيرٌ</span> ۝ أَنْبِئْهُمْ</div>
     </div>
     <div class="rule">
-      <h4>٥ — أحكام الميم الساكنة</h4>
-      <p>إخفاء شفوي عند الباء، وإدغام شفوي عند الميم، وإظهار عند باقي الحروف.</p>
-      <div class="example">لَهُمْ <span class="hl">بِالْآخِرَةِ</span> ۝ تَرْمِي<span class="hl">هِمْ بِحِجَارَةٍ</span></div>
+      <h4>٥ — الإخفاء الحقيقي</h4>
+      <p>عند باقي الحروف الخمسة عشر تُخفى النون بغنة مقدارها حركتان، ولا تُشدَّد الشفة، وتُراعى مرتبة الحرف بعدها في القرب والبعد.</p>
+      <div class="example">مِنْ <span class="hl">شَرِّ</span> ۝ أَنْ <span class="hl">تَقُولُوا</span> ۝ يَوْمَئِذٍ <span class="hl">تَعْرِضُونَ</span></div>
+    </div>
+  </div>
+
+  <div class="taj-group reveal"><h3>ثانيًا: أحكام الميم الساكنة</h3></div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>٦ — الإخفاء الشفوي</h4>
+      <p>إذا جاءت الباء بعد الميم الساكنة تُخفى الميم بغنة مقدارها حركتان مع إطباق الشفتين على الباء.</p>
+      <div class="example">تَرْمِيهِمْ <span class="hl">بِحِجَارَةٍ</span> ۝ وَمَا هُم <span class="hl">بِمُؤْمِنِينَ</span></div>
     </div>
     <div class="rule">
-      <h4>٦ — المدود</h4>
-      <p>الطبيعي حركتان، والمتصل أربع إلى خمس، والمنفصل يجوز قصره ومدّه، واللازم ست حركات.</p>
-      <div class="example">قَالُو<span class="hl">ٓا</span> ۝ <span class="hl">يَا</span> أَيُّهَا ۝ الْآ<span class="hl">نَ</span></div>
+      <h4>٧ — الإدغام الشفوي</h4>
+      <p>إذا جاءت ميم مثلها تُدغم الميم في الميم مع غنة كاملة، ويسمى إدغام المتماثلين الصغير.</p>
+      <div class="example">لَهُمْ <span class="hl">مَّغْفِرَةٌ</span> ۝ أَمْ <span class="hl">مَّاذَا</span></div>
     </div>
     <div class="rule">
-      <h4>٧ — القلقلة</h4>
-      <p>اضطراب الصوت عند سكون حروف «قطب جد» — صغرى في وسط الكلمة وكبرى عند الوقف.</p>
-      <div class="example">يَ<span class="hl">قْ</span>طَعُ ۝ الْفَلَ<span class="hl">قْ</span></div>
+      <h4>٨ — الإظهار الشفوي</h4>
+      <p>عند باقي الحروف تُظهر الميم واضحة بلا غنة، مع الحذر من إخفائها عند الفاء والواو.</p>
+      <div class="example">لَهُمْ <span class="hl">فِيهَا</span> ۝ أَنْعَمْتَ <span class="hl">وَلَا</span> الضَّالِّينَ</div>
+    </div>
+  </div>
+
+  <div class="taj-group reveal"><h3>ثالثًا: المدود</h3></div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>٩ — المد الطبيعي</h4>
+      <p>مدّ حركتين لا يزيد ولا ينقص، ويقوم عليه بناء الكلمة: الألف بعد فتح، والواو بعد ضم، والياء بعد كسر.</p>
+      <div class="example">قَ<span class="hl">ا</span>لَ ۝ يَقُ<span class="hl">و</span>لُ ۝ قِ<span class="hl">ي</span>لَ</div>
     </div>
     <div class="rule">
-      <h4>٨ — لام لفظ الجلالة</h4>
-      <p>تُفخَّم بعد الفتح أو الضم، وتُرقَّق بعد الكسر.</p>
-      <div class="example">قَالَ <span class="hl2">اللَّهُ</span> ۝ بِسْمِ <span class="hl">اللَّهِ</span></div>
+      <h4>١٠ — المد المتصل</h4>
+      <p>حرف المدّ بعده همزة في نفس الكلمة، ويمدّ وجوبًا أربع أو خمس حركات.</p>
+      <div class="example">جَ<span class="hl">ا</span>ءَ ۝ السَّمَ<span class="hl">ا</span>ءِ ۝ سُو<span class="hl">ء</span>ًا</div>
     </div>
     <div class="rule">
-      <h4>٩ — الراءات</h4>
-      <p>تُفخَّم الراء المفتوحة والمضمومة والساكنة بعد فتح أو ضم، وتُرقَّق المكسورة والساكنة بعد كسر.</p>
-      <div class="example"><span class="hl2">رَبِّ</span> الْعَالَمِينَ ۝ خَيْ<span class="hl">رٌ</span> مِّنْهُ</div>
+      <h4>١١ — المد المنفصل</h4>
+      <p>حرف المدّ في آخر الكلمة والهمزة في أول الكلمة التالية، ويجوز فيه القصر (حركتان) أو المد (أربع إلى خمس).</p>
+      <div class="example">يَ<span class="hl">ا</span> أَيُّهَا ۝ بِمَ<span class="hl">ا</span> أُنْزِلَ ۝ إِنَّ<span class="hl">ا</span> أَعْطَيْنَاكَ</div>
     </div>
     <div class="rule">
-      <h4>١٠ — اللام الشمسية والقمرية</h4>
-      <p>الشمسية تُدغم في أربعة عشر حرفًا أولها التاء وآخرها النون، والقمرية تُظهر في الباقي.</p>
-      <div class="example">ا<span class="hl">لشَّمْسُ</span> ۝ الْ<span class="hl">قَمَرَ</span></div>
+      <h4>١٢ — المد اللازم</h4>
+      <p>حرف المدّ بعده حرف ساكن سكونًا أصليًا، فيمدّ ست حركات لزومًا. ويكون كلميًا أو حرفيًا، مثقلًا أو مخففًا.</p>
+      <div class="example">وَلَا الضَّ<span class="hl">ا</span>لِّينَ ۝ الْحَ<span class="hl">ا</span>قَّةُ ۝ ال<span class="hl">م</span> ۝ طَ<span class="hl">ه</span></div>
     </div>
     <div class="rule">
-      <h4>١١ — الغنة</h4>
-      <p>صوت يخرج من الخيشوم عند النون والميم المشددتين وفي الإخفاء والإقلاب، مقدارها حركتان.</p>
-      <div class="example">إِ<span class="hl">نَّ</span> ۝ ثُ<span class="hl">مَّ</span></div>
+      <h4>١٣ — المد العارض للسكون</h4>
+      <p>حرف المدّ قبل الحرف الأخير الساكن سكونًا عارضًا بسبب الوقف، ويجوز فيه المد ست أو أربع أو حركتان.</p>
+      <div class="example">الْعَالَمِي<span class="hl">نَ</span> ۝ نَسْتَعِي<span class="hl">نُ</span> ۝ الرَّحِي<span class="hl">مِ</span></div>
     </div>
     <div class="rule">
-      <h4>١٢ — الوقف والابتداء</h4>
-      <p>الوقف التام أحسن المواضع، ويحرم الوقف على ما يُفسد المعنى، ويُراعى الابتداء بما يتمّ الكلام.</p>
-      <div class="example">وَقِفُوا ۝ ثُمَّ ابْتَدِئُوا</div>
+      <h4>١٤ — المد البدل</h4>
+      <p>أن تكون الهمزة قبل حرف المدّ، فيمدّ حركتين، ويُدخل فيه (آمين).</p>
+      <div class="example"><span class="hl">آ</span>مَنُوا ۝ <span class="hl">أُ</span>وتُوا ۝ <span class="hl">إِ</span>يمَانًا</div>
+    </div>
+    <div class="rule">
+      <h4>١٥ — مد اللين</h4>
+      <p>الواو والياء الساكنتان المفتوح ما قبلهما، تمدّ حركتين، ومع الوقف على سكون عارض تمدّ كالعرض للسكون.</p>
+      <div class="example">خَ<span class="hl">وْ</span>فٌ ۝ قُرَيْ<span class="hl">شٍ</span> ۝ بِ<span class="hl">يْ</span>تٍ</div>
+    </div>
+    <div class="rule">
+      <h4>١٦ — مد الصلة الصغرى</h4>
+      <p>هاء الضمير الغائب المضمومة أو المكسورة تُوصل بواو أو ياء مدّيتين حركتين، إن لم يقع بعدها همزة.</p>
+      <div class="example">إِنَّ<span class="hl">هُ</span> هُوَ ۝ لَ<span class="hl">هُ</span> مَا فِي السَّمَاوَاتِ</div>
+    </div>
+    <div class="rule">
+      <h4>١٧ — مد الصلة الكبرى</h4>
+      <p>هاء الضمير الموصولة إذا جاء بعدها همزة تُمدّ أربع أو خمس حركات، وحكمها كالمدّ المنفصل.</p>
+      <div class="example">مَا لَ<span class="hl">هُ</span> أَخْلَدَهُ</div>
+    </div>
+  </div>
+
+  <div class="taj-group reveal"><h3>رابعًا: القلقلة والغنة</h3></div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>١٨ — القلقلة الصغرى</h4>
+      <p>اضطراب الصوت عند سكون أحد حروف (ق، ط، ب، ج، د) في وسط الكلمة، بلا مبالغة ولا زيادة حركة.</p>
+      <div class="example">يَ<span class="hl">قْ</span>طَعُونَ ۝ يَ<span class="hl">بْ</span>نُونَ ۝ أَ<span class="hl">جْ</span>رًا</div>
+    </div>
+    <div class="rule">
+      <h4>١٩ — القلقلة الكبرى</h4>
+      <p>إذا وقع حرف القلقلة ساكنًا في آخر الكلمة عند الوقف، وتكون أقوى من الصغرى.</p>
+      <div class="example">الْفَلَ<span class="hl">قْ</span> ۝ أَحَ<span class="hl">دْ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٢٠ — الغنة في المشددتين</h4>
+      <p>النون والميم المشددتان يجب فيهما غنة كاملة مقدارها حركتان، وتُراعى في الحرف الذي قبلهما.</p>
+      <div class="example">إِ<span class="hl">نَّ</span> ۝ ثُ<span class="hl">مَّ</span> ۝ عَ<span class="hl">مَّ</span> ۝ الْجَ<span class="hl">نَّ</span>ةُ</div>
+    </div>
+    <div class="rule">
+      <h4>٢١ — الوقف على التاء المربوطة</h4>
+      <p>تُوقف عليها هاءً ساكنة، وتُراعى حركة ما قبلها في التفخيم والترقيق.</p>
+      <div class="example">الْجَنَّ<span class="hl">ةْ</span> ۝ رَحْمَ<span class="hl">ةْ</span> ۝ شَجَرَ<span class="hl">ةْ</span></div>
+    </div>
+  </div>
+
+  <div class="taj-group reveal"><h3>خامسًا: التفخيم والترقيق</h3></div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>٢٢ — لام لفظ الجلالة</h4>
+      <p>تُفخَّم إذا سبقها فتح أو ضم، وتُرقَّق إذا سبقها كسر.</p>
+      <div class="example">أَنَّ <span class="hl2">اللَّهَ</span> ۝ رَسُولُ <span class="hl2">اللَّهِ</span> ۝ بِسْمِ <span class="hl">اللَّهِ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٢٣ — تفخيم الراء</h4>
+      <p>تُفخَّم المفتوحة والمضمومة، والساكنة بعد فتح أو ضم، والساكنة بعد كسر غير أصلي أو بعد همزة وصل.</p>
+      <div class="example"><span class="hl2">رَ</span>حْمَةُ اللَّهِ ۝ <span class="hl2">رُ</span>سُلُهُ ۝ وَارْزُقْنَا ۝ ا<span class="hl2">رْ</span>جِعِي</div>
+    </div>
+    <div class="rule">
+      <h4>٢٤ — ترقيق الراء</h4>
+      <p>تُرقَّق المكسورة والساكنة بعد كسر أصلي متصل، وترقيقها أرجح في (فِرْقٍ).</p>
+      <div class="example"><span class="hl">رِ</span>جَالٌ ۝ <span class="hl">رِ</span>زْقًا ۝ فِ<span class="hl">رْ</span>قٍ</div>
+    </div>
+    <div class="rule">
+      <h4>٢٥ — الحروف المستعلية</h4>
+      <p>خ، ص، ض، غ، ط، ق مفخّمة دائمًا، وتُرقَّق إذا اجتمع معها ألف أو واو أو ياء.</p>
+      <div class="example"><span class="hl2">خُ</span>ذْ ۝ <span class="hl2">صِ</span>رَاطَ ۝ <span class="hl2">ضَ</span>لَالٍ ۝ <span class="hl2">طَ</span>اغٍ</div>
+    </div>
+  </div>
+
+  <div class="taj-group reveal"><h3>سادسًا: اللامات وهمزتا الوصل والقطع</h3></div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>٢٦ — اللام القمرية</h4>
+      <p>تُظهر اللام ساكنة عند أربعة عشر حرفًا، وأشهرها (أ، ب، ج، ح، ع، ق، ك، م).</p>
+      <div class="example">الْ<span class="hl">قَمَرَ</span> ۝ الْ<span class="hl">كِتَابُ</span> ۝ الْ<span class="hl">حَمْدُ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٢٧ — اللام الشمسية</h4>
+      <p>تُدغم اللام في الحرف التالي وتُشدَّد، وأولها التاء وآخرها النون.</p>
+      <div class="example">ا<span class="hl">لشَّمْسُ</span> ۝ ا<span class="hl">لرَّحْمَنُ</span> ۝ ا<span class="hl">لنَّاسِ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٢٨ — همزة الوصل</h4>
+      <p>تُثبت في الابتداء وتُسقط في الوصل، وعلامتها عدم وجود همزة فوق الألف.</p>
+      <div class="example"><span class="hl">الْ</span>حَمْدُ ۝ <span class="hl">اقْ</span>رَأْ ۝ <span class="hl">انْ</span>طَلِقُوا</div>
+    </div>
+    <div class="rule">
+      <h4>٢٩ — همزة القطع</h4>
+      <p>تُنطق دائمًا في الابتداء والوصل، وعلامتها وجود الهمزة فوق الألف أو تحتها.</p>
+      <div class="example"><span class="hl2">أَ</span>نْعَمْتَ ۝ <span class="hl2">إِ</span>يَّاكَ ۝ <span class="hl2">أُ</span>ولَئِكَ</div>
+    </div>
+  </div>
+
+  <div class="taj-group reveal"><h3>سابعًا: المتماثلان والمتقاربان والمتجانسان</h3></div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>٣٠ — المتماثلان</h4>
+      <p>اتحاد الحرفين اسمًا وخرجًا، فيُدغم الأول في الثاني وجوبًا في الصغير.</p>
+      <div class="example">اذْهَب <span class="hl">بِّ</span>كِتَابِي هَذَا</div>
+    </div>
+    <div class="rule">
+      <h4>٣١ — المتجانسان</h4>
+      <p>اتحاد الحرفين مخرجًا واختلافهما صفة، مثل الدال والتاء، ويُدغمان في الصغير.</p>
+      <div class="example">قَدْ <span class="hl">تَّبَيَّنَ</span> ۝ أُجِيبَتْ <span class="hl">دَّعْوَتُكُمَا</span></div>
+    </div>
+    <div class="rule">
+      <h4>٣٢ — المتقاربان</h4>
+      <p>تقارب الحرفين مخرجًا وصفة، ويُدغمان في مواضع مخصوصة رواها حفص.</p>
+      <div class="example">أَلَمْ <span class="hl">نَّ</span>خْلُقْكُمْ ۝ قُل <span class="hl">رَّ</span>بِّ</div>
+    </div>
+  </div>
+
+  <div class="taj-group reveal"><h3>ثامنًا: الوقف والابتداء والسكتات والحروف المقطعة</h3></div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>٣٣ — الوقف التام والكافي والحسن</h4>
+      <p>التام ما تمّ به الكلام ولم يتعلق بما بعده، والكافي ما تمّ به المعنى وتعلق بما بعده لفظًا، والحسن ما تمّ به المعنى وتعلق بما بعده معنًى.</p>
+      <div class="example">وَاللَّهُ <span class="hl">غَفُورٌ رَّحِيمٌ</span> ۝ ثُمَّ يُنشِئُكُمْ</div>
+    </div>
+    <div class="rule">
+      <h4>٣٤ — الوقف القبيح</h4>
+      <p>الوقف على ما لا يتمّ به الكلام أو يُفسد المعنى، كالوقف على المبتدأ دون خبره، وهو حرام إن غيّر المعنى.</p>
+      <div class="example">الْحَمْدُ ۞ <span class="hl2">لِلَّهِ</span> رَبِّ الْعَالَمِينَ</div>
+    </div>
+    <div class="rule">
+      <h4>٣٥ — علامات الوقف</h4>
+      <p>(م) لازم، (لا) لا تقف، (ج) جائز، (قلى) الوقف أولى، (صلى) الوصل أولى، (∴) وقف المعانقة عند أحد الموضعين.</p>
+      <div class="example">إِنَّ اللَّهَ <span class="hl">لَغَفُورٌ</span> ۞ <span class="hl">رَّحِيمٌ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٣٦ — السكتات</h4>
+      <p>أربعة مواضع في رواية حفص يُسكت فيها بلا تنفس، ويُحافظ على نية الوصل.</p>
+      <div class="example">عِوَجًا <span class="hl">ۜ</span> قَيِّمًا ۝ مَنْ <span class="hl">ۜ</span> رَاقٍ ۝ مَرْقَدِنَا <span class="hl">ۜ</span> هَذَا ۝ كَلَّا <span class="hl">ۜ</span> بَلْ</div>
+    </div>
+    <div class="rule">
+      <h4>٣٧ — الحروف المقطعة</h4>
+      <p>تُقرأ أسماء الحروف ساكنة، وتُراعى المدود فيها: (الم) مدّ لازم ست حركات، و(طَه) و(يس) مدّ لازم مخفف.</p>
+      <div class="example"><span class="hl">الم</span> ۝ <span class="hl">طه</span> ۝ <span class="hl">يس</span> ۝ <span class="hl">كهيعص</span></div>
     </div>
   </div>
 </section>
@@ -212,6 +374,25 @@
   <p>نص كل سورة محمي ببصمة تحقق رقمية تُفحص قبل العرض.</p>
 </footer>
 
+<div class="sheet-overlay" id="ayahSheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-label="خيارات الآية">
+    <div class="sheet-head">
+      <span class="sheet-ref" id="sheetRef"></span>
+      <button class="sheet-close" id="sheetClose" aria-label="إغلاق">✕</button>
+    </div>
+    <div class="sheet-ayah" id="sheetAyah"></div>
+    <div class="sheet-tabs" id="sheetTabs">
+      <button class="sheet-tab" data-tab="play">▶ تلاوة الآية</button>
+      <button class="sheet-tab" data-tab="taf">التفسير</button>
+      <button class="sheet-tab" data-tab="stop">وقف هنا</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+<audio id="ayahAudio" preload="none"></audio>
 <script src="app.js"></script>
+
+
+
 </body>
 </html>

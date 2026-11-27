@@ -1,6 +1,7 @@
 /* روايات — service worker: offline shell + cached surahs and audio */
-var SHELL = 'quran-shell-v3';
-var TEXT = 'quran-text-v3';
+var SHELL = 'quran-shell-v5';
+var TEXT = 'quran-text-v5';
+var TAF = 'quran-tafsir-v1';
 var SHELL_FILES = [
   './', 'index.html', 'style.css', 'app.js',
   'fonts/amiri-arabic.woff2', 'fonts/cairo-arabic.woff2',
@@ -23,6 +24,38 @@ self.addEventListener('fetch', function (e) {
   if (url.pathname.indexOf('/data/surah/') !== -1 || url.hostname === 'cdn.mp3quran.net') {
     e.respondWith(
       caches.open(TEXT).then(function (c) {
+        return c.match(e.request).then(function (hit) {
+          if (hit) return hit;
+          return fetch(e.request).then(function (res) {
+            if (res.ok) c.put(e.request, res.clone());
+            return res;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // search index: cache first
+  if (url.pathname.indexOf('data/search.txt') !== -1) {
+    e.respondWith(
+      caches.open(TAF).then(function (c) {
+        return c.match(e.request).then(function (hit) {
+          if (hit) return hit;
+          return fetch(e.request).then(function (res) {
+            if (res.ok) c.put(e.request, res.clone());
+            return res;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // tafsir texts: cache first (they never change)
+  if (url.hostname === 'raw.githubusercontent.com' && url.pathname.indexOf('/tafsir/') !== -1) {
+    e.respondWith(
+      caches.open(TAF).then(function (c) {
         return c.match(e.request).then(function (hit) {
           if (hit) return hit;
           return fetch(e.request).then(function (res) {
