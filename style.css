@@ -1506,3 +1506,6 @@ html:has(#qibla.scr) body { position: fixed; inset: 0; width: 100%; }
 #qibla .sec-head { padding-top: .4rem; padding-bottom: 0; margin-bottom: .4rem; }
 .qb-note { height: 7.2em; margin-top: .4rem; }
 #qibla.scr { padding-top: 62px; padding-bottom: 0; min-height: 0; }
+/* v97: clear gap between the description text and the dial marker; dial slightly smaller to keep one screen */
+.qb-dial { width: min(268px, 74vw); height: min(268px, 74vw); margin: 30px auto 18px; }
+.qb-note { height: 6.6em; margin-top: .2rem; }
