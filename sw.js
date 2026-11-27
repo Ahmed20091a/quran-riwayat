@@ -1,11 +1,11 @@
 /* روايات — service worker: offline shell + cached surahs and audio */
-var SHELL = 'quran-shell-v6';
-var TEXT = 'quran-text-v6';
+var SHELL = 'quran-shell-v7';
+var TEXT = 'quran-text-v7';
 var TAF = 'quran-tafsir-v1';
 var SHELL_FILES = [
   './', 'index.html', 'style.css', 'app.js',
   'fonts/amiri-arabic.woff2', 'fonts/cairo-arabic.woff2',
-  'data/manifest.json', 'data/pages.json', 'data/tajweed.json', 'manifest.webmanifest'
+  'data/manifest.json', 'data/rw/manifest.json', 'rw.js', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'data/pages.json', 'data/tajweed.json', 'manifest.webmanifest'
 ];
 
 self.addEventListener('install', function (e) {
@@ -21,7 +21,7 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(e.request.url);
 
   // surah text + audio: cache first, then network (and store for offline)
-  if (url.pathname.indexOf('/data/surah/') !== -1 || url.hostname === 'cdn.mp3quran.net') {
+  if (url.pathname.indexOf('/data/surah/') !== -1 || url.pathname.indexOf('/data/rw/') !== -1 || url.hostname === 'cdn.mp3quran.net') {
     e.respondWith(
       caches.open(TEXT).then(function (c) {
         return c.match(e.request).then(function (hit) {

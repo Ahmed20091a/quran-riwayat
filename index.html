@@ -9,6 +9,13 @@
 <meta name="description" content="اقرأ القرآن الكريم واستمع إليه بجميع الروايات والقراءات العشر، مع شرح أحكام التجويد والروايات.">
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0a120f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="روايات">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -118,6 +125,15 @@
     <div class="qari"><h4>خلف البزار</h4><div class="rawis">روايتاه: <b>إسحاق</b> و <b>إدريس</b></div><small>العاشر من العشرة الصغرى</small></div>
   </div>
 
+  <div class="rw-box reveal" id="rwBox">
+    <h3 class="rw-h">اقرأ المصحف برواية أخرى</h3>
+    <p class="rw-note">نص كل رواية من مصدر موثّق (Qur'anpedia مرخّص) ويُحمَّل سورة سورة عند الاختيار فقط. التفسير والتلاوة بالآية متاحان في رواية حفص أعلاه.</p>
+    <div class="chips" id="rwChips"></div>
+    <div class="reader-bar"><select id="rwSurah" aria-label="اختر السورة"></select><span class="verified" id="rwBadge" hidden>✓ نص موثّق</span></div>
+    <div id="rwBody" class="rw-body"><div class="reader-loading">اختر رواية لتبدأ القراءة.</div></div>
+    <p class="rw-src">المصدر: <a href="https://quran-json.risanb.com/" rel="noopener">quran-json</a> عن Qur'anpedia. ترقيم الآيات حسب مصحف كل رواية، فقد يختلف عن حفص.</p>
+  </div>
+
   <table class="diff-table reveal">
     <thead><tr><th>الآية</th><th>رواية حفص</th><th>روايات أخرى</th></tr></thead>
     <tbody>
@@ -187,6 +203,7 @@
 </div>
 <audio id="ayahAudio" preload="none"></audio>
 <script src="app.js"></script>
+<script src="rw.js"></script>
 
 
 
