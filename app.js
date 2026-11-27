@@ -353,10 +353,15 @@
     });
   }
 
+  function arKey(s) {
+    return s.replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/\s+/g, ' ').trim();
+  }
+  function arSort(a, b) { return arKey(a).localeCompare(arKey(b), 'ar'); }
   function renderReciters(group) {
     var grid = $('#reciterGrid');
     grid.innerHTML = '';
     MANIFEST.reciters.filter(function (r) { return !group || r.group === group; })
+      .sort(function (x, y) { return arSort(x.reciter, y.reciter) || arSort(x.riwayah, y.riwayah); })
       .forEach(function (r) {
         var card = document.createElement('div');
         card.className = 'reciter';
@@ -390,6 +395,10 @@
   function playAudio() {
     if (!currentReciter) return;
     if (typeof ayStop === 'function') ayStop();
+    if (currentReciter.missing && currentReciter.missing.indexOf(currentSurah) !== -1) {
+      var nx = currentSurah; do { nx = nx >= 114 ? 1 : nx + 1; } while (currentReciter.missing.indexOf(nx) !== -1);
+      gotoSurah(nx, true);
+    }
     audio.src = audioURL();
     audio.play().then(function () { playing = true; $('#playPause').innerHTML = ico('pause'); })
       .catch(function () { playing = false; $('#playPause').innerHTML = ico('play'); });
@@ -432,28 +441,28 @@
   /* ---------- ayah sheet: tafsir · per-ayah recitation · bookmark ---------- */
   var AYAH_RECITERS = [
     { id: 'ar.alafasy', name: 'مشاري العفاسي', br: 128 },
-    { id: 'ar.husary', name: 'محمود خليل الحصري', br: 128 },
-    { id: 'ar.minshawi', name: 'محمد صديق المنشاوي', br: 128 },
+    { id: 'ar.husary', name: 'محمود خليل الحصري (مرتل)', br: 128 },
+    { id: 'ar.minshawi', name: 'محمد صديق المنشاوي (مرتل)', br: 128 },
     { id: 'ar.mahermuaiqly', name: 'ماهر المعيقلي', br: 128 },
     { id: 'ar.shaatree', name: 'أبو بكر الشاطري', br: 128 },
     { id: 'ar.hudhaify', name: 'علي الحذيفي', br: 128 },
     { id: 'ar.ahmedajamy', name: 'أحمد بن علي العجمي', br: 128 },
     { id: 'ar.muhammadayyoub', name: 'محمد أيوب', br: 128 },
-    { id: 'ar.abdulbasitmurattal', name: 'عبد الباسط عبد الصمد', br: 64 },
+    { id: 'ar.abdulbasitmurattal', name: 'عبد الباسط عبد الصمد (مرتل)', br: 64 },
     { id: 'ar.abdurrahmaansudais', name: 'عبد الرحمن السديس', br: 64 },
     { id: 'ar.saoodshuraym', name: 'سعود الشريم', br: 64 },
     { id: 'ar.aymanswoaid', name: 'أيمن سويد (تعليمي)', br: 64 },
-    { id: 'ea:Husary_128kbps_Mujawwad', ea: 'Husary_128kbps_Mujawwad', name: 'الحصري (مجوّد)' },
-    { id: 'ea:Husary_Muallim_128kbps', ea: 'Husary_Muallim_128kbps', name: 'الحصري (المعلّم، للتعليم)' },
-    { id: 'ea:Minshawy_Mujawwad_192kbps', ea: 'Minshawy_Mujawwad_192kbps', name: 'المنشاوي (مجوّد)' },
+    { id: 'ea:Husary_128kbps_Mujawwad', ea: 'Husary_128kbps_Mujawwad', name: 'محمود خليل الحصري (مجوّد)' },
+    { id: 'ea:Husary_Muallim_128kbps', ea: 'Husary_Muallim_128kbps', name: 'محمود خليل الحصري (المعلّم، للتعليم)' },
+    { id: 'ea:Minshawy_Mujawwad_192kbps', ea: 'Minshawy_Mujawwad_192kbps', name: 'محمد صديق المنشاوي (مجوّد)' },
     { id: 'ea:mahmoud_ali_al_banna_32kbps', ea: 'mahmoud_ali_al_banna_32kbps', name: 'محمود علي البنا' },
-    { id: 'ea:Abdul_Basit_Mujawwad_128kbps', ea: 'Abdul_Basit_Mujawwad_128kbps', name: 'عبد الباسط (مجوّد)' },
+    { id: 'ea:Abdul_Basit_Mujawwad_128kbps', ea: 'Abdul_Basit_Mujawwad_128kbps', name: 'عبد الباسط عبد الصمد (مجوّد)' },
     { id: 'ea:Muhammad_Jibreel_128kbps', ea: 'Muhammad_Jibreel_128kbps', name: 'محمد جبريل' },
     { id: 'ea:Mohammad_al_Tablaway_128kbps', ea: 'Mohammad_al_Tablaway_128kbps', name: 'محمد الطبلاوي' },
     { id: 'ea:Abdullah_Basfar_192kbps', ea: 'Abdullah_Basfar_192kbps', name: 'عبد الله بصفر' },
     { id: 'ea:Salah_Al_Budair_128kbps', ea: 'Salah_Al_Budair_128kbps', name: 'صلاح البدير' },
     { id: 'ea:Abdullah_Matroud_128kbps', ea: 'Abdullah_Matroud_128kbps', name: 'عبد الله مطرود' },
-    { id: 'ea:Ahmed_Neana_128kbps', ea: 'Ahmed_Neana_128kbps', name: 'أحمد نعينع' },
+    { id: 'ea:Ahmed_Neana_128kbps', ea: 'Ahmed_Neana_128kbps', name: 'أحمد نعينع (مرتل)' },
     { id: 'ea:Muhammad_AbdulKareem_128kbps', ea: 'Muhammad_AbdulKareem_128kbps', name: 'محمد عبد الكريم' },
     { id: 'ea:Salaah_AbdulRahman_Bukhatir_128kbps', ea: 'Salaah_AbdulRahman_Bukhatir_128kbps', name: 'صلاح بوخاطر' },
     { id: 'ea:Muhsin_Al_Qasim_192kbps', ea: 'Muhsin_Al_Qasim_192kbps', name: 'محسن القاسم' },
@@ -471,6 +480,25 @@
     { id: 'ea:Nasser_Alqatami_128kbps', ea: 'Nasser_Alqatami_128kbps', name: 'ناصر القطامي' },
     { id: 'ea:Yasser_Ad-Dussary_128kbps', ea: 'Yasser_Ad-Dussary_128kbps', name: 'ياسر الدوسري' }
   ];
+
+  /* recitations that have verified word timings on quran.com (same audio files as the timings) */
+  var KARAOKE_Q = {
+    'ar.alafasy': [7, 'https://verses.quran.com/Alafasy/mp3/'],
+    'ar.husary': [6, 'https://mirrors.quranicaudio.com/everyayah/Husary_64kbps/'],
+    'ar.minshawi': [9, 'https://verses.quran.com/Minshawi/Murattal/mp3/'],
+    'ar.shaatree': [4, 'https://verses.quran.com/Shatri/mp3/'],
+    'ar.abdulbasitmurattal': [2, 'https://verses.quran.com/AbdulBaset/Murattal/mp3/'],
+    'ar.abdurrahmaansudais': [3, 'https://verses.quran.com/Sudais/mp3/'],
+    'ar.saoodshuraym': [10, 'https://verses.quran.com/Shuraym/mp3/'],
+    'ea:Husary_Muallim_128kbps': [12, 'https://mirrors.quranicaudio.com/everyayah/Husary_Muallim_128kbps/'],
+    'ea:Mohammad_al_Tablaway_128kbps': [11, 'https://mirrors.quranicaudio.com/everyayah/Mohammad_al_Tablaway_128kbps/'],
+    'ea:Hani_Rifai_192kbps': [5, 'https://verses.quran.com/Rifai/mp3/'],
+    'ea:Abdul_Basit_Mujawwad_128kbps': [1, 'https://verses.quran.com/AbdulBaset/Mujawwad/mp3/'],
+    'ea:Minshawy_Mujawwad_192kbps': [8, 'https://verses.quran.com/Minshawi/Mujawwad/mp3/']
+  };
+  AYAH_RECITERS.forEach(function (r) { var k = KARAOKE_Q[r.id]; if (k) { r.q = k[0]; r.qb = k[1]; } });
+  AYAH_RECITERS.sort(function (x, y) { return arSort(x.name, y.name); });
+  var AYAH_DEFAULT = 'ar.alafasy';
 
   var TAFSIRS = [
     { slug: 'ar-tafsir-muyassar', name: 'التفسير الميسر' },
@@ -559,8 +587,8 @@
     var row = document.createElement('div'); row.className = 'sheet-row';
     var sel = document.createElement('select');
     AYAH_RECITERS.forEach(function (r) { sel.add(new Option(r.name, r.id)); });
-    sel.value = lsGet('quran.ayahReciter', AYAH_RECITERS[0].id);
-    if (!sel.value) sel.selectedIndex = 0;
+    sel.value = lsGet('quran.ayahReciter', AYAH_DEFAULT);
+    if (!sel.value) sel.value = AYAH_DEFAULT;
     row.appendChild(sel);
     box.appendChild(row);
     var row2 = document.createElement('div'); row2.className = 'sheet-row play-choice';
@@ -609,6 +637,13 @@
       b.addEventListener('click', function () { AY.mode = b.getAttribute('data-m'); ayPaintMode(); ayPreload(); });
     });
     ayWire(ayahAudioEl); ayWire(ayAlt);
+    var inf = ayBar.querySelector('.ay-info');
+    inf.style.cursor = 'pointer';
+    inf.setAttribute('role', 'button');
+    inf.addEventListener('click', function () {
+      ayHighlight();
+      var rd = document.getElementById('reader'); if (rd && !document.querySelector('#readerBody .ayah.playing')) { try { rd.scrollIntoView({ behavior: 'smooth' }); } catch (e) {} }
+    });
     ayMediaSession();
   }
   /* two audio elements: the idle one preloads the next ayah, so the hand-over has no network gap */
@@ -651,6 +686,7 @@
     var np = ayNextPos(AY.s, AY.a);
     if (!np) { ayPre = null; return; }
     var url = ayUrl(AY.rec, np[0], np[1]);
+    if (AY.rec.q && np[0] !== AY.s && np[0] > 0) qSegs(AY.rec.q, np[0], np[1]);
     ayPre = { s: np[0], a: np[1], url: url, rec: AY.rec.id };
     ayAlt.src = url;
     ayAlt.load();
@@ -686,6 +722,7 @@
     box.textContent = AY.a === 0 ? 'البسملة' : 'آية ' + arNum(AY.a) + ' من ' + arNum(n);
   }
   function ayHighlight() {
+    kUnwrap();
     document.querySelectorAll('.ayah.playing,[data-bs].playing').forEach(function (e) { e.classList.remove('playing'); });
     var sel0 = AY.a === 0 ? '#readerBody [data-bs="' + AY.s + '"]' : '#readerBody .ayah[data-s="' + AY.s + '"][data-a="' + AY.a + '"]';
     var el = document.querySelector(sel0);
@@ -698,9 +735,87 @@
       if (e2) { e2.classList.add('playing'); try { e2.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} }
     }, 900);
   }
+
+  /* ---------- word-by-word follow-along (only with verified quran.com word timings) ---------- */
+  var QC = {}, K = null, kBad = '', kRun = false;
+  function qSegs(q, s, a) {
+    var key = q + ':' + s;
+    if (!QC[key]) {
+      QC[key] = { map: null };
+      fetch('https://api.quran.com/api/v4/recitations/' + q + '/by_chapter/' + s + '?fields=segments&per_page=300')
+        .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+        .then(function (j) {
+          var map = {};
+          (j.audio_files || []).forEach(function (x) {
+            if (x.segments && x.segments.length) map[x.verse_key] = x.segments.map(function (g) { return g.map(Number); });
+          });
+          QC[key].map = map;
+        })
+        .catch(function () { QC[key].fail = true; });
+    }
+    var m = QC[key].map;
+    return (m && m[s + ':' + a]) || null;
+  }
+  function kWords(txt) {
+    var re = /\S+/g, m, out = [];
+    while ((m = re.exec(txt))) {
+      var letters = m[0].replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u08D3-\u08FF]/g, '');
+      if (!letters && out.length) out[out.length - 1].end = m.index + m[0].length;
+      else out.push({ start: m.index, end: m.index + m[0].length });
+    }
+    return out;
+  }
+  function kUnwrap() {
+    if (!K) return;
+    try { if (K.wrap.parentNode) K.wrap.parentNode.replaceChild(K.node, K.wrap); } catch (e) {}
+    K = null;
+  }
+  function kWrap(el, segs, key) {
+    var node = null;
+    for (var c = el.firstChild; c; c = c.nextSibling) if (c.nodeType === 3 && c.nodeValue.trim()) { node = c; break; }
+    if (!node) { kBad = key; return; }
+    var text = node.nodeValue, ws = kWords(text);
+    var mx = 0; segs.forEach(function (g) { if (g[1] > mx) mx = g[1]; });
+    var d = ayahAudioEl.duration;
+    var lastEnd = segs[segs.length - 1][3];
+    if (ws.length !== mx || (isFinite(d) && lastEnd > d * 1000 + 1500)) { kBad = key; return; }
+    var wrap = document.createElement('span'); wrap.className = 'kw';
+    var pos = 0, spans = [];
+    ws.forEach(function (w) {
+      if (w.start > pos) wrap.appendChild(document.createTextNode(text.slice(pos, w.start)));
+      var sp = document.createElement('span'); sp.className = 'w'; sp.textContent = text.slice(w.start, w.end);
+      wrap.appendChild(sp); spans.push(sp); pos = w.end;
+    });
+    if (pos < text.length) wrap.appendChild(document.createTextNode(text.slice(pos)));
+    el.replaceChild(wrap, node);
+    K = { el: el, node: node, wrap: wrap, spans: spans, segs: segs, key: key, cur: -1 };
+  }
+  function kLoop() {
+    if (!AY.on) { kUnwrap(); kRun = false; return; }
+    var want = (AY.a > 0 && AY.rec && AY.rec.q) ? AY.s + ':' + AY.a : '';
+    if (K && K.key !== want) kUnwrap();
+    if (!K && want && kBad !== want) {
+      var segs = qSegs(AY.rec.q, AY.s, AY.a);
+      var el = segs && document.querySelector('#readerBody .ayah[data-s="' + AY.s + '"][data-a="' + AY.a + '"]');
+      if (el) kWrap(el, segs, want);
+    }
+    if (K) {
+      var t = ayahAudioEl.currentTime * 1000, idx = -1;
+      for (var i = 0; i < K.segs.length; i++) { if (K.segs[i][2] <= t) idx = i; else break; }
+      var w = idx < 0 ? -1 : K.segs[idx][1] - 1;
+      if (w !== K.cur) {
+        if (K.cur >= 0 && K.spans[K.cur]) K.spans[K.cur].classList.remove('wh');
+        if (w >= 0 && K.spans[w]) K.spans[w].classList.add('wh');
+        K.cur = w;
+      }
+    }
+    requestAnimationFrame(kLoop);
+  }
+  function kStart() { kBad = ''; if (!kRun) { kRun = true; requestAnimationFrame(kLoop); } }
   function ayUrl(r, s, a) {
     /* a === 0 is the standalone bismillah: every source keeps it as Fatiha ayah 1 */
     var ss = a === 0 ? 1 : s, aa = a === 0 ? 1 : a;
+    if (r.qb) return r.qb + String(ss).padStart(3, '0') + String(aa).padStart(3, '0') + '.mp3';
     if (r.ea) return 'https://everyayah.com/data/' + r.ea + '/' + String(ss).padStart(3, '0') + String(aa).padStart(3, '0') + '.mp3';
     return 'https://cdn.islamic.network/quran/audio/' + r.br + '/' + r.id + '/' + ayahGlobal(ss, aa) + '.mp3';
   }
@@ -725,6 +840,7 @@
     var pr = ayahAudioEl.play();
     if (pr && pr.catch) pr.catch(function () { ayPaintPlay(); });
     ayHighlight();
+    kStart();
     ayPreload();
     if ('mediaSession' in navigator && window.MediaMetadata) {
       try {
@@ -738,7 +854,7 @@
   }
   function startAy(recId, s, a, mode) {
     buildAyBar();
-    var r = AYAH_RECITERS.filter(function (x) { return x.id === recId; })[0] || AYAH_RECITERS[0];
+    var r = AYAH_RECITERS.filter(function (x) { return x.id === recId; })[0] || AYAH_RECITERS.filter(function (x) { return x.id === AYAH_DEFAULT; })[0];
     lsSet('quran.ayahReciter', r.id);
     if (mode === 'surah' && a === 1 && hasBsm(s)) a = 0;
     AY.rec = r; AY.s = s; AY.a = a; AY.mode = mode; AY.on = true;
@@ -764,6 +880,7 @@
   }
   function ayStop() {
     AY.on = false;
+    kUnwrap();
     try { ayahAudioEl.pause(); } catch (e) {}
     ayahAudioEl.removeAttribute('src');
     try { ayAlt.pause(); } catch (e) {} ayAlt.removeAttribute('src'); ayPre = null;
@@ -893,7 +1010,7 @@
     var t = e.target;
     var bs = (t && t.closest) ? t.closest('[data-bs]') : null;
     if (bs && !(t.closest('.ayah'))) {
-      var r0 = lsGet('quran.ayahReciter', AYAH_RECITERS[0].id);
+      var r0 = lsGet('quran.ayahReciter', AYAH_DEFAULT);
       startAy(r0, +bs.getAttribute('data-bs'), 0, 'surah');
       return;
     }
