@@ -1325,3 +1325,57 @@ html[data-site=light] .rw-body .an i { color: #7a5a14; }
 .sheet-copy { margin-inline-start: auto; }
 .hd-copy { margin-inline-start: auto; border: 1px solid var(--line); background: transparent; color: var(--gold2); border-radius: 10px; padding: .15rem .7rem; font: inherit; font-size: .78rem; cursor: pointer; }
 html[data-site=light] .hd-copy { color: #6b4a10; border-color: rgba(120,85,25,.4); }
+
+/* menu theme row: the same two dots as the top bar */
+#reader .vo-row.vo-dots { justify-content: center; gap: 14px; padding: 4px 0 2px; }
+#reader .vo-row.vo-dots button { flex: none; width: 26px; height: 26px; min-width: 26px; padding: 0; border-radius: 50%; border: 2px solid rgba(212,177,94,.5); font-size: 0; }
+#reader .vo-row.vo-dots button[data-th=green] { background: #2e5e4e; }
+#reader .vo-row.vo-dots button[data-th=light] { background: #f1e6c6; }
+#reader .vo-row.vo-dots button.on { border-color: #f6e3a1; box-shadow: 0 0 0 2px rgba(246,227,161,.35); }
+/* LIGHT: the whole mushaf menu panel */
+html[data-site=light] #reader .vo-panel { background: #f6ecce !important; border-color: rgba(120,85,25,.45) !important; color: #2b2112 !important; }
+html[data-site=light] #reader .vo-card, html[data-site=light] #reader .vo-link { background: #fbf4dc !important; border-color: rgba(120,85,25,.4) !important; color: #2b2112 !important; }
+html[data-site=light] #reader .vo-h, html[data-site=light] #reader .vo-ic, html[data-site=light] #reader .vo-chev { color: #6b4a10 !important; border-color: rgba(120,85,25,.25) !important; }
+html[data-site=light] #reader .vo-link span, html[data-site=light] #reader .vo-note { color: #2b2112 !important; }
+html[data-site=light] #reader .vo-row button { background: #f4e9c9 !important; color: #2b2112 !important; border-color: rgba(120,85,25,.4) !important; }
+html[data-site=light] #reader .vo-row button.on { background: #e5d19a !important; color: #4a3208 !important; border-color: #8a6516 !important; }
+html[data-site=light] #reader .vo-row.vo-dots button { border-color: rgba(120,85,25,.5) !important; }
+html[data-site=light] #reader .vo-row.vo-dots button[data-th=green] { background: #2e5e4e !important; }
+html[data-site=light] #reader .vo-row.vo-dots button[data-th=light] { background: #f1e6c6 !important; }
+html[data-site=light] #reader .vo-row.vo-dots button.on { border-color: #8a6516 !important; box-shadow: 0 0 0 2px rgba(138,101,22,.35); }
+html[data-site=light] #reader .vo-idx { background: #fbf4dc; border-color: rgba(120,85,25,.35); }
+html[data-site=light] #reader .vo-idx button { color: #2b2112 !important; background: transparent !important; }
+#reader .vo-row.vo-dots { justify-content: space-evenly; padding: 8px 0 6px; }
+#reader .vo-row.vo-dots button { width: 44px; height: 44px; min-width: 44px; border-width: 3px; }
+/* custom select picker */
+select.pk-sel { pointer-events: none; }
+.pk-ov { position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,0); display: flex; align-items: flex-end; justify-content: center; transition: background .2s; direction: rtl; }
+.pk-ov.in { background: rgba(0,0,0,.55); }
+.pk-sheet { width: min(100%, 520px); max-height: 80vh; display: flex; flex-direction: column; background: #0d1813; color: var(--ink); border: 1px solid rgba(212,177,94,.4); border-bottom: 0; border-radius: 22px 22px 0 0; padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px)); box-sizing: border-box; transform: translateY(100%); transition: transform .25s ease; box-shadow: 0 -10px 30px rgba(0,0,0,.45); }
+.pk-ov.in .pk-sheet { transform: none; }
+.pk-grip { width: 42px; height: 4px; border-radius: 4px; background: rgba(212,177,94,.45); margin: 2px auto 6px; }
+.pk-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 8px; }
+.pk-title { font-family: 'Amiri', serif; font-size: 1.25rem; color: var(--gold2); }
+.pk-x { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(212,177,94,.4); background: transparent; color: var(--gold2); display: grid; place-items: center; padding: 0; cursor: pointer; }
+.pk-q { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; padding: .65rem .9rem; margin-bottom: 8px; border-radius: 12px; border: 1px solid rgba(212,177,94,.4); background: rgba(255,255,255,.05); color: var(--ink); direction: rtl; }
+.pk-list { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 4px; }
+.pk-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; padding: .55rem .9rem; border-radius: 14px; border: 1px solid transparent; background: transparent; color: var(--ink); font-family: inherit; font-size: 1rem; text-align: right; cursor: pointer; }
+.pk-row[hidden] { display: none; }
+.pk-row:active { background: rgba(212,177,94,.14); }
+.pk-c { opacity: 0; color: var(--gold2); display: inline-flex; }
+.pk-row.on { background: rgba(212,177,94,.16); border-color: rgba(212,177,94,.6); color: var(--gold2); font-weight: 700; }
+.pk-row.on .pk-c { opacity: 1; }
+html.pk-open body { overflow: hidden; }
+html[data-site=light] .pk-sheet { background: #f8efd3; color: #2b2112; border-color: rgba(120,85,25,.45); box-shadow: 0 -8px 26px rgba(90,60,10,.22); }
+html[data-site=light] .pk-ov.in { background: rgba(40,28,8,.4); }
+html[data-site=light] .pk-grip { background: rgba(120,85,25,.45); }
+html[data-site=light] .pk-title, html[data-site=light] .pk-x, html[data-site=light] .pk-c { color: #6b4a10; }
+html[data-site=light] .pk-x { border-color: rgba(120,85,25,.4); }
+html[data-site=light] .pk-q { background: #fffaf0; color: #2b2112; border-color: rgba(120,85,25,.4); }
+html[data-site=light] .pk-row { color: #2b2112; }
+html[data-site=light] .pk-row:active { background: rgba(120,85,25,.12); }
+html[data-site=light] .pk-row.on { background: #e9d7a0; border-color: #8a6516; color: #4a3208; }
+@media (min-width: 900px) { .pk-ov { align-items: center; } .pk-sheet { border-radius: 22px; border-bottom: 1px solid rgba(212,177,94,.4); max-height: 70vh; transform: translateY(20px); opacity: 0; transition: transform .2s, opacity .2s; } .pk-ov.in .pk-sheet { opacity: 1; transform: none; } }
+.pk-list { scrollbar-width: thin; }
+/* qibla notes in light */
+html[data-site=light] .qb-where, html[data-site=light] .qb-note { color: #4a3a1a !important; }
