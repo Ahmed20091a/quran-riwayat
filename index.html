@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://cdn.aladhan.com https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://cdn.aladhan.com https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; form-action 'none'; upgrade-insecure-requests">
 <title>قرآن كريم — القرآن الكريم بجميع الروايات</title>
 <meta name="description" content="اقرأ القرآن الكريم واستمع إليه بجميع الروايات والقراءات العشر، مع شرح أحكام التجويد والروايات.">
 <link rel="stylesheet" href="style.css">
@@ -26,7 +26,7 @@
     </svg>
     قرآن كريم
   </div>
-  <div class="h-clock" id="hClock" aria-label="الساعة بتوقيت القاهرة" title="توقيت القاهرة">--:--:--</div>
+  <div class="h-clockw" aria-label="الساعة والتاريخ بتوقيت مصر"><div class="h-l1"><span class="h-tz">بتوقيت مصر</span><span class="h-clock" id="hClock">--:--:--</span></div><div class="h-date" id="hDate"></div></div>
   <button class="nav-btn" id="navBtn" aria-label="القائمة" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <div class="nav-links" id="navLinks">
     <a href="#mushaf">المصحف</a>

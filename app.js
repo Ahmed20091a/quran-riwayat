@@ -365,8 +365,10 @@
       .forEach(function (r) {
         var card = document.createElement('div');
         card.className = 'reciter';
-        card.innerHTML = '<div class="avatar">' + r.reciter.trim().charAt(0) + '</div>' +
-          '<div><h4>' + r.reciter + '</h4><small>' + r.riwayah + '</small></div>';
+        var av = document.createElement('div'); av.className = 'avatar'; av.textContent = String(r.reciter).trim().charAt(0);
+        var tb = document.createElement('div'), h4 = document.createElement('h4'), sm = document.createElement('small');
+        h4.textContent = r.reciter; sm.textContent = r.riwayah; tb.appendChild(h4); tb.appendChild(sm);
+        card.appendChild(av); card.appendChild(tb);
         card.addEventListener('click', function () { selectReciter(r, card); });
         grid.appendChild(card);
       });

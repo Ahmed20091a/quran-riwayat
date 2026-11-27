@@ -17,8 +17,9 @@
   st.sel = typeof st.sel === 'string' ? st.sel : PRESETS[0];
   st.c = st.c && typeof st.c === 'object' ? st.c : {};      /* counts by dhikr text */
   st.tg = st.tg && typeof st.tg === 'object' ? st.tg : {};  /* target by dhikr text */
-  st.custom = Array.isArray(st.custom) ? st.custom : [];
-  st.goals = Array.isArray(st.goals) ? st.goals : [];
+  function num(v, max) { v = parseInt(v, 10); return v > 0 ? Math.min(v, max) : 0; }
+  st.custom = (Array.isArray(st.custom) ? st.custom : []).filter(function (x) { return typeof x === 'string' && x.trim(); }).map(function (x) { return x.slice(0, 60); }).slice(0, 60);
+  st.goals = (Array.isArray(st.goals) ? st.goals : []).filter(function (g) { return g && typeof g.t === 'string' && g.t.trim(); }).slice(0, 100).map(function (g) { return { t: g.t.slice(0, 80), N: num(g.N, 1000000), n: num(g.n, 1000000), done: !!g.done }; });
   st.v = st.v !== false;
   st.daily = !!st.daily;
   st.all = st.all || 0;

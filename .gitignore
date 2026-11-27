@@ -1,1 +1,8 @@
 build_*.py
+.wrangler/
+.env
+.env.*
+*.pem
+*.key
+node_modules/
+.vercel

@@ -747,3 +747,16 @@ body.ay-on { padding-bottom: 150px; }
   .mushaf-wrap { padding: .4rem .3rem .5rem; }
   .ayah-search { padding: .3rem .4rem; }
 }
+/* v23: header clock block */
+.h-clockw { margin-inline: auto 1.8rem; display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
+.h-l1 { display: inline-flex; align-items: baseline; gap: .45rem; white-space: nowrap; }
+.h-tz { color: var(--muted); font-size: .72rem; }
+.h-clockw .h-clock { margin: 0; }
+.h-date { color: var(--muted); font-size: .68rem; white-space: nowrap; }
+@media (max-width: 980px) {
+  .h-clockw { margin-inline: .5rem; }
+  .h-tz { font-size: .64rem; }
+  .h-clockw .h-clock { font-size: .82rem; }
+  .h-date { font-size: .62rem; }
+  .brand { font-size: .98rem; }
+}
