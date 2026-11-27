@@ -1498,3 +1498,11 @@ html:has(#qibla.scr) body { position: fixed; inset: 0; width: 100%; }
 #qibla.scr { height: 100vh; height: 100dvh; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; overscroll-behavior: none; }
 #qibla .reveal { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
 #qibla .qb-dial { touch-action: none; }
+
+/* v95b: instant response */
+.qb-ring, .qb-k, #qbRing, #qbKaaba { transition: none !important; }
+/* v96: bigger dial so the needle looks smaller; still fits one screen */
+.qb-dial { width: min(290px, 78vw); height: min(290px, 78vw); margin: .3rem auto .6rem; }
+#qibla .sec-head { padding-top: .4rem; padding-bottom: 0; margin-bottom: .4rem; }
+.qb-note { height: 7.2em; margin-top: .4rem; }
+#qibla.scr { padding-top: 62px; padding-bottom: 0; min-height: 0; }

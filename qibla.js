@@ -64,9 +64,9 @@
     /* circular low-pass so the needle is steady but still follows */
     var r = h * rad;
     if (!have) { sinS = Math.sin(r); cosS = Math.cos(r); have = true; }
-    else { var k = 0.18; sinS += k * (Math.sin(r) - sinS); cosS += k * (Math.cos(r) - cosS); }
+    else { var k = 0.55; sinS += k * (Math.sin(r) - sinS); cosS += k * (Math.cos(r) - cosS); }
     heading = (Math.atan2(sinS, cosS) / rad + 360) % 360;
-    var now = Date.now(); if (now - lastT < 50) return; lastT = now;
+    var now = Date.now(); if (now - lastT < 16) return; lastT = now;
     if (tid) { clearTimeout(tid); tid = null; }
     render();
   }
