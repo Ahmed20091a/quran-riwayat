@@ -681,3 +681,69 @@ body.ay-on { padding-bottom: 150px; }
 .hs-item.big .hs-text { font-size: 1.5rem; line-height: 2.4; }
 .hs-no { display: inline-block; font-family: 'Cairo', sans-serif; font-size: .75rem; color: var(--gold2); border: 1px solid rgba(212,177,94,.35); border-radius: 999px; padding: .05rem .7rem; margin-bottom: .6rem; }
 .hs-group .hs-item { text-align: center; border-radius: 18px; }
+/* prayer times v22: hero + icon row */
+.sl-wrap { max-width: 520px; }
+.sl-hero { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 360/270; border: 1px solid var(--line); box-shadow: 0 16px 44px rgba(0,0,0,.45); margin-bottom: .9rem; }
+.sl-hero svg { display: block; width: 100%; height: 100%; }
+.sl-over { position: absolute; inset-inline: 0; top: 4%; display: flex; flex-direction: column; align-items: center; gap: .1rem; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.55); pointer-events: none; }
+.sl-over-n { font-family: 'Amiri', serif; font-size: 1.35rem; }
+.sl-over-c { font-family: 'Cairo', sans-serif; font-weight: 700; font-variant-numeric: tabular-nums; direction: ltr; font-size: clamp(2.6rem, 14vw, 3.8rem); line-height: 1.15; letter-spacing: .02em; }
+.sl-over-t { font-size: .85rem; opacity: .85; margin-top: .25rem; }
+.sl-pill { pointer-events: auto; display: inline-flex; align-items: center; gap: .35rem; background: rgba(8,14,12,.45); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: .2rem .8rem; margin-top: .3rem; backdrop-filter: blur(5px); text-shadow: none; }
+.sl-pill select { background: transparent; color: #fff; border: 0; font-family: inherit; font-size: .95rem; appearance: none; -webkit-appearance: none; padding: .15rem .2rem; margin: 0; cursor: pointer; }
+.sl-pill select option { color: #111; }
+.sl-hero .sl-sky-cap { top: auto; bottom: .6rem; }
+.sl-date { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .3rem .6rem; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .6rem .8rem; margin-bottom: .6rem; font-size: .92rem; }
+.sl-date i { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); display: inline-block; }
+.sl-date #slH { color: var(--muted); font-size: .78rem; flex-basis: 100%; order: 5; text-align: center; }
+.sl-date .sl-clock { order: 4; font-size: .9rem; margin: 0; flex-basis: 100%; }
+.sl-list { display: grid; grid-template-columns: repeat(6, 1fr); gap: .3rem; background: linear-gradient(180deg, #14281f, #0e1b15); border: 1px solid rgba(212,177,94,.25); border-radius: 22px; padding: .8rem .35rem; }
+.sl-p { display: flex; flex-direction: column; align-items: center; gap: .15rem; background: transparent; border: 1px solid transparent; border-radius: 16px; padding: .4rem .1rem; color: var(--ink); font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s, border-color .2s; }
+.sl-ic { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--tint); background: color-mix(in srgb, var(--tint) 16%, #0b1210); border: 1px solid color-mix(in srgb, var(--tint) 45%, transparent); margin-bottom: .2rem; }
+.sl-nm { font-size: .78rem; color: var(--muted); }
+.sl-p b { font-family: 'Cairo', sans-serif; font-size: .8rem; font-variant-numeric: tabular-nums; color: #fff; white-space: nowrap; }
+.sl-p small { font-size: .62rem; color: var(--muted); margin-top: -.15rem; }
+.sl-p.next { background: rgba(212,177,94,.12); border-color: rgba(212,177,94,.55); }
+.sl-p.next .sl-ic { background: var(--tint); color: #0b1210; }
+.sl-p.next .sl-nm { color: var(--gold2); }
+.sl-p.sel { box-shadow: 0 0 0 1.5px var(--gold2) inset; }
+@media (max-width: 360px) { .sl-p b { font-size: .72rem; } .sl-ic { width: 34px; height: 34px; } }
+/* v22: salah clock block */
+.sl-date { flex-direction: column; gap: .15rem; padding: .9rem .8rem; background: linear-gradient(180deg, #14281f, #0e1b15); border-color: rgba(212,177,94,.25); border-radius: 20px; }
+.sl-date .sl-clock { order: 0; flex-basis: auto; font-family: 'Cairo', sans-serif; font-variant-numeric: tabular-nums; direction: ltr; font-size: clamp(2.2rem, 11vw, 3rem); font-weight: 700; color: #fff; line-height: 1.2; display: flex; align-items: baseline; justify-content: center; gap: .45rem; }
+.ck-p { font-size: .45em; color: var(--gold2); font-weight: 700; }
+.sl-tz { color: var(--gold2); font-size: .85rem; letter-spacing: .02em; }
+.sl-dates { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .2rem .6rem; font-size: .95rem; margin-top: .25rem; }
+.sl-date .sl-dates #slH { flex-basis: auto; order: 0; color: var(--muted); font-size: .85rem; }
+.h-clock { display: inline-flex; align-items: baseline; gap: .25rem; }
+.h-clock .ck-p { font-size: .75em; }
+/* v22: compact mushaf controls */
+.rb-tools { flex: none; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: #0d1814; color: var(--gold2); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.reader-shell.tools .rb-tools { background: rgba(212,177,94,.18); border-color: var(--gold); }
+.reader-shell:not(.tools) #surahSearch, .reader-shell:not(.tools) .offline-btn, .reader-shell:not(.tools) .ayah-search { display: none; }
+.reader-bar { padding: .5rem .8rem; gap: .5rem; flex-wrap: wrap; }
+.reader-bar select { flex: 1 1 180px; max-width: none; padding: .4rem .7rem; }
+.reader-bar .verified { margin-inline-start: 0; order: 8; }
+.page-nav { padding: .4rem .8rem; }
+.pnav { padding: .3rem 1rem; }
+.mushaf-wrap { padding: .9rem 1rem 1.1rem; background: radial-gradient(70% 90% at 50% 40%, rgba(63,122,99,.12), transparent 70%); }
+.mushaf-page { box-shadow: 0 30px 70px rgba(0,0,0,.5), 0 0 0 6px rgba(0,0,0,.18), inset 0 0 90px rgba(212,177,94,.06), inset 0 0 0 1px rgba(212,177,94,.12); }
+@media (max-width: 640px) {
+  #mushaf { padding-top: 4.2rem; }
+  #mushaf .sec-head { margin-bottom: .6rem; }
+  #mushaf .sec-head p { display: none; }
+  #mushaf .sec-head h2 { font-size: 1.35rem; }
+  #mushaf .sec-head .kicker { display: none; }
+  .reader-shell { scroll-margin-top: 58px; border-radius: 14px; }
+  .reader-bar { padding: .35rem .45rem; gap: .35rem; flex-wrap: wrap; }
+  .reader-bar select { flex: 1 1 0; min-width: 0; font-size: .85rem; padding: .35rem .5rem; }
+  .reader-bar .mode-btn { font-size: .7rem; padding: .3rem .6rem; }
+  .reader-bar #surahSearch { flex: 1 1 100%; font-size: .85rem; padding: .35rem .6rem; }
+  .reader-bar .offline-btn { font-size: .72rem; padding: .3rem .7rem; }
+  .reader-bar .verified { font-size: .68rem; padding: .05rem .5rem; }
+  .reader-shell:not(.tools) .verified { display: none; }
+  .rb-tools { width: 34px; height: 34px; }
+  .page-nav { padding: .3rem .4rem; }
+  .mushaf-wrap { padding: .4rem .3rem .5rem; }
+  .ayah-search { padding: .3rem .4rem; }
+}

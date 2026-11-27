@@ -78,6 +78,7 @@
       <button class="btn mode-btn" id="modeToggle">عرض السورة كاملة</button>
       <button class="btn offline-btn" id="offlineBtn" title="حمّل المصحف كاملًا لقراءته بدون إنترنت">⬇ حفظ للقراءة بدون نت</button>
       <span class="verified" id="verifyBadge" hidden>✓ نص موثّق</span>
+      <button type="button" class="rb-tools" id="rbTools" aria-label="بحث وأدوات" aria-expanded="false" title="بحث وأدوات"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></button>
     </div>
     <button class="resume-chip" id="resumeChip" hidden></button>
     <div class="ayah-search">
@@ -213,29 +214,42 @@
     <p>حساب الهيئة المصرية العامة للمساحة (الفجر ١٩٫٥° والعشاء ١٧٫٥°)، يعمل بدون إنترنت.</p>
   </div>
   <div class="sl-wrap">
-    <label class="sl-city">المدينة <select id="slCity"></select></label>
-    <div class="sl-date"><span id="slG"></span><span id="slH"></span></div>
-    <div class="sl-clock" id="slClock">--:--:--</div>
-    <div class="sl-sky" id="slSkyBox">
-      <svg id="slSky" viewBox="0 0 360 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <div class="sl-hero" id="slSkyBox">
+      <svg id="slSky" viewBox="0 0 360 270" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <defs>
           <linearGradient id="skG" x1="0" y1="0" x2="0" y2="1"><stop id="skT" offset="0" stop-color="#2f7fd1"/><stop id="skB" offset="1" stop-color="#8ec9f0"/></linearGradient>
           <radialGradient id="sunG"><stop offset="0" stop-color="#fff6c8" stop-opacity=".95"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
-          <mask id="moonM"><rect width="360" height="190" fill="#fff"/><circle id="moonCut" cx="0" cy="0" r="11" fill="#000"/></mask>
+          <mask id="moonM"><rect width="360" height="270" fill="#fff"/><circle id="moonCut" cx="0" cy="0" r="11" fill="#000"/></mask>
         </defs>
-        <rect width="360" height="190" fill="url(#skG)"/>
+        <rect width="360" height="270" fill="url(#skG)"/>
         <g id="skStars"></g>
-        <g id="skClouds" opacity=".5"><g class="cl c1"><ellipse cx="60" cy="48" rx="34" ry="8" fill="#fff"/><ellipse cx="80" cy="43" rx="22" ry="8" fill="#fff"/></g><g class="cl c2"><ellipse cx="220" cy="78" rx="40" ry="9" fill="#fff"/><ellipse cx="240" cy="72" rx="24" ry="8" fill="#fff"/></g><g class="cl c3"><ellipse cx="320" cy="34" rx="28" ry="7" fill="#fff"/></g></g>
+        <g id="skClouds" opacity=".5"><g class="cl c1"><ellipse cx="60" cy="120" rx="34" ry="8" fill="#fff"/><ellipse cx="80" cy="115" rx="22" ry="8" fill="#fff"/></g><g class="cl c2"><ellipse cx="220" cy="150" rx="40" ry="9" fill="#fff"/><ellipse cx="240" cy="144" rx="24" ry="8" fill="#fff"/></g><g class="cl c3"><ellipse cx="320" cy="105" rx="28" ry="7" fill="#fff"/></g></g>
         <circle id="sunGlow" r="46" fill="url(#sunG)" class="pulse"/>
         <circle id="sunDisc" r="15" fill="#fff3b0"/>
         <circle id="moonDisc" r="11" fill="#f3efd8" mask="url(#moonM)"/>
-        <path id="skHill" d="M0 160 Q60 140 120 156 T250 152 T360 150 V190 H0Z" fill="#0a1410"/>
-        <g id="skMosque" fill="#0a1410"><rect x="262" y="132" width="3.4" height="30"/><path d="M260.6 132h6.2l-3.1-9z"/><rect x="286" y="148" width="40" height="14"/><path d="M290 148a16 16 0 0 1 32 0z"/><rect x="305.2" y="126" width="1.6" height="8"/></g>
+        <g id="skMosque" fill="#0a1410">
+          <rect x="60" y="150" width="7" height="75"/><rect x="56.5" y="168" width="14" height="3"/><path d="M58.5 150h10l-5-17z"/><circle cx="63.5" cy="130" r="2"/>
+          <rect x="293" y="150" width="7" height="75"/><rect x="289.5" y="168" width="14" height="3"/><path d="M291.5 150h10l-5-17z"/><circle cx="296.5" cy="130" r="2"/>
+          <rect x="128" y="196" width="104" height="30"/><path d="M138 196a42 42 0 0 1 84 0z"/><rect x="179" y="146" width="2" height="12"/><circle cx="180" cy="144" r="3"/>
+          <rect x="94" y="206" width="38" height="22"/><path d="M98 206a15 15 0 0 1 30 0z"/><rect x="228" y="206" width="38" height="22"/><path d="M232 206a15 15 0 0 1 30 0z"/>
+        </g>
+        <g id="skLights" fill="#ffd37a" opacity="0"><path d="M173 226v-14a7 7 0 0 1 14 0v14z"/><rect x="143" y="206" width="5" height="9" rx="2.5"/><rect x="212" y="206" width="5" height="9" rx="2.5"/><rect x="104" y="214" width="4" height="7" rx="2"/><rect x="252" y="214" width="4" height="7" rx="2"/><rect x="62" y="186" width="3" height="6" rx="1.5"/><rect x="295" y="186" width="3" height="6" rx="1.5"/></g>
+        <path id="skHill" d="M0 222 Q60 206 120 220 T250 216 T360 212 V270 H0Z" fill="#0a1410"/>
       </svg>
+      <div class="sl-over">
+        <div class="sl-over-n" id="slNextName">—</div>
+        <div class="sl-over-c" id="slCount">--:--:--</div>
+        <label class="sl-pill"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><select id="slCity" aria-label="المدينة"></select></label>
+        <div class="sl-over-t" id="slNextAt"></div>
+      </div>
       <div class="sl-sky-cap" id="slSkyCap"></div>
       <button class="sl-live" id="slLive" hidden>الآن</button>
     </div>
-    <div class="sl-next"><small id="slNextName">—</small><b id="slCount">--:--:--</b><small id="slNextAt"></small></div>
+    <div class="sl-date">
+      <div class="sl-clock" id="slClock">--:--:--</div>
+      <div class="sl-tz">بتوقيت مصر (القاهرة)</div>
+      <div class="sl-dates"><span id="slG"></span><i></i><span id="slH"></span></div>
+    </div>
     <p class="sl-hint">دوس على أي صلاة تشوف شكل السماء وقتها</p>
     <div class="sl-list" id="slList"></div>
     <div class="sl-adhan">

@@ -50,10 +50,10 @@
   function ar(n) { return String(n).replace(/\d/g, function (d) { return AR[+d]; }); }
   function $(s) { return document.querySelector(s); }
   var TZ = 'Africa/Cairo';
-  var fmtT = new Intl.DateTimeFormat('ar-EG', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true });
+  var fmtT = new Intl.DateTimeFormat('ar-EG-u-nu-latn', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true });
   var fmtParts = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
-  var fmtG = new Intl.DateTimeFormat('ar-EG', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  var fmtH; try { fmtH = new Intl.DateTimeFormat('ar-EG-u-ca-islamic-umalqura', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { fmtH = null; }
+  var fmtG = new Intl.DateTimeFormat('ar-EG-u-nu-latn', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  var fmtH; try { fmtH = new Intl.DateTimeFormat('ar-EG-u-ca-islamic-umalqura-nu-latn', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { fmtH = null; }
   function T(ms) { return fmtT.format(new Date(ms + 30000)); }   /* shown to the nearest minute */
   function cairoYMD(ms) { var p = fmtParts.format(new Date(ms)).split('-'); return [+p[0], +p[1], +p[2]]; }
   var KEY = 'quran.salah';
@@ -88,15 +88,16 @@
     times.nextFajr = next.fajr;
     var list = $('#slList'); list.innerHTML = '';
     ORDER.forEach(function (k) {
-      var r = document.createElement('button'); r.type = 'button'; r.className = 'sl-r'; r.id = 'sl-' + k;
-      r.innerHTML = '<span class="sl-mini"></span><span class="sl-nm"></span><b></b>';
-      r.querySelector('.sl-nm').textContent = NAMES[k]; r.lastChild.textContent = T(times[k]);
-      r.firstChild.innerHTML = mini(k);
+      var r = document.createElement('button'); r.type = 'button'; r.className = 'sl-p'; r.id = 'sl-' + k; r.style.setProperty('--tint', TINT[k]);
+      var tm = T(times[k]), i = tm.lastIndexOf(' ');
+      r.innerHTML = '<span class="sl-ic"></span><span class="sl-nm"></span><b></b><small></small>';
+      r.querySelector('.sl-ic').innerHTML = mini(k); r.querySelector('.sl-nm').textContent = NAMES[k];
+      r.querySelector('b').textContent = tm.slice(0, i); r.querySelector('small').textContent = tm.slice(i + 1);
       r.addEventListener('click', function () { selectView(k); });
       list.appendChild(r);
     });
-    $('#slG').textContent = fmtG.format(new Date(now));
-    $('#slH').textContent = fmtH ? fmtH.format(new Date(now)) + ' (حساب أم القرى، قد يختلف يومًا عن الرؤية)' : '';
+    $('#slG').textContent = fmtG.format(new Date(now)) + ' م';
+    $('#slH').textContent = fmtH ? fmtH.format(new Date(now)) + ' (تقريبي، قد يختلف يومًا)' : '';
     $('#slMethod').textContent = 'طريقة الحساب: الهيئة المصرية العامة للمساحة (الفجر ١٩٫٥° والعشاء ١٧٫٥°)، العصر بظل مثل الشيء. الأوقات محسوبة داخل الموقع بإحداثيات ' + cur()[1] + ' بتوقيت القاهرة. قد يختلف التقويم الرسمي بدقيقة أو دقيقتين.';
   }
 
@@ -125,11 +126,11 @@
   function state(t) {
     var D = 86400000, sr = times.sunrise, ss = times.sunset, o = { col: colors(t) };
     var f = (t - sr) / (ss - sr), h = Math.sin(Math.PI * f);
-    o.sunOn = f > -0.07 && f < 1.07; o.sx = 30 + 300 * clamp(f, -0.07, 1.07); o.sy = 150 - h * 118; o.h = o.sunOn ? Math.max(h, 0) : 0;
+    o.sunOn = f > -0.07 && f < 1.07; o.sx = 30 + 300 * clamp(f, -0.07, 1.07); o.sy = 200 - h * 100; o.h = o.sunOn ? Math.max(h, 0) : 0;
     var nsr = sr + D, pss = ss - D, g;
     if (t >= ss) g = (t - ss) / (nsr - ss); else g = (t - pss) / (sr - pss);
     var day = t >= sr && t <= ss;
-    o.moonOn = !day; o.mx = 30 + 300 * clamp(g, 0, 1); o.my = 150 - Math.sin(Math.PI * clamp(g, 0, 1)) * 100;
+    o.moonOn = !day; o.mx = 30 + 300 * clamp(g, 0, 1); o.my = 200 - Math.sin(Math.PI * clamp(g, 0, 1)) * 92;
     var dusk = clamp((t - ss) / (70 * 60000), 0, 1), dawn = clamp((sr - t) / (70 * 60000), 0, 1);
     o.stars = day ? 0 : Math.max(dusk, dawn);
     if (t > ss + D / 2) o.stars = 1;
@@ -154,17 +155,19 @@
     setA('sunGlow', { cx: o.sx, cy: o.sy, opacity: vis * (0.55 + 0.4 * (1 - o.h)) });
     setA('moonDisc', { cx: o.mx, cy: o.my, opacity: o.moonOn ? 1 : 0 });
     setA('moonCut', { cx: o.mx + 6, cy: o.my - 3 });
-    var d = dark(o.col[1]); document.getElementById('skHill').setAttribute('fill', d); document.getElementById('skMosque').setAttribute('fill', d);
+    var d = dark(o.col[1]); document.getElementById('skHill').setAttribute('fill', d); document.getElementById('skMosque').setAttribute('fill', d); document.getElementById('skLights').setAttribute('opacity', (Math.max(0, o.stars - 0.2) * 0.95).toFixed(2));
   }
+  var ICON = {
+    fajr: '<path d="M4 17h16M7 17a5 5 0 0 1 10 0"/><path d="M12 6v2M5.5 9.5L7 11M18.5 9.5L17 11"/><path d="M17 3.2a2.4 2.4 0 1 0 2.8 2.8 3 3 0 0 1-2.8-2.8z"/>',
+    sunrise: '<path d="M3 18h18M7 18a5 5 0 0 1 10 0"/><path d="M12 4v5M9.5 6.5L12 4l2.5 2.5"/><path d="M4.5 12l1.4 1.4M19.5 12l-1.4 1.4"/>',
+    dhuhr: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+    asr: '<circle cx="9" cy="9" r="3"/><path d="M9 3v1.5M3 9h1.5M4.8 4.8l1 1M13.2 4.8l-1 1"/><path d="M8 19h9a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.3 1.6A2.7 2.7 0 0 0 8 19z"/>',
+    maghrib: '<path d="M3 18h18M7 18a5 5 0 0 1 10 0"/><path d="M12 4v5M9.5 6.5L12 9l2.5-2.5"/><path d="M4.5 12l1.4 1.4M19.5 12l-1.4 1.4"/>',
+    isha: '<path d="M19 14.5A8 8 0 1 1 9.5 5a6.5 6.5 0 0 0 9.5 9.5z"/><path d="M17 4v3M15.5 5.5h3"/>'
+  };
+  var TINT = { fajr: '#7b6bd6', sunrise: '#f39a4a', dhuhr: '#f2c84b', asr: '#e0a24a', maghrib: '#ee6a43', isha: '#6f86d8' };
   function mini(k) {
-    var t = times[k] + (k === 'isha' ? 25 * 60000 : 0), o = state(t), id = 'm' + k;
-    var sx = (o.sx / 360 * 56).toFixed(1), sy = (o.sy / 190 * 56).toFixed(1), mx = (o.mx / 360 * 56).toFixed(1), my = (o.my / 190 * 56).toFixed(1);
-    var body = '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + o.col[0] + '"/><stop offset="1" stop-color="' + o.col[1] + '"/></linearGradient></defs><rect width="56" height="56" fill="url(#' + id + ')"/>';
-    if (o.stars > 0.3) body += '<circle cx="10" cy="9" r=".8" fill="#fff"/><circle cx="40" cy="7" r=".7" fill="#fff"/><circle cx="26" cy="15" r=".6" fill="#fff"/><circle cx="48" cy="19" r=".7" fill="#fff"/>';
-    if (o.sunOn) body += '<circle cx="' + sx + '" cy="' + Math.min(sy, 50) + '" r="' + (5 + 3 * (1 - o.h)).toFixed(1) + '" fill="' + sunCol(o.h) + '"/>';
-    else body += '<circle cx="' + mx + '" cy="' + my + '" r="4.2" fill="#f3efd8"/>';
-    body += '<path d="M0 46Q14 40 28 45T56 43V56H0Z" fill="' + dark(o.col[1]) + '"/>';
-    return '<svg viewBox="0 0 56 56" aria-hidden="true">' + body + '</svg>';
+    return '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[k] + '</svg>';
   }
   var vt = null, tgt = null, raf = 0, viewK = null;
   function frame() {
@@ -194,10 +197,10 @@
     ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(function (k) { if (!nxt && times[k] > now) { nxt = times[k]; nk = k; } });
     if (!nxt) { nxt = times.nextFajr; nk = 'fajr'; }
     var s = Math.max(0, Math.floor((nxt - now) / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
-    function p2(n) { return ar(n < 10 ? '0' + n : n); }
-    $('#slNextName').textContent = 'الصلاة القادمة: ' + NAMES[nk];
+    function p2(n) { return n < 10 ? '0' + n : String(n); }
+    $('#slNextName').textContent = NAMES[nk] + ' بعد';
     $('#slCount').textContent = p2(h) + ':' + p2(m) + ':' + p2(x);
-    $('#slNextAt').textContent = 'عند ' + T(nxt);
+    $('#slNextAt').textContent = 'الساعة ' + T(nxt);
     ORDER.forEach(function (k) { var e = $('#sl-' + k); if (e) e.classList.toggle('next', k === nk); });
     if (!viewK) { if (tgt == null || !raf) { vt = now; tgt = now; drawSky(now); } else tgt = now; caption(null); } else { caption(viewK); }
     if (st.auto) ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(function (k) {
