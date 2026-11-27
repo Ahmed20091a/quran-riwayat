@@ -191,7 +191,7 @@
     if (p > PAGES.length) p = PAGES.length;
     if (MODE !== 'page') return;
     currentPage = p;
-    history.replaceState(null, '', '#p=' + p);
+    if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#p=' + p);
     $('#pageInput').value = p;
     $('#pagePrev').disabled = (p === 1);
     $('#pageNext').disabled = (p === PAGES.length);
@@ -303,7 +303,7 @@
   /* ---------- surah (scroll) mode ---------- */
   function loadSurah(n, keepBadge) {
     currentSurah = n;
-    history.replaceState(null, '', '#mushaf');
+    if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#mushaf');
     $('#surahSelect').value = n;
     $('#pSurah').value = n;
     var badge = $('#verifyBadge');
@@ -1486,6 +1486,137 @@
     });
   }
 
+
+  var TAJ_VIEW = { cat: null, rule: -1 };
+  var TAJ_EX = null, SURAH_C = {};
+  var TAJ_WHY = {
+    'الإظهار الحلقي': 'بعد النون الساكنة أو التنوين جاء حرف الحلق «{L}»، فالنون تُنطق واضحة بلا إدغام ولا إخفاء.',
+    'الإدغام بغنة': 'بعد النون الساكنة أو التنوين جاء حرف «{L}» من حروف (ينمو)، فتُدغم النون فيه بغنة.',
+    'الإدغام بغير غنة': 'بعد النون الساكنة أو التنوين جاء حرف «{L}»، فتُدغم النون فيه إدغامًا كاملًا بلا غنة.',
+    'الإقلاب': 'بعد النون الساكنة أو التنوين جاءت الباء، فتُقلب النون ميمًا مخفاة بغنة.',
+    'الإخفاء الحقيقي': 'بعد النون الساكنة أو التنوين جاء حرف «{L}» من حروف الإخفاء الخمسة عشر، فتُخفى النون بغنة.',
+    'الإخفاء الشفوي': 'ميم ساكنة جاءت بعدها باء، فتُخفى الميم بغنة مع إطباق الشفتين.',
+    'الإدغام الشفوي': 'ميم ساكنة جاءت بعدها ميم، فتُدغم فيها بغنة.',
+    'الإظهار الشفوي': 'ميم ساكنة جاء بعدها حرف «{L}» (ليس باءً ولا ميمًا)، فتُظهر الميم واضحة.',
+    'الغنة في المشددتين': 'حرف «{L}» مشدد، فتجب الغنة مقدار حركتين.',
+    'اللام الشمسية': 'لام التعريف جاء بعدها حرف «{L}» وهو من الحروف الشمسية، فاللام لا تُنطق ويُشدد الحرف بعدها.',
+    'همزة الوصل': 'همزة وصل تُنطق في بداية الكلام وتسقط عند الوصل بما قبلها.',
+    'المد الطبيعي': 'حرف مد (ألف أو واو أو ياء) لم يأتِ بعده همز ولا سكون، فيُمد حركتين.',
+    'المد المتصل': 'جاء حرف المد وبعده همزة في نفس الكلمة، فيُمد أربع أو خمس حركات.',
+    'المد المنفصل': 'جاء حرف المد في آخر كلمة وبعده همزة في أول الكلمة التالية، فيُمد أربع أو خمس حركات.',
+    'المد اللازم': 'جاء بعد حرف المد سكون أصلي لازم، فيُمد ست حركات.',
+    'المد العارض للسكون': 'حرف المد قبل آخر حرف في نهاية الآية، فعند الوقف يُسكَّن الحرف الأخير ويجوز المد حركتين أو أربعًا أو ستًا.',
+    'القلقلة الصغرى': 'حرف القلقلة «{L}» ساكن في وسط الكلمة، فيُنطق باضطراب خفيف.',
+    'القلقلة الكبرى': 'حرف القلقلة «{L}» في آخر الآية، فعند الوقف تكون القلقلة أقوى.',
+    'المتجانسان': 'حرفان اتفقا في المخرج واختلفا في الصفة والتقيا، فيُدغم الأول في الثاني.',
+    'المتقاربان': 'حرفان تقاربا في المخرج أو الصفة والتقيا، فيُدغم الأول في الثاني.'
+  };
+  function loadSurah(n) {
+    if (SURAH_C[n]) return Promise.resolve(SURAH_C[n]);
+    return fetch('data/surah/' + String(n).padStart(3, '0') + '.json').then(function (r) { return r.json(); }).then(function (d) { SURAH_C[n] = d.ayahs; return d.ayahs; });
+  }
+  function tokenIdx(words) {
+    var o = [];
+    words.forEach(function (w, i) { if (/[\u0621-\u064a\u0671]/.test(w)) o.push(i); });
+    return o;
+  }
+  function exNode(rule, L, e) {
+    var s = e[0], a = e[1], ws = e[2], we = e[3];
+    var words = SURAH_C[s][a - 1].split(' ');
+    var ix = tokenIdx(words);
+    var from = ix[ws], to = ix[we];
+    var box = document.createElement('div'); box.className = 'ex ex-ay';
+    var t = document.createElement('div'); t.className = 'ex-t';
+    var pre = words.slice(0, from).join(' ');
+    var mid = words.slice(from, to + 1).join(' ');
+    var post = words.slice(to + 1).join(' ');
+    if (pre) t.appendChild(document.createTextNode(pre + ' '));
+    var h = document.createElement('span'); h.className = 'hl'; h.textContent = mid; t.appendChild(h);
+    if (post) t.appendChild(document.createTextNode(' ' + post));
+    var ref = document.createElement('div'); ref.className = 'ex-ref';
+    ref.textContent = 'سورة ' + MANIFEST.surahs[s - 1].name + ' — الآية ' + arNum(a);
+    box.appendChild(t); box.appendChild(ref);
+    var why = TAJ_WHY[rule];
+    if (why) { var w = document.createElement('div'); w.className = 'ex-w'; w.textContent = why.replace('{L}', L); box.appendChild(w); }
+    return box;
+  }
+  function renderRule(cat, idx) {
+    var r = cat.rules[idx];
+    TAJ_VIEW = { cat: cat.id, rule: idx };
+    document.getElementById('tajTitle').textContent = r.name;
+    document.getElementById('tajChips').innerHTML = '';
+    var body = document.getElementById('tajBody');
+    body.innerHTML = '';
+    var card = document.createElement('div'); card.className = 'rule full';
+    var html = '';
+    if (r.letters) html += '<div class="rule-letters">حروفه: <span>' + r.letters + '</span></div>';
+    html += '<p>' + r.how + '</p>';
+    card.innerHTML = html;
+    if ('speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined') {
+      var sp = document.createElement('button'); sp.type = 'button'; sp.className = 'dl-act'; sp.textContent = 'اسمع الشرح';
+      sp.addEventListener('click', function () {
+        try {
+          if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
+          var u = new SpeechSynthesisUtterance(r.name + '. ' + r.how); u.lang = 'ar'; u.rate = .9; speechSynthesis.speak(u);
+        } catch (e) {}
+      });
+      card.appendChild(sp);
+    }
+    var qh = document.createElement('h5'); qh.className = 'ex-h'; qh.textContent = 'أمثلة توضيحية'; card.appendChild(qh);
+    var l1 = document.createElement('div'); l1.className = 'ex-list';
+    r.examples.forEach(function (ex) {
+      l1.insertAdjacentHTML('beforeend', '<div class="ex"><div class="ex-t">' + tajHl(ex.t) + '</div><div class="ex-w">' + ex.why + '</div></div>');
+    });
+    card.appendChild(l1);
+    var mh = document.createElement('h5'); mh.className = 'ex-h'; mh.textContent = 'أمثلة من المصحف'; card.appendChild(mh);
+    var mbox = document.createElement('div'); card.appendChild(mbox);
+    body.appendChild(card);
+    document.getElementById('tajPage').scrollTop = 0;
+    var load = TAJ_EX ? Promise.resolve(TAJ_EX) : fetch('data/taj-ex.json').then(function (x) { return x.json(); }).then(function (d) { TAJ_EX = d; return d; });
+    load.then(function (d) {
+      var D = d[r.name];
+      if (!D) { mbox.textContent = 'لا توجد أمثلة مرصودة آليًا لهذا الحكم بعد.'; return; }
+      var keys = Object.keys(D.g);
+      var info = document.createElement('p'); info.className = 'ex-sum';
+      info.textContent = 'عدد المواضع المرصودة في المصحف: ' + arNum(D.tot) + ' (نعرض عينة متنوعة من سور كثيرة).';
+      mbox.appendChild(info);
+      var chips = document.createElement('div'); chips.className = 'taj-chips ex-chips';
+      var list = document.createElement('div'); list.className = 'ex-list';
+      var cur = null, shown = 8;
+      function draw() {
+        list.innerHTML = '';
+        var arr = D.g[cur];
+        var need = {};
+        arr.forEach(function (e) { need[e[0]] = 1; });
+        Promise.all(Object.keys(need).map(function (n) { return loadSurah(+n); })).then(function () {
+          arr.slice(0, shown).forEach(function (e) { list.appendChild(exNode(r.name, cur, e)); });
+          if (arr.length > shown) {
+            var more = document.createElement('button'); more.type = 'button'; more.className = 'dl-act';
+            more.textContent = 'أمثلة أكثر (' + arNum(arr.length - shown) + ')';
+            more.addEventListener('click', function () { shown += 12; draw(); });
+            list.appendChild(more);
+          }
+        });
+      }
+      function pick(k) {
+        cur = k; shown = 8;
+        Array.prototype.forEach.call(chips.children, function (c) { c.classList.toggle('on', c.dataset.k === k); });
+        draw();
+      }
+      if (keys.length > 1 || keys[0] !== '') {
+        keys.forEach(function (k) {
+          var c = document.createElement('button'); c.type = 'button'; c.className = 'taj-chip'; c.dataset.k = k;
+          c.textContent = 'حرف ' + k + ' (' + arNum(D.g[k].length) + ')';
+          c.addEventListener('click', function () { pick(k); });
+          chips.appendChild(c);
+        });
+        mbox.appendChild(chips);
+      }
+      mbox.appendChild(list);
+      pick(keys[0]);
+    }).catch(function () { mbox.textContent = 'تعذر تحميل الأمثلة.'; });
+  }
+
   function renderTaj(id) {
     if (!TAJ_DATA) return;
     var cat = null;
@@ -1497,20 +1628,15 @@
     tajChips(cat.id);
     var body = document.getElementById('tajBody');
     body.innerHTML = '';
+    TAJ_VIEW = { cat: cat.id, rule: -1 };
     cat.rules.forEach(function (r, idx) {
-      var card = document.createElement('div');
-      card.className = 'rule full';
-      var html = '<h4>' + arNum(idx + 1) + ' — ' + r.name + '</h4>';
-      if (r.letters) html += '<div class="rule-letters">حروفه: <span>' + r.letters + '</span></div>';
-      html += '<p>' + r.how + '</p>';
-      html += '<div class="ex-list">';
-      r.examples.forEach(function (ex) {
-        html += '<div class="ex"><div class="ex-t">' + tajHl(ex.t) + '</div>' +
-                '<div class="ex-w">' + ex.why + '</div></div>';
-      });
-      html += '</div>';
-      card.innerHTML = html;
-      body.appendChild(card);
+      var b = document.createElement('button');
+      b.className = 'taj-cat taj-rule-btn';
+      var nm = document.createElement('b'); nm.textContent = arNum(idx + 1) + ' — ' + r.name;
+      var sm = document.createElement('small'); sm.textContent = r.letters ? 'حروفه: ' + r.letters : '';
+      b.appendChild(nm); b.appendChild(sm);
+      b.addEventListener('click', function () { renderRule(cat, idx); });
+      body.appendChild(b);
     });
     body.scrollTop = 0;
     var page = document.getElementById('tajPage');
@@ -1536,7 +1662,9 @@
     document.body.classList.remove('taj-open');
   }
 
-  document.getElementById('tajBack').addEventListener('click', closeTaj);
+  document.getElementById('tajBack').addEventListener('click', function () {
+    if (TAJ_VIEW.rule >= 0) { try { speechSynthesis.cancel(); } catch (e) {} renderTaj(TAJ_VIEW.cat); } else closeTaj();
+  });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !document.getElementById('tajPage').hidden) closeTaj();
   });

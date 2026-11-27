@@ -771,3 +771,19 @@ body.ay-on { padding-bottom: 150px; }
 .dl-row button, .dl-act { background: #14211a; color: var(--gold2); border: 1px solid var(--line); border-radius: 8px; padding: .3rem .7rem; font: inherit; cursor: pointer; }
 .dl-act { display: block; width: 100%; margin: .5rem 0; padding: .6rem; }
 .in-app .player { flex-wrap: wrap; } .in-app .player .p-info { flex: 1 1 100%; order: -1; } .in-app .player .p-info b { white-space: normal; }
+
+.taj-rule-btn { display: block; width: 100%; text-align: right; margin-bottom: .6rem; }
+.ex-h { color: var(--gold2); margin: 1rem 0 .4rem; font-size: .95rem; }
+.ex-ay .ex-ref { color: var(--muted); font-size: .76rem; margin-top: .3rem; }
+.ex-sum { color: var(--muted); font-size: .82rem; }
+.ex-chips { margin: .5rem 0; flex-wrap: wrap; }
+
+/* screens: one section at a time */
+html.screens header.hero, html.screens section, html.screens .home-tiles { display: none; }
+html.screens header.hero.scr, html.screens section.scr { display: block; }
+html.screens .home-tiles.scr { display: grid; }
+.home-tiles { grid-template-columns: repeat(2, 1fr); gap: .8rem; padding: 1.2rem; max-width: 720px; margin: 0 auto; }
+.home-tiles a { display: block; text-align: center; padding: 1.1rem .6rem; border: 1px solid var(--line); border-radius: 14px; background: #0d1814; color: var(--gold2); font-weight: 800; text-decoration: none; }
+.nav-links a.cur { color: var(--gold2); }
+.nav-links a.cur::after { transform: scaleX(1); }
+html.screens section.scr { min-height: 70vh; }
