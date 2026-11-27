@@ -1246,3 +1246,18 @@ html[data-site=light] .home-tiles a, html[data-site=light] .hs-tile { background
 html[data-site=light] .ay-player, html[data-site=light] .rm-card { background: var(--card) !important; color: var(--ink) !important; border-color: var(--line) !important; box-shadow: none !important; }
 html[data-site=light] .poem-v, html[data-site=light] .hs-text, html[data-site=light] .hd-text, html[data-site=light] .sb-count, html[data-site=light] .sec-head h2, html[data-site=light] .reciter h4, html[data-site=light] .rm-l, html[data-site=light] .rm-n, html[data-site=light] .sl-p b { color: var(--ink) !important; }
 html[data-site=light] .poem-v small { color: var(--muted) !important; }
+
+/* in-page book chip (left, end of page), hizb markers, no verified badge */
+.verified { display: none !important; }
+html.in-mushaf #reader > .reader-bar .rb-pg, .pg-fab { display: none !important; }
+.mp-foot, .sc-no { display: flex !important; justify-content: flex-start; direction: ltr; padding: .3rem .2rem 0; border: 0; }
+.mp-foot .pg-no, .sc-no b { display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 36px; min-width: 0; padding: 0 0 3px; border: 0; border-radius: 0; font: 800 .8rem 'Cairo', sans-serif; color: #f6e3a1; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 50' fill='none'%3E%3Cpath d='M39 10C30 4 17 4 5 8v33c12-4 25-4 34 2 9-6 22-6 34-2V8C61 4 48 4 39 10z' fill='%230a120e' fill-opacity='.94' stroke='%23d4b15e' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M39 10v33' stroke='%23d4b15e' stroke-width='1.2'/%3E%3Cpath d='M10 15c8-2 17-1 24 2M10 22c8-2 17-1 24 2M44 17c7-3 16-4 24-2M44 24c7-3 16-4 24-2' stroke='%23d4b15e' stroke-opacity='.4' stroke-width='1'/%3E%3C/svg%3E") center/100% 100% no-repeat; }
+html[data-site=light] .mp-foot .pg-no, html[data-site=light] .sc-no b, #reader[data-th=light] .mp-foot .pg-no { color: #3b2806; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 50' fill='none'%3E%3Cpath d='M39 10C30 4 17 4 5 8v33c12-4 25-4 34 2 9-6 22-6 34-2V8C61 4 48 4 39 10z' fill='%23f7eed4' stroke='%238a6414' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M39 10v33' stroke='%238a6414' stroke-width='1.2'/%3E%3C/svg%3E") center/100% 100% no-repeat; }
+.hz { display: block; text-align: center; color: var(--muted); font: 600 .8rem 'Cairo', sans-serif; margin: .5rem 0 .2rem; }
+.sc-juz { text-align: center; color: var(--muted); font: 600 .85rem 'Cairo', sans-serif; margin: .6rem 0 .2rem; }
+.sc-no span { display: none; }
+@media (min-width: 900px) { html:not(.in-mushaf) #themeSw, html:not(.in-mushaf)[data-site=light] #themeSw { top: auto !important; bottom: 16px; left: 16px !important; background: var(--card) !important; border: 1px solid var(--line) !important; padding: 6px 8px !important; border-radius: 999px; } }
+html[data-site=light] .rd-now { background: var(--card) !important; border-color: var(--line) !important; box-shadow: none !important; color: var(--ink) !important; }
+html[data-site=light] .rd-live { color: #a83232 !important; }
+html[data-site=light] .rd-item.on { background: rgba(138,100,20,.14) !important; color: var(--gold2) !important; }
+html[data-site=light] .rd-stop, html[data-site=light] #radio .btn { background: var(--card2) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; }
