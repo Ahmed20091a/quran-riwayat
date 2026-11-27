@@ -1,4 +1,4 @@
-/* الإذاعة: بث مباشر لتلاوات القرآن من خوادم Mp3Quran الرسمية (يحتاج إنترنت) */
+/* الإذاعة: بث مباشر لتلاوات القرآن من خوادم Mp3Quran (يحتاج إنترنت) */
 (function () {
   var list = document.getElementById('rdList'); if (!list) return;
   var now = document.getElementById('rdNow'), nameEl = document.getElementById('rdName'), stateEl = document.getElementById('rdState');
@@ -20,7 +20,8 @@
   function fail(st, why) {
     clearT();
     if (cur !== st) return;
-    if (!retried[st.u]) { retried[st.u] = 1; start(st, true); return; }   /* the host sometimes answers 500 once: one retry */
+    /* the stream host answers 500 when connections come too fast (verified live: same URL works a few seconds later): retry the same station twice, with a pause */
+    if ((retried[st.u] || 0) < 2) { var rn = retried[st.u] = (retried[st.u] || 0) + 1; stateEl.textContent = 'جارٍ إعادة المحاولة…'; timer = setTimeout(function () { if (cur === st) start(st, true); }, rn === 1 ? 2500 : 5000); return; }
     st.bad = true; tried++;
     var nx = tried < 6 ? nextOk(st) : null;
     if (!nx) { stateEl.textContent = 'تعذّر تشغيل الإذاعات حاليًا. تأكد من الإنترنت وجرّب بعد شوية.'; tried = 0; paint(); return; }
