@@ -13,7 +13,7 @@
 
   /* ---------- state ---------- */
   var MANIFEST = null;
-  var PAGES = null;            /* verified 604-entry mushaf page map */
+  var PAGES = null;            /* verified page map: every surah starts on its own page */
   var MODE = 'page';           /* 'page' | 'surah' */
   var currentSurah = 1;
   var currentPage = 1;
@@ -68,7 +68,9 @@
       var ok = (await sha256hex(raw)) === m.pagesSha256;
       if (!ok) throw new Error('pages integrity');
       PAGES = JSON.parse(raw);
-      if (!Array.isArray(PAGES) || PAGES.length !== 604) throw new Error('pages shape');
+      if (!Array.isArray(PAGES) || PAGES.length < 604) throw new Error('pages shape');
+      var pt = document.getElementById('pjTotal');
+      if (pt) pt.textContent = 'من ' + arNum(PAGES.length);
     } catch (e) {
       PAGES = null;
       MODE = 'surah';
@@ -77,7 +79,7 @@
       if (mt) mt.style.display = 'none';
     }
     var hp = parseInt((location.hash.match(/^#p=(\d+)$/) || [])[1], 10);
-    if (PAGES) renderPage((hp >= 1 && hp <= 604) ? hp : 1);
+    if (PAGES) renderPage((hp >= 1 && hp <= PAGES.length) ? hp : 1);
     else loadSurah(1);
   }).catch(function () {
     $('#readerBody').innerHTML = '<div class="reader-loading">تعذر تحميل بيانات المصحف. حدّث الصفحة.</div>';
@@ -96,7 +98,7 @@
       var q = e.target.value.trim();
       if (!q) { sel.selectedIndex = currentSurah - 1; return; }
       var num = parseInt(toLatinDigits(q), 10);
-      if (PAGES && String(num) === toLatinDigits(q) && num >= 1 && num <= 604) { renderPage(num); return; }
+      if (PAGES && String(num) === toLatinDigits(q) && num >= 1 && num <= PAGES.length) { renderPage(num); return; }
       var nq = normAr(q);
       var hit = MANIFEST.surahs.find(function (s) { return normAr(s.name).indexOf(nq) !== -1; });
       if (hit) gotoSurah(hit.n);
@@ -106,7 +108,7 @@
     $('#pageNext').addEventListener('click', function () { renderPage(currentPage + 1); });
     function jump() {
       var v = parseInt(toLatinDigits($('#pageInput').value.trim()), 10);
-      if (v >= 1 && v <= 604) renderPage(v);
+      if (v >= 1 && v <= PAGES.length) renderPage(v);
     }
     $('#pageGo').addEventListener('click', jump);
     $('#pageInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') jump(); });
@@ -154,7 +156,7 @@
   function pageSegments(p) {
     var st = PAGES[p - 1];
     var eS, eA;
-    if (p === 604) { eS = 114; eA = MANIFEST.surahs[113].count; }
+    if (p === PAGES.length) { eS = 114; eA = MANIFEST.surahs[113].count; }
     else {
       var nx = PAGES[p];
       if (nx.a === 1) { eS = nx.s - 1; eA = MANIFEST.surahs[eS - 1].count; }
@@ -172,13 +174,13 @@
   async function renderPage(p) {
     if (!PAGES) return;
     if (p < 1) p = 1;
-    if (p > 604) p = 604;
+    if (p > PAGES.length) p = PAGES.length;
     if (MODE !== 'page') return;
     currentPage = p;
     history.replaceState(null, '', '#p=' + p);
     $('#pageInput').value = p;
     $('#pagePrev').disabled = (p === 1);
-    $('#pageNext').disabled = (p === 604);
+    $('#pageNext').disabled = (p === PAGES.length);
     var badge = $('#verifyBadge');
     badge.hidden = true;
 
@@ -205,7 +207,7 @@
     }
 
     var html = '<div class="mp-head"><span class="mp-surah">سورة ' + MANIFEST.surahs[startSurah - 1].name +
-      '</span><span class="mp-juz">الجزء ' + arNum(PAGES[p - 1].j) + '</span></div><div class="mp-body" id="mpBody">';
+      '</span><span class="mp-juz">الجزء ' + arNum(PAGES[p - 1].j) + '</span></div><div class="mp-body" id="mpBody"><div class="mp-inner" id="mpInner">';
     segs.forEach(function (sg) {
       var d = loaded[sg.s];
       if (sg.fa === 1) {
@@ -217,7 +219,7 @@
           ' <span class="an">﴿' + arNum(a) + '﴾</span></span> ';
       }
     });
-    html += '</div><div class="mp-foot">— ' + arNum(p) + ' —</div>';
+    html += '</div></div><div class="mp-foot">— ' + arNum(p) + ' —</div>';
     $('#readerBody').innerHTML = '<div class="mushaf-wrap"><div class="mushaf-page">' + html + '</div></div>';
     badge.hidden = false;
     sizePageBox();
@@ -246,12 +248,15 @@
   function fitPageText() {
     var body = $('#mpBody');
     if (!body) return;
-    var size = 26, guard = 80;
-    body.style.fontSize = size + 'px';
-    while (guard-- > 0 && body.scrollHeight > body.clientHeight + 1 && size > 12) {
-      size -= 0.5;
-      body.style.fontSize = size + 'px';
+    var inner = document.getElementById('mpInner');
+    if (!inner) return;
+    var lo = 12, hi = 36, best = lo;
+    for (var it = 0; it < 12; it++) {
+      var mid = (lo + hi) / 2;
+      body.style.fontSize = mid + 'px';
+      if (inner.scrollHeight <= body.clientHeight + 1) { best = mid; lo = mid; } else { hi = mid; }
     }
+    body.style.fontSize = best.toFixed(2) + 'px';
   }
 
   /* refit after the Quran font swaps in (metrics change height) */
