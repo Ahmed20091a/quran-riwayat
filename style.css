@@ -314,7 +314,7 @@ html.shot .hero { min-height: 640px; }
 .mp-juz { color: var(--muted); font-weight: 600; }
 .mp-body {
   flex: 1; overflow: hidden;
-  display: flex; flex-direction: column; justify-content: center;
+  display: flex; flex-direction: column; justify-content: safe center;
   font-family: 'Amiri', serif;
   font-size: 26px; line-height: 2.15; text-align: justify; color: #f4efe3;
   padding: .2rem .15rem;
@@ -501,3 +501,44 @@ body.taj-open { overflow: hidden; }
 .rw-src a { color: var(--gold); }
 .rw-body { padding: 1rem .4rem; }
 .rw-body .ayah { cursor: default; }
+
+/* ayah player bar */
+.ayah.playing { background: rgba(212,177,94,.18); border-radius: 8px; box-shadow: 0 0 0 3px rgba(212,177,94,.12); }
+body.ay-on { padding-bottom: 150px; }
+.play-choice { flex-wrap: wrap; }
+.play-choice .btn { flex: 1 1 180px; }
+.ay-player {
+  position: fixed; z-index: 90; left: 0; right: 0; bottom: 0;
+  max-width: 640px; margin: 0 auto; padding: .7rem .9rem calc(.7rem + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(22,53,42,.96), rgba(8,16,13,.98));
+  border: 1px solid rgba(212,177,94,.45); border-bottom: 0; border-radius: 22px 22px 0 0;
+  box-shadow: 0 -10px 40px rgba(0,0,0,.55), 0 -1px 0 rgba(240,217,138,.35) inset;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); color: var(--ink);
+}
+.ay-player::before { content: ''; position: absolute; top: 6px; left: 50%; width: 38px; height: 4px; margin-left: -19px; border-radius: 4px; background: rgba(212,177,94,.35); }
+.ay-player[hidden] { display: none; }
+.ay-top { display: flex; align-items: center; gap: .7rem; margin-top: .45rem; }
+.ay-ring { --p: 0deg; flex: none; width: 58px; height: 58px; border-radius: 50%; padding: 4px;
+  background: conic-gradient(from 0deg, #f0d98a var(--p), rgba(212,177,94,.18) 0); display: grid; place-items: center; }
+.ay-play { width: 100%; height: 100%; border: 0; border-radius: 50%; cursor: pointer; font-size: 1.35rem; color: #14211a;
+  background: radial-gradient(circle at 35% 30%, #f6e3a1, #c79b3f); box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+.ay-player.is-playing .ay-ring { animation: ayGlow 2.4s ease-in-out infinite; }
+@keyframes ayGlow { 50% { box-shadow: 0 0 0 6px rgba(212,177,94,.12); } }
+.ay-info { min-width: 0; flex: 1; }
+.ay-info b { display: block; font-family: 'Amiri', serif; font-size: 1.2rem; color: var(--gold2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ay-info small { color: var(--muted); font-size: .78rem; }
+.ay-mode { flex: none; display: flex; border: 1px solid rgba(212,177,94,.4); border-radius: 999px; overflow: hidden; }
+.ay-mode button { background: transparent; color: var(--ink); border: 0; padding: .35rem .75rem; font: inherit; font-size: .8rem; cursor: pointer; }
+.ay-mode button.on { background: var(--gold); color: #14211a; font-weight: 800; }
+.ay-x { flex: none; background: transparent; border: 0; color: var(--muted); font-size: 1.1rem; cursor: pointer; padding: .3rem; }
+.ay-seek { display: flex; align-items: center; gap: .6rem; margin-top: .55rem; font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ay-seek input { --p: 0%; flex: 1; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 6px; outline: none; cursor: pointer;
+  background: linear-gradient(to left, #f0d98a var(--p), rgba(212,177,94,.2) var(--p)); touch-action: none; }
+.ay-seek input::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f6e3a1, #c79b3f); border: 2px solid #0a120f; box-shadow: 0 0 0 2px rgba(212,177,94,.5); }
+.ay-seek input::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #d4b15e; border: 2px solid #0a120f; }
+.ay-ctrl { display: flex; align-items: center; justify-content: space-between; gap: .3rem; margin-top: .45rem; }
+.ay-b { background: rgba(212,177,94,.1); color: var(--gold2); border: 1px solid rgba(212,177,94,.3); border-radius: 12px; padding: .45rem .7rem; font: inherit; font-size: .85rem; cursor: pointer; }
+.ay-b:active { background: rgba(212,177,94,.25); }
+.ay-dots { flex: 1; text-align: center; font-size: .8rem; color: var(--muted); }
+
+.ay-seek span { direction: ltr; unicode-bidi: isolate; min-width: 2.4em; text-align: center; }

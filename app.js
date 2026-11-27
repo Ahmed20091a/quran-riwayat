@@ -217,6 +217,10 @@
         if (sg.s !== 1 && sg.s !== 9 && d.ayahs[0].indexOf('بِسْمِ') !== 0) html += '<div class="mp-bsm">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
       }
       for (var a = sg.fa; a <= sg.ta; a++) {
+        if (sg.s === 1 && a === 1) {
+          html += '<div class="mp-bsm"><span class="ayah" data-s="1" data-a="1">' + d.ayahs[0] + '</span></div>';
+          continue;
+        }
         html += '<span class="ayah" data-s="' + sg.s + '" data-a="' + a + '">' + d.ayahs[a - 1] +
           ' <span class="an">﴿' + arNum(a) + '﴾</span></span> ';
       }
@@ -252,7 +256,7 @@
     for (var it = 0; it < 12; it++) {
       var mid = (lo + hi) / 2;
       body.style.fontSize = mid + 'px';
-      if (inner.scrollHeight <= body.clientHeight + 1) { best = mid; lo = mid; } else { hi = mid; }
+      if (inner.scrollHeight <= body.clientHeight - 6) { best = mid; lo = mid; } else { hi = mid; }
     }
     return best;
   }
@@ -306,8 +310,10 @@
     var html = '<div class="surah-title"><h3>سورة ' + s.name + '</h3>' +
       '<div class="meta">' + s.type + ' · ' + arNum(s.ayahs.length) + ' آية</div>';
     if (s.n !== 1 && s.n !== 9 && s.ayahs[0].indexOf('بِسْمِ') !== 0) html += '<div class="bsm">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+    if (s.n === 1) html += '<div class="bsm"><span class="ayah" data-i="0" data-s="1" data-a="1">' + s.ayahs[0] + '</span></div>';
     html += '</div><div class="ayahs">';
     s.ayahs.forEach(function (t, i) {
+      if (s.n === 1 && i === 0) return;
       html += '<span class="ayah" data-i="' + i + '" data-s="' + s.n + '" data-a="' + (i + 1) + '">' + t +
         ' <span class="an">﴿' + arNum(i + 1) + '﴾</span></span> ';
     });
@@ -368,6 +374,7 @@
 
   function playAudio() {
     if (!currentReciter) return;
+    if (typeof ayStop === 'function') ayStop();
     audio.src = audioURL();
     audio.play().then(function () { playing = true; $('#playPause').textContent = '⏸'; })
       .catch(function () { playing = false; $('#playPause').textContent = '▶'; });
@@ -488,9 +495,9 @@
     sheetTab('play');
   }
 
-  function closeSheet() {
+  function closeSheet(keepAudio) {
     document.getElementById('ayahSheet').hidden = true;
-    if (ayahAudioEl) { try { ayahAudioEl.pause(); } catch (e) {} }
+    if (ayahAudioEl && keepAudio !== true && !AY.on) { try { ayahAudioEl.pause(); } catch (e) {} }
   }
 
   function sheetTab(tab) {
@@ -512,28 +519,140 @@
     AYAH_RECITERS.forEach(function (r) { sel.add(new Option(r.name, r.id)); });
     sel.value = lsGet('quran.ayahReciter', AYAH_RECITERS[0].id);
     if (!sel.value) sel.selectedIndex = 0;
-    var btn = document.createElement('button');
-    btn.className = 'btn primary';
-    btn.textContent = '▶ تشغيل';
-    btn.addEventListener('click', function () { playAyah(sel.value, btn); });
-    ayahAudioEl.onended = function () { btn.textContent = '▶ تشغيل'; };
-    row.appendChild(sel); row.appendChild(btn);
+    row.appendChild(sel);
     box.appendChild(row);
+    var row2 = document.createElement('div'); row2.className = 'sheet-row play-choice';
+    var b1 = document.createElement('button'); b1.className = 'btn primary';
+    b1.textContent = '▶ هذه الآية فقط';
+    var b2 = document.createElement('button'); b2.className = 'btn';
+    b2.textContent = '▶ السورة كاملة من هذه الآية';
+    b1.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'ayah'); });
+    b2.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'surah'); });
+    row2.appendChild(b1); row2.appendChild(b2);
+    box.appendChild(row2);
     var hint = document.createElement('div'); hint.className = 'hint';
-    hint.textContent = 'التلاوة تتحمّل من الإنترنت وقت الضغط بس، ومش بتتحفظ على الجهاز.';
+    hint.textContent = 'التلاوة تتحمّل من الإنترنت آية بآية وقت التشغيل بس، ومش بتتحفظ على الجهاز. هيظهر شريط تشغيل تحت تتحكم منه.';
     box.appendChild(hint);
   }
 
-  function playAyah(recId, btn) {
+  /* ---------- ayah player bar ---------- */
+  var AY = { s: 0, a: 0, rec: null, mode: 'ayah', on: false };
+  var ayBar = null;
+  function fmtT(t) { if (!isFinite(t) || t < 0) t = 0; var m = Math.floor(t / 60), x = Math.floor(t % 60); return arNum(m) + ':' + arNum(x < 10 ? '0' + x : x); }
+  function buildAyBar() {
+    if (ayBar) return;
+    ayBar = document.createElement('div');
+    ayBar.id = 'ayPlayer'; ayBar.className = 'ay-player'; ayBar.hidden = true;
+    ayBar.innerHTML =
+      '<div class="ay-top"><div class="ay-ring" id="ayRing"><button class="ay-play" id="ayPlay" aria-label="تشغيل / إيقاف">▶</button></div>' +
+      '<div class="ay-info"><b id="ayTitle">—</b><small id="ayRec">—</small></div>' +
+      '<div class="ay-mode" id="ayMode" role="group"><button data-m="ayah">آية</button><button data-m="surah">سورة</button></div>' +
+      '<button class="ay-x" id="ayClose" aria-label="إغلاق">✕</button></div>' +
+      '<div class="ay-seek"><span id="ayCur">٠:٠٠</span><input id="aySlider" type="range" min="0" max="1000" value="0" dir="rtl" aria-label="التحكم في موضع التلاوة"><span id="ayDur">٠:٠٠</span></div>' +
+      '<div class="ay-ctrl"><button class="ay-b" id="ayPrev" aria-label="الآية السابقة">⏮ السابقة</button><button class="ay-b" id="ayBack" aria-label="رجوع ١٠ ثواني">↺ ١٠ث</button><div class="ay-dots" id="ayDots"></div><button class="ay-b" id="ayFwd" aria-label="تقدّم ١٠ ثواني">١٠ث ↻</button><button class="ay-b" id="ayNext" aria-label="الآية التالية">التالية ⏭</button></div>';
+    document.body.appendChild(ayBar);
+    var sl = ayBar.querySelector('#aySlider');
+    document.getElementById('ayPlay').addEventListener('click', function () {
+      if (ayahAudioEl.paused) ayahAudioEl.play(); else ayahAudioEl.pause();
+    });
+    sl.addEventListener('input', function () {
+      if (isFinite(ayahAudioEl.duration)) ayahAudioEl.currentTime = ayahAudioEl.duration * sl.value / 1000;
+    });
+    document.getElementById('ayBack').addEventListener('click', function () { ayahAudioEl.currentTime = Math.max(0, ayahAudioEl.currentTime - 10); });
+    document.getElementById('ayFwd').addEventListener('click', function () { if (isFinite(ayahAudioEl.duration)) ayahAudioEl.currentTime = Math.min(ayahAudioEl.duration, ayahAudioEl.currentTime + 10); });
+    document.getElementById('ayNext').addEventListener('click', function () { ayStep(1, true); });
+    document.getElementById('ayPrev').addEventListener('click', function () { ayStep(-1, true); });
+    document.getElementById('ayClose').addEventListener('click', ayStop);
+    ayBar.querySelectorAll('#ayMode button').forEach(function (b) {
+      b.addEventListener('click', function () { AY.mode = b.getAttribute('data-m'); ayPaintMode(); });
+    });
+    ayahAudioEl.addEventListener('timeupdate', ayTick);
+    ayahAudioEl.addEventListener('durationchange', ayTick);
+    ayahAudioEl.addEventListener('play', ayPaintPlay);
+    ayahAudioEl.addEventListener('pause', ayPaintPlay);
+    ayahAudioEl.addEventListener('ended', function () {
+      if (!AY.on) return;
+      if (AY.mode === 'surah') ayStep(1, false);
+      else ayPaintPlay();
+    });
+    ayahAudioEl.addEventListener('error', function () { if (AY.on) { var t = document.getElementById('ayRec'); t.textContent = 'تعذّر تحميل التلاوة. تأكد من النت وجرّب تاني.'; } });
+  }
+  function ayPaintMode() {
+    ayBar.querySelectorAll('#ayMode button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-m') === AY.mode); });
+  }
+  function ayPaintPlay() {
+    if (!ayBar) return;
+    document.getElementById('ayPlay').textContent = ayahAudioEl.paused ? '▶' : '⏸';
+    ayBar.classList.toggle('is-playing', !ayahAudioEl.paused);
+  }
+  function ayTick() {
+    if (!ayBar || !AY.on) return;
+    var d = ayahAudioEl.duration, c = ayahAudioEl.currentTime, p = isFinite(d) && d > 0 ? c / d : 0;
+    var sl = document.getElementById('aySlider');
+    if (document.activeElement !== sl) sl.value = Math.round(p * 1000);
+    sl.style.setProperty('--p', (p * 100).toFixed(1) + '%');
+    document.getElementById('ayRing').style.setProperty('--p', (p * 360).toFixed(1) + 'deg');
+    document.getElementById('ayCur').textContent = fmtT(c);
+    document.getElementById('ayDur').textContent = fmtT(d);
+  }
+  function ayDots() {
+    var n = MANIFEST.surahs[AY.s - 1].count, box = document.getElementById('ayDots');
+    box.textContent = 'آية ' + arNum(AY.a) + ' من ' + arNum(n);
+  }
+  function ayHighlight() {
+    document.querySelectorAll('.ayah.playing').forEach(function (e) { e.classList.remove('playing'); });
+    var el = document.querySelector('#readerBody .ayah[data-s="' + AY.s + '"][data-a="' + AY.a + '"]');
+    if (el) { el.classList.add('playing'); try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} return; }
+    /* reader is showing something else: bring the ayah into view */
+    if (MODE === 'page' && PAGES) renderPage(pageOfAyah(AY.s, AY.a));
+    else loadSurah(AY.s, true);
+    setTimeout(function () {
+      var e2 = document.querySelector('#readerBody .ayah[data-s="' + AY.s + '"][data-a="' + AY.a + '"]');
+      if (e2) { e2.classList.add('playing'); try { e2.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} }
+    }, 900);
+  }
+  function ayLoad() {
+    var r = AY.rec;
+    var url = 'https://cdn.islamic.network/quran/audio/' + r.br + '/' + r.id + '/' + ayahGlobal(AY.s, AY.a) + '.mp3';
+    if (audio && !audio.paused) { audio.pause(); playing = false; var pp = $('#playPause'); if (pp) pp.textContent = '▶'; }
+    $('#player').classList.remove('on');
+    ayahAudioEl.src = url;
+    document.getElementById('ayTitle').textContent = 'سورة ' + MANIFEST.surahs[AY.s - 1].name + ' · آية ' + arNum(AY.a);
+    document.getElementById('ayRec').textContent = r.name;
+    ayDots(); ayPaintMode(); ayTick();
+    var pr = ayahAudioEl.play();
+    if (pr && pr.catch) pr.catch(function () { ayPaintPlay(); });
+    ayHighlight();
+  }
+  function startAy(recId, s, a, mode) {
+    buildAyBar();
     var r = AYAH_RECITERS.filter(function (x) { return x.id === recId; })[0] || AYAH_RECITERS[0];
     lsSet('quran.ayahReciter', r.id);
-    var url = 'https://cdn.islamic.network/quran/audio/' + r.br + '/' + r.id + '/' + ayahGlobal(sheetState.s, sheetState.a) + '.mp3';
-    if (ayahAudioEl.src === url && !ayahAudioEl.paused) { ayahAudioEl.pause(); btn.textContent = '▶ تشغيل'; return; }
-    if (audio && !audio.paused) audio.pause();
-    ayahAudioEl.src = url;
-    btn.textContent = '⏸ إيقاف';
-    var pr = ayahAudioEl.play();
-    if (pr && pr.catch) pr.catch(function () { btn.textContent = '▶ تشغيل'; });
+    AY.rec = r; AY.s = s; AY.a = a; AY.mode = mode; AY.on = true;
+    ayBar.hidden = false;
+    document.body.classList.add('ay-on');
+    closeSheet(true);
+    ayLoad();
+  }
+  function ayStep(d, force) {
+    var n = MANIFEST.surahs[AY.s - 1].count, a = AY.a + d, s = AY.s;
+    if (a > n) {
+      if (!force || s >= 114) { ayahAudioEl.pause(); return; }
+      s++; a = 1;
+    } else if (a < 1) {
+      if (s <= 1) return;
+      s--; a = MANIFEST.surahs[s - 1].count;
+    }
+    AY.s = s; AY.a = a;
+    ayLoad();
+  }
+  function ayStop() {
+    AY.on = false;
+    try { ayahAudioEl.pause(); } catch (e) {}
+    ayahAudioEl.removeAttribute('src');
+    document.querySelectorAll('.ayah.playing').forEach(function (e) { e.classList.remove('playing'); });
+    if (ayBar) ayBar.hidden = true;
+    document.body.classList.remove('ay-on');
   }
 
   function renderTaf(box) {

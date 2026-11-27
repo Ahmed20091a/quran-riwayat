@@ -37,9 +37,11 @@
     if (cur !== ri.id || n !== +$('#rwSurah').value) return;
     var sm = HM.surahs[n - 1];
     var html = '<div class="surah-title"><h3>سورة ' + sm.name + '</h3><div class="meta">' + ri.name + ' · ' + arNum(v.length) + ' آية</div>';
-    if (n !== 9 && !(ri.id === 'shubah' && n === 1)) html += '<div class="bsm">' + esc(ri.bismillah) + '</div>';
+    var skip = (ri.id === 'shubah' && n === 1);
+    if (skip) html += '<div class="bsm">' + esc(v[0]) + '</div>';
+    else if (n !== 9) html += '<div class="bsm">' + esc(ri.bismillah) + '</div>';
     html += '</div><div class="ayahs">';
-    v.forEach(function (t, i) { html += '<span class="ayah">' + esc(t) + ' <span class="an">﴿' + arNum(i + 1) + '﴾</span></span> '; });
+    v.forEach(function (t, i) { if (skip && i === 0) return; html += '<span class="ayah">' + esc(t) + ' <span class="an">﴿' + arNum(i + 1) + '﴾</span></span> '; });
     body.innerHTML = html + '</div>';
     badge.hidden = false;
   }
