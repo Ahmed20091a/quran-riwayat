@@ -1214,3 +1214,10 @@ html[data-site=light] .vo-panel button.on, html[data-site=light] .vo-row button.
 html[data-site=light] #ayahSheet .sheet-card button { background: #efe2bd; }
 /* page chip: much smaller, bottom-right */
 html.in-mushaf #reader > .reader-bar .rb-pg { left: auto; right: 10px; bottom: 10px; width: 40px; height: 27px; font-size: .62rem; padding-bottom: 2px; }
+
+/* theme dots: just three small dots, no frame */
+#themeSw, html[data-site=light] #themeSw { background: none !important; border: 0 !important; padding: 0 !important; gap: 7px; box-shadow: none; top: 22px; left: 60px; align-items: center; }
+#themeSw button { width: 14px; height: 14px; border-width: 1.5px; }
+html.in-mushaf #themeSw { top: 16px; left: 62px; }
+#themeSw button.on { box-shadow: 0 0 0 2px rgba(246,227,161,.45); }
+html[data-site=light] #themeSw button.on { box-shadow: 0 0 0 2px rgba(110,80,20,.4); border-color: #5c3f08; }
