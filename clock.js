@@ -19,8 +19,9 @@
     var o = shell.classList.toggle('tools'); rb.setAttribute('aria-expanded', o);
     setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 30);
   });
-  var btn = document.getElementById('navBtn'), links = document.getElementById('navLinks');
+  var btn = document.getElementById('navMenu'), links = document.getElementById('navLinks');
   if (btn && links) {
+    document.addEventListener('click', function (e) { if (links.classList.contains('open') && !links.contains(e.target) && !btn.contains(e.target)) { links.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
     btn.addEventListener('click', function () { var o = links.classList.toggle('open'); btn.setAttribute('aria-expanded', o); });
     links.addEventListener('click', function (e) { if (e.target.tagName === 'A') { links.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
   }

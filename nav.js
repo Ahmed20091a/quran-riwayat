@@ -39,14 +39,16 @@
     });
     var nl = document.getElementById('navLinks');
     if (nl) nl.classList.remove('open');
-    var nb = document.getElementById('navBtn');
+    var nb = document.getElementById('navMenu');
     if (nb) nb.setAttribute('aria-expanded', 'false');
+    var ntl = document.getElementById('navTitle'); if (ntl) ntl.textContent = t === 'home' ? '' : NAMES[t];
     var inner = t !== 'home' && t !== 'mushaf';
     document.documentElement.classList.toggle('in-inner', inner);
-    if (nb) {
-      var sv = nb.querySelector('svg');
-      if (sv) { if (!nb.__bars) nb.__bars = sv.innerHTML; sv.innerHTML = inner ? '<path d="M9 5l7 7-7 7"/>' : nb.__bars; }
-      nb.setAttribute('aria-label', inner ? 'رجوع' : 'القائمة');
+    var bb = document.getElementById('navBtn');
+    if (bb) {
+      var sv = bb.querySelector('svg');
+      if (sv) sv.innerHTML = '<path d="M9 5l7 7-7 7"/>';
+      bb.setAttribute('aria-label', 'رجوع');
     }
     window.scrollTo({ top: 0, behavior: 'instant' });
     document.title = (t === 'home' ? 'قرآن كريم' : NAMES[t] + ' — قرآن كريم');

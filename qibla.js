@@ -10,12 +10,23 @@
     var y = Math.sin(dl) * Math.cos(p2), x = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl);
     return (Math.atan2(y, x) / rad + 360) % 360;
   }
+  var shown = 0, sinS = 0, cosS = 0, have = false, lastT = 0, tid = null;
   function render() {
     if (bearing === null) return;
     $('qbDeg').textContent = Math.round(bearing) + '° من الشمال';
     $('qbWhere').textContent = place;
-    var rot = heading === null ? 0 : -heading;
-    $('qbRing').style.transform = 'rotate(' + rot + 'deg)';
+    if (heading !== null) {
+      /* unwrap so the ring turns the short way and never spins through 360 */
+      var target = -heading, d = ((target - shown) % 360 + 540) % 360 - 180;
+      shown += d;
+      $('qbRing').style.transform = 'rotate(' + shown.toFixed(1) + 'deg)';
+      var off = ((bearing - heading) % 360 + 540) % 360 - 180;
+      var ok = Math.abs(off) <= 4;
+      $('qbDial').classList.toggle('aligned', ok);
+      if (ok && !render.was) { try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {} }
+      render.was = ok;
+      $('qbNote').textContent = ok ? 'أنت تواجه القبلة تقريبًا' : 'أدر هاتفك حتى تصير الكعبة أعلى الدائرة. إن بدت الإبرة غير مستقرة حرّك الهاتف على شكل ٨ لمعايرة الحساس، وابتعد عن المعادن والمغناطيس.';
+    } else { $('qbRing').style.transform = 'rotate(0deg)'; }
     $('qbKaaba').style.transform = 'rotate(' + bearing + 'deg)';
     $('qbDial').classList.toggle('live', heading !== null);
   }
@@ -34,17 +45,35 @@
       function () { $('qbWhere').textContent = 'لم يُسمح بالموقع. اختر مدينة من القائمة.'; if (bearing === null) { var c = CITIES[0]; setLoc(c[1], c[2], c[0] + ' (افتراضي)', false); } },
       { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
   });
+  /* tilt-compensated compass heading (W3C formula), so it also works when the phone is held upright */
+  function tiltHeading(al, be, ga) {
+    var a = al * rad, b = be * rad, g = ga * rad;
+    var cA = Math.cos(a), sA = Math.sin(a), cB = Math.cos(b), sB = Math.sin(b), cG = Math.cos(g), sG = Math.sin(g);
+    var vx = -cA * sG - sA * sB * cG, vy = -sA * sG + cA * sB * cG;
+    if (Math.sqrt(vx * vx + vy * vy) < 0.35) return (360 - al) % 360; /* nearly flat: the back of the phone points at the floor, use alpha */
+    var h = Math.atan2(vx, vy) / rad; return (h + 360) % 360;
+  }
   function onOri(e) {
     var h = null;
-    if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading;
+    if (typeof e.webkitCompassHeading === 'number' && isFinite(e.webkitCompassHeading)) h = e.webkitCompassHeading;
+    else if (e.absolute && typeof e.alpha === 'number' && typeof e.beta === 'number' && typeof e.gamma === 'number') h = tiltHeading(e.alpha, e.beta, e.gamma);
     else if (e.absolute && typeof e.alpha === 'number') h = (360 - e.alpha) % 360;
     if (h === null) return;
-    heading = h; render();
+    var ang = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : (typeof window.orientation === 'number' ? window.orientation : 0);
+    if (typeof e.webkitCompassHeading !== 'number') h = (h + ang) % 360; /* iOS heading is already screen-corrected */
+    /* circular low-pass so the needle is steady but still follows */
+    var r = h * rad;
+    if (!have) { sinS = Math.sin(r); cosS = Math.cos(r); have = true; }
+    else { var k = 0.18; sinS += k * (Math.sin(r) - sinS); cosS += k * (Math.cos(r) - cosS); }
+    heading = (Math.atan2(sinS, cosS) / rad + 360) % 360;
+    var now = Date.now(); if (now - lastT < 50) return; lastT = now;
+    if (tid) { clearTimeout(tid); tid = null; }
+    render();
   }
   $('qbCmp').addEventListener('click', function () {
     var D = window.DeviceOrientationEvent;
     if (!D) { $('qbNote').textContent = 'جهازك لا يدعم حساس البوصلة. اتجه نحو الزاوية المكتوبة.'; return; }
-    function go() { window.addEventListener('deviceorientationabsolute', onOri, true); window.addEventListener('deviceorientation', onOri, true); }
+    function go() { window.addEventListener('deviceorientationabsolute', onOri, true); window.addEventListener('deviceorientation', onOri, true); $('qbNote').textContent = 'جارٍ قراءة الحساس…'; tid = setTimeout(function () { if (heading === null) $('qbNote').textContent = 'لا يصل اتجاه من الحساس (قد لا يدعمه المتصفح أو لم يُسمح به). اتجه نحو الزاوية المكتوبة من الشمال.'; }, 3000); }
     if (typeof D.requestPermission === 'function') { D.requestPermission().then(function (r) { if (r === 'granted') go(); }).catch(function () {}); } else go();
   });
   var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}

@@ -15,6 +15,7 @@
     document.querySelectorAll('#themeSw button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-t') === t); b.setAttribute('aria-pressed', b.getAttribute('data-t') === t ? 'true' : 'false'); });
     var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', t === 'light' ? '#efe3c2' : '#0b1210');
   }
+  window.qrSetTheme = set;
   var sw = document.createElement('div');
   sw.id = 'themeSw'; sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'المظهر');
   [['green', 'أخضر'], ['light', 'فاتح']].forEach(function (x) {
@@ -25,9 +26,7 @@
   document.body.appendChild(sw);
   function place() {
     var nl = document.getElementById('navLinks'); if (!nl) return;
-    var desk = window.innerWidth >= 900 && !document.documentElement.classList.contains('in-mushaf');
-    if (desk && sw.parentNode !== nl) nl.appendChild(sw);
-    else if (!desk && sw.parentNode !== document.body) document.body.appendChild(sw);
+    if (sw.parentNode !== nl) nl.appendChild(sw);
   }
   place(); window.addEventListener('resize', place);
   new MutationObserver(place).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
