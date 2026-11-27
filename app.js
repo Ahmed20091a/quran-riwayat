@@ -443,15 +443,15 @@
     { id: 'ar.alafasy', name: 'مشاري العفاسي', br: 128 },
     { id: 'ar.husary', name: 'محمود خليل الحصري (مرتل)', br: 128 },
     { id: 'ar.minshawi', name: 'محمد صديق المنشاوي (مرتل)', br: 128 },
-    { id: 'ar.mahermuaiqly', name: 'ماهر المعيقلي', br: 128 },
+    { id: 'ar.mahermuaiqly', ea: 'MaherAlMuaiqly128kbps', name: 'ماهر المعيقلي' },
     { id: 'ar.shaatree', name: 'أبو بكر الشاطري', br: 128 },
-    { id: 'ar.hudhaify', name: 'علي الحذيفي', br: 128 },
-    { id: 'ar.ahmedajamy', name: 'أحمد بن علي العجمي', br: 128 },
-    { id: 'ar.muhammadayyoub', name: 'محمد أيوب', br: 128 },
+    { id: 'ar.hudhaify', ea: 'Hudhaify_128kbps', name: 'علي الحذيفي' },
+    { id: 'ar.ahmedajamy', ea: 'ahmed_ibn_ali_al_ajamy_128kbps', name: 'أحمد بن علي العجمي' },
+    { id: 'ar.muhammadayyoub', ea: 'Muhammad_Ayyoub_128kbps', name: 'محمد أيوب' },
     { id: 'ar.abdulbasitmurattal', name: 'عبد الباسط عبد الصمد (مرتل)', br: 64 },
     { id: 'ar.abdurrahmaansudais', name: 'عبد الرحمن السديس', br: 64 },
     { id: 'ar.saoodshuraym', name: 'سعود الشريم', br: 64 },
-    { id: 'ar.aymanswoaid', name: 'أيمن سويد (تعليمي)', br: 64 },
+    { id: 'ar.aymanswoaid', ea: 'Ayman_Sowaid_64kbps', name: 'أيمن سويد (تعليمي)' },
     { id: 'ea:Husary_128kbps_Mujawwad', ea: 'Husary_128kbps_Mujawwad', name: 'محمود خليل الحصري (مجوّد)' },
     { id: 'ea:Husary_Muallim_128kbps', ea: 'Husary_Muallim_128kbps', name: 'محمود خليل الحصري (المعلّم، للتعليم)' },
     { id: 'ea:Minshawy_Mujawwad_192kbps', ea: 'Minshawy_Mujawwad_192kbps', name: 'محمد صديق المنشاوي (مجوّد)' },
@@ -653,7 +653,7 @@
   var ayPre = null, ayUnlocked = false;
   function ayWire(el) {
     function cur(fn) { return function (e) { if (e.target === ayahAudioEl) fn(e); }; }
-    el.addEventListener('timeupdate', cur(ayTick));
+    el.addEventListener('timeupdate', cur(function () { ayTick(); ayCheckTrim(); }));
     el.addEventListener('durationchange', cur(ayTick));
     el.addEventListener('play', cur(ayPaintPlay));
     el.addEventListener('pause', cur(ayPaintPlay));
@@ -681,23 +681,72 @@
     s = s >= 114 ? 1 : s + 1;      /* continue into the next surah, wrap 114 -> 1 */
     return [s, hasBsm(s) ? 0 : 1];
   }
+  /* Silence trimming: the next clip is downloaded once, decoded to find where the voice starts and
+     ends, and played from a local copy. Recorded silence at the edges of each file is skipped
+     (a short natural pause is kept). If the file can't be read this way, it just plays untrimmed. */
+  var ayCtx = null;
+  function ayEdges(buf) {
+    var d = buf.getChannelData(0), sr = buf.sampleRate, fr = Math.max(1, Math.round(sr * 0.01));
+    var n = Math.floor(d.length / fr), e = new Float32Array(n), peak = 0, i, k, s;
+    for (i = 0; i < n; i++) { s = 0; for (k = 0; k < fr; k++) { var v = d[i * fr + k]; s += v * v; } e[i] = Math.sqrt(s / fr); if (e[i] > peak) peak = e[i]; }
+    var thr = Math.max(peak * 0.03, 0.002), a = 0, b = n - 1;
+    while (a < n && e[a] < thr) a++;
+    while (b > a && e[b] < thr) b--;
+    return { lead: a * 0.01, trail: (n - 1 - b) * 0.01, dur: d.length / sr };
+  }
+  function ayFetchClip(url) {
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error('http'); return r.arrayBuffer(); }).then(function (ab) {
+      var blob = new Blob([ab.slice(0)], { type: 'audio/mpeg' });
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return { blob: URL.createObjectURL(blob), lead: 0, trail: 0 };
+      if (!ayCtx) ayCtx = new AC();
+      return new Promise(function (res, rej) { ayCtx.decodeAudioData(ab, res, rej); }).then(function (buf) {
+        var ed = ayEdges(buf);
+        return { blob: URL.createObjectURL(blob), lead: Math.max(0, ed.lead - 0.08), trail: Math.max(0, ed.trail - 0.15) };
+      });
+    });
+  }
   function ayPreload() {
     if (AY.mode !== 'surah' || !AY.on) { ayPre = null; return; }
     var np = ayNextPos(AY.s, AY.a);
     if (!np) { ayPre = null; return; }
     var url = ayUrl(AY.rec, np[0], np[1]);
     if (AY.rec.q && np[0] !== AY.s && np[0] > 0) qSegs(AY.rec.q, np[0], np[1]);
-    ayPre = { s: np[0], a: np[1], url: url, rec: AY.rec.id };
-    ayAlt.src = url;
-    ayAlt.load();
-    if (!ayUnlocked) {
-      /* unlock the second element inside the user's tap so it may start by itself later (iOS/Android) */
-      ayUnlocked = true;
-      ayAlt.muted = true;
-      var up = ayAlt.play();
-      var done = function () { try { ayAlt.pause(); ayAlt.currentTime = 0; } catch (e) {} ayAlt.muted = false; };
-      if (up && up.then) up.then(done, function () { ayAlt.muted = false; ayUnlocked = false; }); else done();
+    var pre = { s: np[0], a: np[1], url: url, rec: AY.rec.id, ready: false };
+    ayPre = pre;
+    ayFetchClip(url).then(function (c) {
+      if (ayPre !== pre) { try { URL.revokeObjectURL(c.blob); } catch (e) {} return; }
+      pre.blob = c.blob; pre.lead = c.lead; pre.trail = c.trail; pre.ready = true;
+      ayAlt.src = c.blob; ayAlt.load();
+    }).catch(function () {
+      if (ayPre !== pre) return;
+      ayAlt.src = url; ayAlt.load();   /* untrimmed fallback */
+    });
+    if (!ayUnlocked) ayUnlock();
+  }
+  var ayWav = null;
+  function ayUnlock() {
+    /* play a 0.2s silent clip on the second element inside the user's tap, so mobile browsers let it start by itself later */
+    ayUnlocked = true;
+    if (!ayWav) {
+      var n = 1600, b = new Uint8Array(44 + n), dv = new DataView(b.buffer);
+      var w = function (o, s) { for (var i = 0; i < s.length; i++) b[o + i] = s.charCodeAt(i); };
+      w(0, 'RIFF'); dv.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
+      dv.setUint16(22, 1, true); dv.setUint32(24, 8000, true); dv.setUint32(28, 8000, true); dv.setUint16(32, 1, true); dv.setUint16(34, 8, true);
+      w(36, 'data'); dv.setUint32(40, n, true); for (var i = 0; i < n; i++) b[44 + i] = 128;
+      ayWav = URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
     }
+    var el = ayAlt, keep = el.src;
+    el.muted = true; el.src = ayWav;
+    var up = el.play();
+    var done = function () { el.muted = false; try { if (el.src === ayWav) { el.pause(); el.currentTime = 0; } } catch (e) {} };
+    if (up && up.then) up.then(done, function () { el.muted = false; ayUnlocked = false; }); else done();
+  }
+  function ayCheckTrim() {
+    var c = AY.cur;
+    if (!c || c.done || AY.mode !== 'surah' || !AY.on || c.trail < 0.05) return;
+    var d = ayahAudioEl.duration;
+    if (isFinite(d) && d > 0 && ayahAudioEl.currentTime >= d - c.trail) { c.done = true; ayStep(1, false); }
   }
   function ayPaintMode() {
     ayBar.querySelectorAll('#ayMode button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-m') === AY.mode); });
@@ -792,6 +841,7 @@
   }
   function kLoop() {
     if (!AY.on) { kUnwrap(); kRun = false; return; }
+    ayCheckTrim();
     var want = (AY.a > 0 && AY.rec && AY.rec.q) ? AY.s + ':' + AY.a : '';
     if (K && K.key !== want) kUnwrap();
     if (!K && want && kBad !== want) {
@@ -825,10 +875,13 @@
     var url = ayUrl(r, AY.s, AY.a);
     if (audio && !audio.paused) { audio.pause(); playing = false; var pp = $('#playPause'); if (pp) pp.innerHTML = ico('play'); }
     $('#player').classList.remove('on');
-    if (ayPre && ayPre.url === url && ayPre.rec === r.id) {
+    AY.cur = null;
+    if (ayPre && ayPre.url === url && ayPre.rec === r.id && ayPre.ready) {
       var old = ayahAudioEl; ayahAudioEl = ayAlt; ayAlt = old;
       try { old.pause(); } catch (e) {}
-      ayAlt.removeAttribute('src');
+      try { var ob = old.currentSrc; ayAlt.removeAttribute('src'); if (ob && ob.indexOf('blob:') === 0) URL.revokeObjectURL(ob); } catch (e) {}
+      AY.cur = { lead: ayPre.lead, trail: ayPre.trail, done: false };
+      try { if (ayPre.lead > 0.05) ayahAudioEl.currentTime = ayPre.lead; } catch (e) {}
       ayPre = null;
     } else {
       ayPre = null;
