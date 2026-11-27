@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://cdn.aladhan.com https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>قرآن كريم — القرآن الكريم بجميع الروايات</title>
 <meta name="description" content="اقرأ القرآن الكريم واستمع إليه بجميع الروايات والقراءات العشر، مع شرح أحكام التجويد والروايات.">
 <link rel="stylesheet" href="style.css">
@@ -26,12 +26,17 @@
     </svg>
     قرآن كريم
   </div>
-  <div class="nav-links">
+  <div class="h-clock" id="hClock" aria-label="الساعة بتوقيت القاهرة" title="توقيت القاهرة">--:--:--</div>
+  <button class="nav-btn" id="navBtn" aria-label="القائمة" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="nav-links" id="navLinks">
     <a href="#mushaf">المصحف</a>
     <a href="#tilawa">التلاوة</a>
     <a href="#riwayat">الروايات</a>
     <a href="#tajweed">التجويد</a>
     <a href="#sebha">السبحة</a>
+    <a href="#adhkar">الأذكار</a>
+    <a href="#duas">الأدعية</a>
+    <a href="#salah">المواقيت</a>
   </div>
 </nav>
 
@@ -151,21 +156,75 @@
   <div class="sec-head reveal">
     <div class="kicker">الأذكار</div>
     <h2>السبحة</h2>
-    <p>اضغط على الدائرة للعدّ. العدّاد محفوظ على جهازك ويعمل بدون إنترنت.</p>
+    <p>اضغط على الدائرة للعدّ. العدّاد وأهدافك محفوظة على جهازك وتعمل بدون إنترنت.</p>
   </div>
   <div class="sb-wrap">
     <div class="sb-chips" id="sbChips" role="tablist"></div>
+    <form class="sb-add" id="sbAddD"><input id="sbNewD" type="text" maxlength="60" placeholder="أضف ذكرًا خاصًا بك" aria-label="ذكر جديد"><button class="btn" type="submit">إضافة</button></form>
     <div class="sb-phrase" id="sbPhrase"></div>
     <button class="sb-tap" id="sbTap" aria-label="اضغط للعدّ"><span class="sb-count" id="sbCount">٠</span><span class="sb-of" id="sbOf"></span></button>
     <div class="sb-bar"><i id="sbBar"></i></div>
     <div class="sb-opts">
       <label>الهدف
-        <select id="sbTarget"><option value="0">بدون هدف</option><option value="33">٣٣</option><option value="100">١٠٠</option></select>
+        <select id="sbTarget"><option value="0">بدون هدف</option><option value="33">٣٣</option><option value="100">١٠٠</option><option value="x">رقم آخر</option></select>
+        <input id="sbCustomT" type="number" min="1" max="100000" inputmode="numeric" hidden aria-label="هدف مخصص">
       </label>
       <label class="sb-vib"><input type="checkbox" id="sbVib"> اهتزاز</label>
+      <label class="sb-vib"><input type="checkbox" id="sbDaily"> تصفير يومي</label>
       <button class="btn" id="sbReset">تصفير</button>
     </div>
     <div class="sb-total" id="sbTotal"></div>
+    <h3 class="sb-h">أهدافي</h3>
+    <div class="sb-goals" id="sbGoals"></div>
+    <form class="sb-add" id="sbAddG"><input id="sbGText" type="text" maxlength="80" placeholder="هدف، مثل: الصلاة على النبي" aria-label="نص الهدف"><input id="sbGNum" type="number" min="1" inputmode="numeric" placeholder="العدد" aria-label="العدد (اختياري)" class="sb-num"><button class="btn" type="submit">إضافة</button></form>
+  </div>
+</section>
+
+<section id="adhkar">
+  <div class="sec-head reveal">
+    <div class="kicker">من حصن المسلم</div>
+    <h2>الأذكار</h2>
+    <p>أذكار الصباح والمساء، وبعد الصلاة، والنوم، والاستيقاظ. اضغط على الذكر للعدّ التنازلي حسب عدد مرات التكرار.</p>
+  </div>
+  <div class="hs-wrap">
+    <div class="sb-chips" id="adTabs" role="tablist"></div>
+    <div id="adBody"></div>
+    <div class="hs-src" id="adSrc"></div>
+  </div>
+</section>
+
+<section id="duas">
+  <div class="sec-head reveal">
+    <div class="kicker">من حصن المسلم</div>
+    <h2>الأدعية</h2>
+    <p>أدعية الكتاب والسنة مرتبة حسب المواضع. ابحث أو اختر موضعًا.</p>
+  </div>
+  <div class="hs-wrap">
+    <input id="duaSearch" class="hs-search" type="search" placeholder="ابحث في الأدعية…" aria-label="بحث في الأدعية">
+    <div id="duaBody"></div>
+    <div class="hs-src" id="duaSrc"></div>
+  </div>
+</section>
+
+<section id="salah">
+  <div class="sec-head reveal">
+    <div class="kicker">مصر</div>
+    <h2>مواقيت الصلاة</h2>
+    <p>حساب الهيئة المصرية العامة للمساحة (الفجر ١٩٫٥° والعشاء ١٧٫٥°)، يعمل بدون إنترنت.</p>
+  </div>
+  <div class="sl-wrap">
+    <label class="sl-city">المدينة <select id="slCity"></select></label>
+    <div class="sl-date"><span id="slG"></span><span id="slH"></span></div>
+    <div class="sl-clock" id="slClock">--:--:--</div>
+    <div class="sl-next"><small id="slNextName">—</small><b id="slCount">--:--:--</b><small id="slNextAt"></small></div>
+    <div class="sl-list" id="slList"></div>
+    <div class="sl-adhan">
+      <h3 class="sb-h">الأذان</h3>
+      <label class="sb-vib"><input type="checkbox" id="slAuto"> تشغيل الأذان عند دخول الوقت (والصفحة مفتوحة فقط)</label>
+      <div class="sl-row"><select id="slMuez" aria-label="المؤذن"></select><button class="btn" id="slPlay">تجربة</button><button class="btn" id="slStop">إيقاف</button></div>
+      <p class="sl-note">لا يعمل الأذان والموقع مغلق أو الشاشة مقفولة، فالمتصفح لا يسمح بتنبيهات في الخلفية. الصوت يُبثّ من الإنترنت عند التشغيل.</p>
+    </div>
+    <p class="sl-note" id="slMethod"></p>
   </div>
 </section>
 
@@ -228,6 +287,9 @@
 <script src="app.js"></script>
 <script src="rw.js"></script>
 <script src="sebha.js"></script>
+<script src="hisn.js"></script>
+<script src="salah.js"></script>
+<script src="clock.js"></script>
 
 
 

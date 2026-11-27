@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://cdn.aladhan.com https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
         },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
