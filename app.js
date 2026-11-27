@@ -48,6 +48,15 @@
     return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
   }
 
+  /* The stored text of ayah 1 (surahs 2-114 except 9) opens with the bismillah.
+     Display-only split: the stored/verified text is never changed. */
+  function splitBsm(n, txt) {
+    if (n === 1 || n === 9) return ['', txt];
+    var m = /^(\S+\s+\S+\s+\S+\s+\S+)\s+([\s\S]*)$/.exec(txt);
+    if (m && m[1].replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '').indexOf('بسم') === 0) return [m[1], m[2]];
+    return ['', txt];
+  }
+
   async function loadSurahFile(n) {
     if (SURAH_CACHE[n]) return SURAH_CACHE[n];
     var path = 'data/surah/' + String(n).padStart(3, '0') + '.json';
@@ -218,14 +227,15 @@
       var d = loaded[sg.s];
       if (sg.fa === 1) {
         html += '<div class="mp-shead">سورة ' + MANIFEST.surahs[sg.s - 1].name + '</div>';
-        if (sg.s !== 1 && sg.s !== 9 && d.ayahs[0].indexOf('بِسْمِ') !== 0) html += '<div class="mp-bsm" data-bs="' + sg.s + '">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+        var sb = splitBsm(sg.s, d.ayahs[0])[0];
+        if (sb) html += '<div class="mp-bsm" data-bs="' + sg.s + '">' + sb + '</div>';
       }
       for (var a = sg.fa; a <= sg.ta; a++) {
         if (sg.s === 1 && a === 1) {
           html += '<div class="mp-bsm"><span class="ayah" data-s="1" data-a="1">' + d.ayahs[0] + '</span></div>';
           continue;
         }
-        html += '<span class="ayah" data-s="' + sg.s + '" data-a="' + a + '">' + d.ayahs[a - 1] +
+        html += '<span class="ayah" data-s="' + sg.s + '" data-a="' + a + '">' + (a === 1 ? splitBsm(sg.s, d.ayahs[0])[1] : d.ayahs[a - 1]) +
           ' <span class="an">﴿' + arNum(a) + '﴾</span></span> ';
       }
     });
@@ -313,12 +323,13 @@
   function renderSurah(s) {
     var html = '<div class="surah-title"><h3>سورة ' + s.name + '</h3>' +
       '<div class="meta">' + s.type + ' · ' + arNum(s.ayahs.length) + ' آية</div>';
-    if (s.n !== 1 && s.n !== 9 && s.ayahs[0].indexOf('بِسْمِ') !== 0) html += '<div class="bsm" data-bs="' + s.n + '">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+    var sb = splitBsm(s.n, s.ayahs[0])[0];
+    if (sb) html += '<div class="bsm" data-bs="' + s.n + '">' + sb + '</div>';
     if (s.n === 1) html += '<div class="bsm"><span class="ayah" data-i="0" data-s="1" data-a="1">' + s.ayahs[0] + '</span></div>';
     html += '</div><div class="ayahs">';
     s.ayahs.forEach(function (t, i) {
       if (s.n === 1 && i === 0) return;
-      html += '<span class="ayah" data-i="' + i + '" data-s="' + s.n + '" data-a="' + (i + 1) + '">' + t +
+      html += '<span class="ayah" data-i="' + i + '" data-s="' + s.n + '" data-a="' + (i + 1) + '">' + (i === 0 ? splitBsm(s.n, t)[1] : t) +
         ' <span class="an">﴿' + arNum(i + 1) + '﴾</span></span> ';
     });
     $('#readerBody').innerHTML = html + '</div>';
@@ -522,7 +533,7 @@
     var ay = document.getElementById('sheetAyah');
     ay.textContent = '';
     document.getElementById('ayahSheet').hidden = false;
-    loadSurahFile(s).then(function (sj) { if (sj) ay.textContent = sj.ayahs[a - 1]; });
+    loadSurahFile(s).then(function (sj) { if (sj) ay.textContent = a === 1 ? splitBsm(s, sj.ayahs[0])[1] : sj.ayahs[a - 1]; });
     sheetTab('play');
   }
 
