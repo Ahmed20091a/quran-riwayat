@@ -606,18 +606,62 @@
     document.getElementById('ayPrev').addEventListener('click', function () { ayStep(-1, true); });
     document.getElementById('ayClose').addEventListener('click', ayStop);
     ayBar.querySelectorAll('#ayMode button').forEach(function (b) {
-      b.addEventListener('click', function () { AY.mode = b.getAttribute('data-m'); ayPaintMode(); });
+      b.addEventListener('click', function () { AY.mode = b.getAttribute('data-m'); ayPaintMode(); ayPreload(); });
     });
-    ayahAudioEl.addEventListener('timeupdate', ayTick);
-    ayahAudioEl.addEventListener('durationchange', ayTick);
-    ayahAudioEl.addEventListener('play', ayPaintPlay);
-    ayahAudioEl.addEventListener('pause', ayPaintPlay);
-    ayahAudioEl.addEventListener('ended', function () {
+    ayWire(ayahAudioEl); ayWire(ayAlt);
+    ayMediaSession();
+  }
+  /* two audio elements: the idle one preloads the next ayah, so the hand-over has no network gap */
+  var ayAlt = new Audio();
+  ayAlt.preload = 'auto';
+  ayAlt.id = 'ayahAudio2'; ayAlt.hidden = true; document.body.appendChild(ayAlt);
+  var ayPre = null, ayUnlocked = false;
+  function ayWire(el) {
+    function cur(fn) { return function (e) { if (e.target === ayahAudioEl) fn(e); }; }
+    el.addEventListener('timeupdate', cur(ayTick));
+    el.addEventListener('durationchange', cur(ayTick));
+    el.addEventListener('play', cur(ayPaintPlay));
+    el.addEventListener('pause', cur(ayPaintPlay));
+    el.addEventListener('ended', cur(function () {
       if (!AY.on) return;
       if (AY.mode === 'surah') ayStep(1, false);
       else ayPaintPlay();
-    });
-    ayahAudioEl.addEventListener('error', function () { if (AY.on) { var t = document.getElementById('ayRec'); t.textContent = 'تعذّر تحميل التلاوة. تأكد من النت وجرّب تاني.'; } });
+    }));
+    el.addEventListener('error', cur(function () { if (AY.on) { var t = document.getElementById('ayRec'); t.textContent = 'تعذّر تحميل التلاوة. تأكد من النت وجرّب تاني.'; } }));
+  }
+  function ayMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    var ms = navigator.mediaSession;
+    function h(n, f) { try { ms.setActionHandler(n, f); } catch (e) {} }
+    h('play', function () { ayahAudioEl.play(); });
+    h('pause', function () { ayahAudioEl.pause(); });
+    h('nexttrack', function () { ayStep(1, true); });
+    h('previoustrack', function () { ayStep(-1, true); });
+    h('seekbackward', function () { ayahAudioEl.currentTime = Math.max(0, ayahAudioEl.currentTime - 10); });
+    h('seekforward', function () { if (isFinite(ayahAudioEl.duration)) ayahAudioEl.currentTime = Math.min(ayahAudioEl.duration, ayahAudioEl.currentTime + 10); });
+  }
+  function ayNextPos(s, a) {
+    var n = MANIFEST.surahs[s - 1].count;
+    if (a < n) return [s, a + 1];
+    s = s >= 114 ? 1 : s + 1;      /* continue into the next surah, wrap 114 -> 1 */
+    return [s, hasBsm(s) ? 0 : 1];
+  }
+  function ayPreload() {
+    if (AY.mode !== 'surah' || !AY.on) { ayPre = null; return; }
+    var np = ayNextPos(AY.s, AY.a);
+    if (!np) { ayPre = null; return; }
+    var url = ayUrl(AY.rec, np[0], np[1]);
+    ayPre = { s: np[0], a: np[1], url: url, rec: AY.rec.id };
+    ayAlt.src = url;
+    ayAlt.load();
+    if (!ayUnlocked) {
+      /* unlock the second element inside the user's tap so it may start by itself later (iOS/Android) */
+      ayUnlocked = true;
+      ayAlt.muted = true;
+      var up = ayAlt.play();
+      var done = function () { try { ayAlt.pause(); ayAlt.currentTime = 0; } catch (e) {} ayAlt.muted = false; };
+      if (up && up.then) up.then(done, function () { ayAlt.muted = false; ayUnlocked = false; }); else done();
+    }
   }
   function ayPaintMode() {
     ayBar.querySelectorAll('#ayMode button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-m') === AY.mode); });
@@ -666,13 +710,31 @@
     var url = ayUrl(r, AY.s, AY.a);
     if (audio && !audio.paused) { audio.pause(); playing = false; var pp = $('#playPause'); if (pp) pp.innerHTML = ico('play'); }
     $('#player').classList.remove('on');
-    ayahAudioEl.src = url;
+    if (ayPre && ayPre.url === url && ayPre.rec === r.id) {
+      var old = ayahAudioEl; ayahAudioEl = ayAlt; ayAlt = old;
+      try { old.pause(); } catch (e) {}
+      ayAlt.removeAttribute('src');
+      ayPre = null;
+    } else {
+      ayPre = null;
+      ayahAudioEl.src = url;
+    }
     document.getElementById('ayTitle').textContent = 'سورة ' + MANIFEST.surahs[AY.s - 1].name + (AY.a === 0 ? ' · البسملة' : ' · آية ' + arNum(AY.a));
     document.getElementById('ayRec').textContent = r.name;
     ayDots(); ayPaintMode(); ayTick();
     var pr = ayahAudioEl.play();
     if (pr && pr.catch) pr.catch(function () { ayPaintPlay(); });
     ayHighlight();
+    ayPreload();
+    if ('mediaSession' in navigator && window.MediaMetadata) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: 'سورة ' + MANIFEST.surahs[AY.s - 1].name + (AY.a === 0 ? ' · البسملة' : ' · آية ' + arNum(AY.a)),
+          artist: r.name, album: 'روايات',
+          artwork: [{ src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
+        });
+      } catch (e) {}
+    }
   }
   function startAy(recId, s, a, mode) {
     buildAyBar();
@@ -686,13 +748,9 @@
     ayLoad();
   }
   function ayStep(d, force) {
-    var s = AY.s, a = AY.a, n = MANIFEST.surahs[s - 1].count;
+    var s = AY.s, a = AY.a;
     if (d > 0) {
-      if (a < n) a++;
-      else {
-        if (!force || s >= 114) { ayahAudioEl.pause(); return; }
-        s++; a = hasBsm(s) ? 0 : 1;
-      }
+      var np = ayNextPos(s, a); s = np[0]; a = np[1];
     } else {
       if (a > 1) a--;
       else if (a === 1 && hasBsm(s)) a = 0;
@@ -708,6 +766,7 @@
     AY.on = false;
     try { ayahAudioEl.pause(); } catch (e) {}
     ayahAudioEl.removeAttribute('src');
+    try { ayAlt.pause(); } catch (e) {} ayAlt.removeAttribute('src'); ayPre = null;
     document.querySelectorAll('.ayah.playing,[data-bs].playing').forEach(function (e) { e.classList.remove('playing'); });
     if (ayBar) ayBar.hidden = true;
     document.body.classList.remove('ay-on');
