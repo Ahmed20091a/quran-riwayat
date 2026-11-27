@@ -1485,3 +1485,16 @@ html[data-site=light] .qb-k .kb-b { fill: #1a1a1a; stroke: #5c3f08; }
 html[data-site=light] .qb-k .kb-g { fill: #c99a2e; }
 html[data-site=light] .qb-hub { background: #f7eed4; border-color: #8a6414; }
 html[data-site=light] .qb-lub { border-top-color: #8a6414; }
+
+/* v95: fixed small full-word directions (do not rotate with the dial) */
+.qb-lbl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+.qb-lbl .fd { fill: #e8d39a; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 11px; }
+.qb-lbl .fd.fn { fill: #ff8a6b; }
+html[data-site=light] .qb-lbl .fd { fill: #4a3208 !important; }
+html[data-site=light] .qb-lbl .fd.fn { fill: #b3331a !important; }
+/* v95: Qibla screen fully static: page locked, no rubber-band, no pull-to-refresh, no reveal animation */
+html:has(#qibla.scr), html:has(#qibla.scr) body { overflow: hidden; overscroll-behavior: none; height: 100%; touch-action: manipulation; }
+html:has(#qibla.scr) body { position: fixed; inset: 0; width: 100%; }
+#qibla.scr { height: 100vh; height: 100dvh; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; overscroll-behavior: none; }
+#qibla .reveal { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
+#qibla .qb-dial { touch-action: none; }

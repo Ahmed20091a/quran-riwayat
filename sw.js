@@ -1,5 +1,5 @@
 /* روايات — service worker: offline shell + cached surahs and audio */
-var SHELL = 'quran-shell-v94';
+var SHELL = 'quran-shell-v95';
 var TEXT = 'quran-text-v7';
 var TAF = 'quran-tafsir-v1';
 var SHELL_FILES = [
