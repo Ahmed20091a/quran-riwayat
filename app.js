@@ -81,8 +81,11 @@
     buildChips();
     renderReciters(m.reciters[0] ? m.reciters[0].group : null);
     try {
-      var raw = await (await fetch('data/pages.json')).text();
-      var ok = (await sha256hex(raw)) === m.pagesSha256;
+      var raw = '', ok = false;
+      for (var tr = 0; tr < 3 && !ok; tr++) {
+        try { raw = await (await fetch('data/pages.json', tr ? { cache: 'reload' } : undefined)).text(); ok = (await sha256hex(raw)) === m.pagesSha256; } catch (e2) { ok = false; }
+        if (!ok) await new Promise(function (r) { setTimeout(r, 700); });
+      }
       if (!ok) throw new Error('pages integrity');
       PAGES = JSON.parse(raw);
       if (!Array.isArray(PAGES) || PAGES.length < 604) throw new Error('pages shape');
@@ -494,6 +497,7 @@
   /* ---------- surah (scroll) mode ---------- */
   function loadSurah(n, keepBadge) {
     if (RIW !== 'hafs') return loadRiw(n);
+    if (PAGES) { MODE = 'page'; $('#pageNav').style.display = 'flex'; return renderPage(surahPage(n)); }
     currentSurah = n;
     if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#mushaf');
     $('#surahSelect').value = n;

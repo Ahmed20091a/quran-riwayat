@@ -1434,3 +1434,12 @@ html.in-inner footer.site-foot, html.in-mushaf footer.site-foot { display: none 
 html.in-mushaf:has(#mushaf .mushaf-page:not(.sc-wrap)), html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) { overflow: hidden; overscroll-behavior: none; }
 html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) .tap-hint, html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) .reader-hint { display: none; }
 html.in-mushaf #readerBody { touch-action: pan-y; }
+/* Mushaf only: no outer card, no rounded outer edges, no shadows around the page */
+#modeToggle { display: none !important; }
+html.in-mushaf #reader, html.in-mushaf #reader .reader-body, html.in-mushaf #readerBody, html.in-mushaf .mushaf-wrap, html.in-mushaf .mushaf-page, html.in-mushaf .mushaf-page.sc-wrap, html.in-mushaf .sc-page { box-shadow: none !important; border-radius: 0 !important; filter: none !important; text-shadow: none !important; }
+html.in-mushaf .mushaf-page:not(.sc-wrap) { border-left: 0 !important; border-right: 0 !important; border-top: 0 !important; border-bottom: 0 !important; outline: 0 !important; }
+html.in-mushaf #reader { border: 0 !important; background: transparent !important; }
+html.in-mushaf #readerBody { border: 0 !important; background: none !important; }
+html.in-mushaf #reader { margin-inline: 0 !important; width: 100% !important; max-width: none !important; padding-inline: 0 !important; }
+html.in-mushaf .mushaf-wrap { padding-inline: 8px !important; }
+html.in-mushaf .mushaf-page, html.in-mushaf .mushaf-page.sc-wrap { background-image: none !important; background-color: transparent !important; }
