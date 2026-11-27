@@ -392,6 +392,8 @@
     var s = MANIFEST.surahs[currentSurah - 1];
     $('#pTitle').textContent = currentReciter.reciter + ' — سورة ' + s.name;
     $('#pSub').textContent = currentReciter.riwayah;
+    window.QuranCur = { reciter: currentReciter.reciter, surah: currentSurah, sname: s.name, url: audioURL(), server: currentReciter.server, missing: currentReciter.missing || [] };
+    if (window.QuranDL) QuranDL.onPlayer();
   }
 
   function playAudio() {
@@ -401,7 +403,7 @@
       var nx = currentSurah; do { nx = nx >= 114 ? 1 : nx + 1; } while (currentReciter.missing.indexOf(nx) !== -1);
       gotoSurah(nx, true);
     }
-    audio.src = audioURL();
+    audio.src = (window.QuranDL && QuranDL.local(audioURL())) || audioURL();
     audio.play().then(function () { playing = true; $('#playPause').innerHTML = ico('pause'); })
       .catch(function () { playing = false; $('#playPause').innerHTML = ico('play'); });
   }
@@ -1574,7 +1576,7 @@
   document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
 
   /* ---------- service worker (offline reading) ---------- */
-  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0 && navigator.userAgent.indexOf('QuranAPK') === -1) {
     var hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
       function check() { try { reg.update(); } catch (e) {} }

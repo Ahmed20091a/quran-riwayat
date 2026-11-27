@@ -760,3 +760,14 @@ body.ay-on { padding-bottom: 150px; }
   .h-date { font-size: .62rem; }
   .brand { font-size: .98rem; }
 }
+.dl-open { display: block; margin: 0 auto 1rem; background: transparent; color: var(--gold2); border: 1px solid var(--line); border-radius: 999px; padding: .5rem 1.2rem; font: inherit; cursor: pointer; }
+.dl-panel { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; }
+.dl-panel[hidden] { display: none; }
+.dl-box { background: #0d1814; border: 1px solid var(--line); border-radius: 16px; padding: 1rem; width: min(92vw, 460px); max-height: 80vh; overflow: auto; color: var(--ink); }
+.dl-box h3 { color: var(--gold2); margin: 0 0 .5rem; }
+.dl-sum { color: var(--muted); font-size: .85rem; }
+.dl-row { display: flex; gap: .4rem; align-items: center; padding: .4rem 0; border-top: 1px solid var(--line); font-size: .78rem; }
+.dl-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dl-row button, .dl-act { background: #14211a; color: var(--gold2); border: 1px solid var(--line); border-radius: 8px; padding: .3rem .7rem; font: inherit; cursor: pointer; }
+.dl-act { display: block; width: 100%; margin: .5rem 0; padding: .6rem; }
+.in-app .player { flex-wrap: wrap; } .in-app .player .p-info { flex: 1 1 100%; order: -1; } .in-app .player .p-info b { white-space: normal; }
