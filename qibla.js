@@ -21,9 +21,9 @@
       shown += d;
       $('qbRing').style.transform = 'rotate(' + shown.toFixed(1) + 'deg)';
       var off = ((bearing - heading) % 360 + 540) % 360 - 180;
-      var ok = Math.abs(off) <= 4;
+      var ok = Math.abs(off) <= (render.was ? 9 : 4); /* hysteresis: no flicker or repeated buzzing at the edge */
       $('qbDial').classList.toggle('aligned', ok);
-      if (ok && !render.was) { try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {} }
+      if (ok && !render.was && Date.now() - (render.vt || 0) > 3000) { render.vt = Date.now(); try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {} }
       render.was = ok;
       $('qbNote').textContent = ok ? 'أنت تواجه القبلة تقريبًا' : 'أدر هاتفك حتى تصير الكعبة أعلى الدائرة. إن بدت الإبرة غير مستقرة حرّك الهاتف على شكل ٨ لمعايرة الحساس، وابتعد عن المعادن والمغناطيس.';
     } else { $('qbRing').style.transform = 'rotate(0deg)'; }
@@ -70,10 +70,28 @@
     if (tid) { clearTimeout(tid); tid = null; }
     render();
   }
+  var listening = false, useAbs = false;
+  function stopCompass() {
+    if (!listening) return; listening = false; have = false;
+    window.removeEventListener('deviceorientationabsolute', onOri, true); window.removeEventListener('deviceorientation', onOri, true);
+    if (tid) { clearTimeout(tid); tid = null; }
+    $('qbDial').classList.remove('live', 'aligned');
+  }
+  /* the sensor only runs while the Qibla screen is open and visible */
+  window.addEventListener('hashchange', function () { if (location.hash !== '#qibla') stopCompass(); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) stopCompass(); });
   $('qbCmp').addEventListener('click', function () {
     var D = window.DeviceOrientationEvent;
     if (!D) { $('qbNote').textContent = 'جهازك لا يدعم حساس البوصلة. اتجه نحو الزاوية المكتوبة.'; return; }
-    function go() { window.addEventListener('deviceorientationabsolute', onOri, true); window.addEventListener('deviceorientation', onOri, true); $('qbNote').textContent = 'جارٍ قراءة الحساس…'; tid = setTimeout(function () { if (heading === null) $('qbNote').textContent = 'لا يصل اتجاه من الحساس (قد لا يدعمه المتصفح أو لم يُسمح به). اتجه نحو الزاوية المكتوبة من الشمال.'; }, 3000); }
+    function go() {
+      if (listening) return;
+      listening = true;
+      /* ONE sensor source only: mixing the absolute and relative streams makes the needle jump */
+      useAbs = ('ondeviceorientationabsolute' in window);
+      window.addEventListener(useAbs ? 'deviceorientationabsolute' : 'deviceorientation', onOri, true);
+      $('qbNote').textContent = 'جارٍ قراءة الحساس…';
+      tid = setTimeout(function () { if (!have) $('qbNote').textContent = 'لا توجد قراءة من الحساس. اتجه نحو الزاوية المكتوبة أعلاه، أو جرّب من المتصفح.'; }, 3000);
+    }
     if (typeof D.requestPermission === 'function') { D.requestPermission().then(function (r) { if (r === 'granted') go(); }).catch(function () {}); } else go();
   });
   var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
