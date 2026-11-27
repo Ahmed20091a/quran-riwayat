@@ -1298,3 +1298,12 @@ html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)):not(.sheet-open) .pg
 #pgFabNext { left: 6px !important; right: auto !important; }
 #pgFabPrev { right: 6px !important; left: auto !important; }
 @media (min-width: 900px) { #pgFabNext { left: calc(50% - 360px) !important; } #pgFabPrev { right: calc(50% - 360px) !important; } }
+/* themed scrollbars, site-wide */
+* { scrollbar-width: thin; scrollbar-color: rgba(212,177,94,.55) transparent; }
+html[data-site=light] * { scrollbar-color: rgba(120,85,25,.5) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(212,177,94,.5); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(212,177,94,.8); background-clip: content-box; }
+html[data-site=light] *::-webkit-scrollbar-thumb { background: rgba(120,85,25,.45); background-clip: content-box; }
+html[data-site=light] *::-webkit-scrollbar-thumb:hover { background: rgba(120,85,25,.75); background-clip: content-box; }
