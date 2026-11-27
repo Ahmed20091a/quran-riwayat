@@ -397,7 +397,7 @@
   function viewState() {
     var v; try { v = JSON.parse(localStorage.getItem('quran.view') || 'null'); } catch (e) {}
     v = v && typeof v === 'object' ? v : {};
-    return { scale: [1, 1.12, 1.25, 1.4].indexOf(v.scale) !== -1 ? v.scale : 1, theme: ['green', 'black', 'light'].indexOf(v.theme) !== -1 ? v.theme : 'green', flow: v.flow === 'page' ? 'page' : 'scroll', font: ['sch', 'amiri', 'noto'].indexOf(v.font) !== -1 ? v.font : 'sch' };
+    return { scale: [1, 1.12, 1.25, 1.4].indexOf(v.scale) !== -1 ? v.scale : 1, theme: ['green', 'light'].indexOf(v.theme) !== -1 ? v.theme : 'green', flow: v.flow === 'page' ? 'page' : 'scroll', font: ['sch', 'amiri', 'noto'].indexOf(v.font) !== -1 ? v.font : 'sch' };
   }
   function viewSave(v) { try { localStorage.setItem('quran.view', JSON.stringify(v)); } catch (e) {} }
   function applyTheme() { var rb = document.getElementById('reader'); if (rb) { rb.setAttribute('data-th', viewState().theme); rb.setAttribute('data-font', viewState().font); } }
@@ -919,12 +919,8 @@
     });
     ayWire(ayahAudioEl); ayWire(ayAlt);
     var inf = ayBar.querySelector('.ay-info');
-    inf.style.cursor = 'pointer';
-    inf.setAttribute('role', 'button');
-    inf.addEventListener('click', function () {
-      userScrollAt = 0; ayHighlight();
-      var rd = document.getElementById('reader'); if (rd && !document.querySelector('#readerBody .ayah.playing')) { try { rd.scrollIntoView({ behavior: 'smooth' }); } catch (e) {} }
-    });
+    /* tapping the audio card title does nothing: the ayah sheet opens only from a tap on an ayah */
+    inf.style.cursor = 'default';
     ayMediaSession();
   }
   /* two audio elements: the idle one preloads the next ayah, so the hand-over has no network gap */
