@@ -1121,3 +1121,87 @@ body.sheet-open .rb-pg { display: none !important; }
 
 /* one full rotation of the bead ring every 100 counts */
 .sb-tap::after { transform: rotate(var(--r, 0deg)); transition: transform .25s ease-out; }
+
+/* wide screens: no flat slab or page card, so it reads like a book on the app's dark background, not a PDF */
+@media (min-width: 900px) {
+  html.in-mushaf #mushaf { max-width: none; padding-left: 0; padding-right: 0; }
+  html.in-mushaf #reader[data-th=green], html.in-mushaf #reader[data-th=green] .reader-shell, html.in-mushaf #reader:not([data-th]) { background: transparent !important; border-color: transparent !important; box-shadow: none !important; }
+  html.in-mushaf #reader[data-th=green] .reader-shell { width: 100%; max-width: none; }
+  html.in-mushaf #reader[data-th=green] .reader-bar { background: #0a120e; border-bottom: 1px solid rgba(212,177,94,.18); }
+  html.in-mushaf #reader[data-th=green] .mushaf-page.sc-wrap { max-width: 820px; width: 100%; margin: 0 auto; border: 0; border-radius: 0; background: transparent; box-shadow: none; outline: 0; padding: .6rem 1.5rem 3rem; }
+  html.in-mushaf #reader[data-th=green] .mushaf-wrap { background: none; }
+  html.in-mushaf #reader .sc-wrap { font-size: 34px; line-height: 2.3; }
+  html.in-mushaf #reader .sc-wrap .mp-shead { margin: 1.4em 0 .6em; }
+}
+
+/* next / previous page buttons, page mode only */
+.pg-fab { display: none; }
+html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)):not(.sheet-open) .pg-fab { display: grid; place-items: center; position: fixed; bottom: 12px; z-index: 45; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,177,94,.55); background: rgba(10,18,14,.92); color: var(--gold2); cursor: pointer; padding: 0; }
+#pgFabNext { left: 12px; }
+#pgFabPrev { left: 64px; }
+
+/* surah name in the thin bar: bigger and clearer */
+html.in-mushaf #reader > .reader-bar .rb-ind { font-family: 'Scheherazade New', 'Amiri', serif; font-size: 1.45rem; font-weight: 700; line-height: 1.3; color: #f6e3a1; text-shadow: 0 1px 0 rgba(0,0,0,.5); letter-spacing: 0; }
+@media (min-width: 900px) { html.in-mushaf #reader > .reader-bar .rb-ind { font-size: 1.7rem; } }
+
+/* theme switch: top-left next to the menu button, every screen */
+#themeSw { position: fixed; top: 12px; left: 58px; z-index: 60; display: flex; gap: 6px; padding: 6px 8px; border-radius: 999px; background: rgba(10,18,14,.9); border: 1px solid rgba(212,177,94,.4); }
+#themeSw button { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(212,177,94,.5); padding: 0; cursor: pointer; }
+#themeSw button[data-t=green] { background: #2e5e4e; }
+#themeSw button[data-t=black] { background: #000; }
+#themeSw button[data-t=light] { background: #f1e6c6; }
+#themeSw button.on { border-color: #f6e3a1; box-shadow: 0 0 0 2px rgba(246,227,161,.35); }
+html.in-mushaf #themeSw { top: 7px; }
+body.sheet-open #themeSw { display: none; }
+
+/* dark: true black */
+html[data-site=black] { --bg: #000; --bg2: #050505; --card: #0b0b0b; --card2: #101010; }
+html[data-site=black] body { background: #000; }
+/* light: mushaf paper */
+html[data-site=light] { --bg: #f1e6c6; --bg2: #ead9ad; --card: #f7eed4; --card2: #efe2bd; --ink: #231b0c; --muted: #6f5c36; --gold: #8a6414; --gold2: #7a5410; --line: rgba(110,80,20,.3); --emerald: #5a7a5a; --emerald2: #6a8a62; }
+html[data-site=light] body { background: #f1e6c6; color: #231b0c; }
+html[data-site=light] .hero, html[data-site=light] nav, html[data-site=light] header { background: transparent; color: #231b0c; }
+html[data-site=light] #reader[data-th=light] .mushaf-page, html[data-site=light] #reader[data-th=light] .reader-shell { background: #f4e9c9; }
+html[data-site=light] #reader[data-th=light] .sc-wrap { color: #231b0c; }
+html[data-site=light] #themeSw { background: rgba(244,233,201,.95); border-color: rgba(110,80,20,.5); }
+html.in-mushaf[data-site=light] #reader > .reader-bar { background: #efe2bd !important; }
+html.in-mushaf[data-site=light] #reader > .reader-bar .rb-ind { color: #5c3f08; text-shadow: none; }
+html.in-mushaf[data-site=light] #reader > .reader-bar .rb-pg, html.in-mushaf[data-site=light] .pg-fab { background: #f4e9c9; color: #5c3f08; border-color: rgba(110,80,20,.5); }
+#themeSw { z-index: 300; left: 56px; gap: 4px; padding: 6px 7px; }
+#themeSw button { width: 18px; height: 18px; }
+html[data-site=light] .hero h1 { color: #231b0c; text-shadow: none; background: none; -webkit-text-fill-color: #231b0c; }
+html[data-site=light] .sc-wrap .mp-shead, html[data-site=light] .sc-wrap .mp-shead *, html[data-site=light] .mp-shead, html[data-site=light] .mp-shead * { color: #5c3f08 !important; }
+html[data-site=light] .sc-wrap .mp-bsm { color: #5c3f08; }
+html[data-site=light] .hero .sub, html[data-site=light] .hero p { color: #4a3a1a; }
+html.in-mushaf #themeSw { left: 70px; }
+
+/* page number sits on a small open book, bottom-left */
+html.in-mushaf #reader > .reader-bar .rb-pg { right: auto; left: 12px; bottom: 10px; width: 78px; height: 50px; padding: 0 0 4px; border: 0; border-radius: 0; justify-content: center; align-items: center; gap: 0; font-size: .95rem; font-weight: 800; color: #f6e3a1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 50' fill='none'%3E%3Cpath d='M39 10C30 4 17 4 5 8v33c12-4 25-4 34 2 9-6 22-6 34-2V8C61 4 48 4 39 10z' fill='%230a120e' fill-opacity='.94' stroke='%23d4b15e' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M39 10v33' stroke='%23d4b15e' stroke-width='1.2'/%3E%3Cpath d='M10 15c8-2 17-1 24 2M10 22c8-2 17-1 24 2M44 17c7-3 16-4 24-2M44 24c7-3 16-4 24-2' stroke='%23d4b15e' stroke-opacity='.4' stroke-width='1'/%3E%3C/svg%3E") center/100% 100% no-repeat; }
+html.in-mushaf #reader > .reader-bar .rb-pg::before { display: none; }
+html.in-mushaf[data-site=light] #reader > .reader-bar .rb-pg { color: #3b2806; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 78 50' fill='none'%3E%3Cpath d='M39 10C30 4 17 4 5 8v33c12-4 25-4 34 2 9-6 22-6 34-2V8C61 4 48 4 39 10z' fill='%23f7eed4' stroke='%238a6414' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M39 10v33' stroke='%238a6414' stroke-width='1.2'/%3E%3C/svg%3E"); border: 0; }
+#pgFabNext { left: calc(50% - 52px); }
+#pgFabPrev { left: calc(50% + 8px); }
+
+/* light theme: no dark patches on the inner screens */
+html[data-site=light] .foot-links a, html[data-site=light] .hs-tile, html[data-site=light] .hd-row, html[data-site=light] .sl-list, html[data-site=light] .sl-date, html[data-site=light] .hs-item, html[data-site=light] .hs-cat, html[data-site=light] .rw-card, html[data-site=light] .hs-sheet { background: #f7eed4 !important; color: #231b0c !important; border-color: rgba(110,80,20,.35) !important; box-shadow: none !important; }
+html[data-site=light] .hs-tile span, html[data-site=light] .hd-row *, html[data-site=light] .hs-text, html[data-site=light] .sl-list *, html[data-site=light] .sl-date * { color: #231b0c; }
+html[data-site=light] .hs-tile small, html[data-site=light] .hs-tile i, html[data-site=light] #slH { color: #6f5c36 !important; }
+html[data-site=light] .hs-tile svg { color: #8a6414; }
+html[data-site=light] input, html[data-site=light] select, html[data-site=light] textarea, html[data-site=light] .hs-search { background: #fbf4dc !important; color: #231b0c !important; border-color: rgba(110,80,20,.45) !important; }
+html[data-site=light] .qb-ring { background: #f7eed4 !important; border-color: #8a6414 !important; }
+html[data-site=light] .qb-ring * { color: #5c3f08; }
+html[data-site=light] .sb-tap { background: #f7eed4 !important; color: #231b0c !important; box-shadow: inset 0 0 0 2px rgba(110,80,20,.4), 0 10px 30px rgba(90,60,10,.25) !important; }
+html[data-site=light] .sb-tap .sb-count, html[data-site=light] .sb-tap .sb-of { color: #231b0c; }
+html[data-site=light] .sb-tap::before { background: conic-gradient(#8a6414 calc(var(--p, 0) * 1%), rgba(110,80,20,.18) 0); }
+html[data-site=light] .hs-sh-bar { background: #efe2bd; color: #231b0c; }
+/* clock on home: leave room for the theme dots */
+html:not(.in-mushaf) .h-clockw { transform: translateX(38px) scale(.92); transform-origin: center; }
+/* page mode: keep the bottom controls clear of the hint line */
+html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) .reader-hint { padding-bottom: 64px; }
+html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) #reader { padding-bottom: 70px; }
+/* smaller book chip */
+html.in-mushaf #reader > .reader-bar .rb-pg { width: 54px; height: 36px; font-size: .78rem; padding-bottom: 3px; bottom: 10px; left: 12px; }
+html[data-site=light] .home-tiles a, html[data-site=light] #hadith .hd-tabs button, html[data-site=light] #hadith button:not(.on):not(.hd-go) { background: #f7eed4 !important; color: #231b0c !important; border-color: rgba(110,80,20,.4) !important; }
+html[data-site=light] #hadith button.on { background: #e5d19a !important; color: #3b2806 !important; }
+html.in-inner #navBtn svg { stroke-width: 2.6; }

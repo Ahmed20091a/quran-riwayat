@@ -125,6 +125,8 @@
       if (v >= 1 && v <= PAGES.length) renderPage(v);
     }
     $('#pageGo').addEventListener('click', jump);
+    $('#pgFabNext').addEventListener('click', function () { $('#pageNext').click(); });
+    $('#pgFabPrev').addEventListener('click', function () { $('#pagePrev').click(); });
     $('#pageInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') jump(); });
     document.addEventListener('keydown', function (e) {
       if (!PAGES || MODE !== 'page') return;
@@ -813,7 +815,7 @@
     sheetState.following = false;
     openSheet(o.s, o.a);
     var el = document.querySelector('#readerBody .ayah[data-s="' + o.s + '"][data-a="' + o.a + '"]');
-    if (el) aimAyah(el);
+    if (el) { aimForce = true; aimAyah(el); aimForce = false; }
   }
   function sheetFollow() {
     var sh = document.getElementById('ayahSheet'); if (!sh || sh.hidden || !AY.on) return;
@@ -920,7 +922,7 @@
     inf.style.cursor = 'pointer';
     inf.setAttribute('role', 'button');
     inf.addEventListener('click', function () {
-      ayHighlight();
+      userScrollAt = 0; ayHighlight();
       var rd = document.getElementById('reader'); if (rd && !document.querySelector('#readerBody .ayah.playing')) { try { rd.scrollIntoView({ behavior: 'smooth' }); } catch (e) {} }
     });
     ayMediaSession();
@@ -1055,7 +1057,12 @@
     if (AY.mode === 'full' && !(AY.full && AY.full.ts)) box.textContent = 'السورة كاملة';
     else box.textContent = AY.a === 0 ? 'البسملة' : 'آية ' + arNum(AY.a) + ' من ' + arNum(n);
   }
+  /* auto-follow must not fight the reader: after a manual scroll it pauses for a while */
+  var userScrollAt = 0, aimForce = false;
+  ['touchmove', 'wheel'].forEach(function (ev) { window.addEventListener(ev, function () { userScrollAt = Date.now(); }, { passive: true }); });
+  window.addEventListener('keydown', function (e) { if (/^(Arrow|Page|Home|End| )/.test(e.key)) userScrollAt = Date.now(); });
   function aimAyah(el) {
+    if (!aimForce && Date.now() - userScrollAt < 12000) return;
     try {
       var sh = document.querySelector('#ayahSheet .sheet-card'), open = sh && !document.getElementById('ayahSheet').hidden;
       if (!open) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }

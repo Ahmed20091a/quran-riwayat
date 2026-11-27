@@ -41,6 +41,13 @@
     if (nl) nl.classList.remove('open');
     var nb = document.getElementById('navBtn');
     if (nb) nb.setAttribute('aria-expanded', 'false');
+    var inner = t !== 'home' && t !== 'mushaf';
+    document.documentElement.classList.toggle('in-inner', inner);
+    if (nb) {
+      var sv = nb.querySelector('svg');
+      if (sv) { if (!nb.__bars) nb.__bars = sv.innerHTML; sv.innerHTML = inner ? '<path d="M9 5l7 7-7 7"/>' : nb.__bars; }
+      nb.setAttribute('aria-label', inner ? 'رجوع' : 'القائمة');
+    }
     window.scrollTo({ top: 0, behavior: 'instant' });
     document.title = (t === 'home' ? 'قرآن كريم' : NAMES[t] + ' — قرآن كريم');
   }
@@ -49,4 +56,8 @@
   var brand = document.querySelector('nav .brand');
   if (brand) { brand.style.cursor = 'pointer'; brand.addEventListener('click', function () { if (location.hash) location.hash = ''; show(); }); }
   show();
+  var nbtn = document.getElementById('navBtn');
+  if (nbtn) nbtn.addEventListener('click', function (e) {
+    if (document.documentElement.classList.contains('in-inner')) { e.stopImmediatePropagation(); e.preventDefault(); window.__quranBack(); }
+  }, true);
 })();
