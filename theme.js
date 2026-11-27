@@ -23,6 +23,14 @@
     sw.appendChild(b);
   });
   document.body.appendChild(sw);
+  function place() {
+    var nl = document.getElementById('navLinks'); if (!nl) return;
+    var desk = window.innerWidth >= 900 && !document.documentElement.classList.contains('in-mushaf');
+    if (desk && sw.parentNode !== nl) nl.appendChild(sw);
+    else if (!desk && sw.parentNode !== document.body) document.body.appendChild(sw);
+  }
+  place(); window.addEventListener('resize', place);
+  new MutationObserver(place).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   apply(get());
   /* the reader is built after load: re-apply once it exists */
   setTimeout(function () { apply(get()); }, 600);

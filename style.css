@@ -1256,8 +1256,34 @@ html[data-site=light] .mp-foot .pg-no, html[data-site=light] .sc-no b, #reader[d
 .hz { display: block; text-align: center; color: var(--muted); font: 600 .8rem 'Cairo', sans-serif; margin: .5rem 0 .2rem; }
 .sc-juz { text-align: center; color: var(--muted); font: 600 .85rem 'Cairo', sans-serif; margin: .6rem 0 .2rem; }
 .sc-no span { display: none; }
-@media (min-width: 900px) { html:not(.in-mushaf) #themeSw, html:not(.in-mushaf)[data-site=light] #themeSw { top: auto !important; bottom: 16px; left: 16px !important; background: var(--card) !important; border: 1px solid var(--line) !important; padding: 6px 8px !important; border-radius: 999px; } }
 html[data-site=light] .rd-now { background: var(--card) !important; border-color: var(--line) !important; box-shadow: none !important; color: var(--ink) !important; }
 html[data-site=light] .rd-live { color: #a83232 !important; }
 html[data-site=light] .rd-item.on { background: rgba(138,100,20,.14) !important; color: var(--gold2) !important; }
 html[data-site=light] .rd-stop, html[data-site=light] #radio .btn { background: var(--card2) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; }
+
+/* theme dots live inside the desktop nav row as their own item */
+.nav-links #themeSw, html[data-site=light] .nav-links #themeSw { position: static !important; top: auto !important; left: auto !important; bottom: auto !important; background: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; display: flex; align-items: center; gap: 7px; z-index: auto; }
+@media (min-width: 900px) {
+  html[data-site=light] nav .nav-links, html[data-site=light] #navLinks, nav .nav-links, #navLinks { background: none !important; border: 0 !important; box-shadow: none !important; }
+  html[data-site=light] #navLinks a, html[data-site=light] .nav-links a { background: none !important; border: 0 !important; box-shadow: none !important; }
+}
+@media (min-width: 900px) and (max-width: 1150px) { nav .h-clockw { display: none; } nav .nav-links { flex-wrap: wrap; justify-content: center; gap: .3rem .9rem; flex: 1; min-width: 0; } nav .nav-links a { font-size: .85rem; white-space: nowrap; } }
+/* mushaf bar: back arrow and menu button are identical boxes in every theme */
+html.in-mushaf #reader > .reader-bar .rb-back, html.in-mushaf #reader > .reader-bar .vo-btn { width: 38px !important; height: 36px !important; padding: 0 !important; border-radius: 10px !important; border: 1px solid var(--gold) !important; background: transparent !important; color: var(--gold2) !important; display: inline-flex !important; align-items: center; justify-content: center; box-shadow: none !important; }
+html.in-mushaf #reader > .reader-bar .rb-back svg, html.in-mushaf #reader > .reader-bar .vo-btn svg { width: 20px; height: 20px; stroke: currentColor; }
+html.in-mushaf #themeSw { left: 60px !important; }
+/* smaller book chip, aligned with the digits */
+.mp-foot .pg-no, .sc-no b { width: 34px !important; height: 22px !important; padding: 0 0 2px !important; font-size: .66rem !important; }
+/* hizb markers sit in the page margin beside the ayah where they start */
+.mp-inner, .sc-text { position: relative; }
+.hz { position: absolute; right: -1.15rem; display: block !important; margin: 0 !important; width: 1rem; writing-mode: vertical-rl; text-orientation: mixed; white-space: nowrap; font: 600 .62rem/1 'Cairo', sans-serif !important; color: var(--muted); text-align: start; line-height: 1; letter-spacing: 0; }
+.mp-body, .sc-wrap .sc-page { overflow: visible; }
+/* prayer times in light: same shapes, light tints */
+html[data-site=light] .sl-ic { background: color-mix(in srgb, var(--tint) 18%, #f7eed4) !important; border-color: color-mix(in srgb, var(--tint) 55%, transparent) !important; }
+html[data-site=light] .sl-p.next .sl-ic { background: var(--tint) !important; color: #fff !important; }
+html[data-site=light] .sl-p.next { background: rgba(138,100,20,.12); border-color: rgba(138,100,20,.5); }
+html[data-site=light] .sl-p small { color: var(--muted); }
+html[data-site=light] .sl-pill, html[data-site=light] .sl-pill select, html[data-site=light] .sl-over select { background: transparent !important; color: #fff !important; border: 0 !important; }
+html[data-site=light] .sl-pill select option { color: #231b0c; background: #f7eed4; }
+html[data-site=light] .sl-pill { background: rgba(8,14,12,.45) !important; }
+html[data-site=light] .foot-links a, html[data-site=light] footer a { background: none !important; border: 0 !important; box-shadow: none !important; }
