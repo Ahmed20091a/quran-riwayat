@@ -1452,3 +1452,36 @@ html.in-mushaf .mushaf-page.sc-wrap { border: 0 !important; padding-inline: .9re
 .qb-dial, #qbRing { will-change: transform; }
 .qb-dial { transition: none !important; }
 html:has(#qibla.on), html:has(#qibla.on) body { overscroll-behavior: none; }
+
+/* literal compass: rotating dial with ticks and N/E/S/W, needle pointing at the Kaaba, fixed forward marker */
+.qb-ring { background: radial-gradient(circle, #16281f 0, #0b1410 100%) !important; border: 0 !important; }
+.qb-ring svg, .qb-k svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.qb-ring .bz { fill: none; stroke: #d4b15e; stroke-width: 2.4; }
+.qb-ring .in { fill: none; stroke: rgba(212,177,94,.25); stroke-width: 1; }
+.qb-ring .tk { stroke: rgba(212,177,94,.55); stroke-width: 1; }
+.qb-ring .tk.mid { stroke: rgba(212,177,94,.85); stroke-width: 1.4; }
+.qb-ring .tk.big { stroke: #f3dc94; stroke-width: 2.4; }
+.qb-ring .cd { fill: #e8d39a; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 20px; }
+.qb-ring .cd.cn { fill: #ff8a6b; }
+.qb-k::before { display: none !important; }
+.qb-k .nd-a { fill: #f3dc94; stroke: #9a7a2c; stroke-width: 1; }
+.qb-k .nd-b { fill: rgba(212,177,94,.28); stroke: rgba(212,177,94,.5); stroke-width: 1; }
+.qb-k .kb-b { fill: #111; stroke: #f3dc94; stroke-width: 1.4; }
+.qb-k .kb-g { fill: #e8c75f; }
+.qb-hub { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #0b1410; border: 2px solid #d4b15e; z-index: 3; }
+.qb-lub { position: absolute; left: 50%; top: -9px; margin-left: -8px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 14px solid #f3dc94; z-index: 3; filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+.qb-dial { width: 270px; height: 270px; }
+html[data-site=light] .qb-ring { background: radial-gradient(circle, #fbf4de 0, #efe1b8 100%) !important; }
+html[data-site=light] .qb-ring .bz { stroke: #8a6414; }
+html[data-site=light] .qb-ring .in { stroke: rgba(110,80,20,.35); }
+html[data-site=light] .qb-ring .tk { stroke: rgba(110,80,20,.55); }
+html[data-site=light] .qb-ring .tk.mid { stroke: rgba(110,80,20,.85); }
+html[data-site=light] .qb-ring .tk.big { stroke: #5c3f08; }
+html[data-site=light] .qb-ring .cd { fill: #4a3208 !important; }
+html[data-site=light] .qb-ring .cd.cn { fill: #b3331a !important; }
+html[data-site=light] .qb-k .nd-a { fill: #8a6414; stroke: #5c3f08; }
+html[data-site=light] .qb-k .nd-b { fill: rgba(110,80,20,.22); stroke: rgba(110,80,20,.5); }
+html[data-site=light] .qb-k .kb-b { fill: #1a1a1a; stroke: #5c3f08; }
+html[data-site=light] .qb-k .kb-g { fill: #c99a2e; }
+html[data-site=light] .qb-hub { background: #f7eed4; border-color: #8a6414; }
+html[data-site=light] .qb-lub { border-top-color: #8a6414; }
