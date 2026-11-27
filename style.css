@@ -559,3 +559,5 @@ body.ay-on { padding-bottom: 150px; }
 .p-btn .ic { width: 1.1em; height: 1.1em; }
 .play-choice .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
 .sheet-tab { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; }
+[data-bs] { cursor: pointer; }
+.bsm.playing, .mp-bsm.playing { background: rgba(212,177,94,.18); border-radius: 8px; box-shadow: 0 0 0 3px rgba(212,177,94,.12); }
