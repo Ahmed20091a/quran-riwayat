@@ -1,5 +1,5 @@
 /* روايات — service worker: offline shell + cached surahs and audio */
-var SHELL = 'quran-shell-v7';
+var SHELL = 'quran-shell-v8';
 var TEXT = 'quran-text-v7';
 var TAF = 'quran-tafsir-v1';
 var SHELL_FILES = [
@@ -14,7 +14,13 @@ self.addEventListener('install', function (e) {
 });
 
 self.addEventListener('activate', function (e) {
-  e.waitUntil(clients.claim());
+  var keep = [SHELL, TEXT, TAF];
+  e.waitUntil(
+    caches.keys().then(function (names) {
+      return Promise.all(names.filter(function (n) { return n.indexOf('quran-shell-') === 0 && keep.indexOf(n) === -1; })
+        .map(function (n) { return caches.delete(n); }));
+    }).then(function () { return clients.claim(); })
+  );
 });
 
 self.addEventListener('fetch', function (e) {
@@ -68,17 +74,27 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  // app shell: cache first, refresh in background
-  if (url.origin === location.origin) {
+  // app shell: network first (so changes show up on the same link), cache as the offline fallback
+  if (url.origin === location.origin && e.request.method === 'GET') {
     e.respondWith(
-      caches.match(e.request).then(function (hit) {
-        var fresh = fetch(e.request).then(function (res) {
+      new Promise(function (resolve) {
+        var done = false;
+        var timer = setTimeout(function () {
+          caches.match(e.request).then(function (hit) { if (hit && !done) { done = true; resolve(hit); } });
+        }, 4000);
+        fetch(e.request, { cache: 'no-cache' }).then(function (res) {
+          clearTimeout(timer);
           if (res.ok) {
-            caches.open(SHELL).then(function (c) { c.put(e.request, res.clone()); });
+            var copy = res.clone();
+            caches.open(SHELL).then(function (c) { c.put(e.request, copy); });
           }
-          return res;
-        }).catch(function () { return hit; });
-        return hit || fresh;
+          if (!done) { done = true; resolve(res); }
+        }).catch(function () {
+          clearTimeout(timer);
+          caches.match(e.request).then(function (hit) {
+            if (!done) { done = true; resolve(hit || Response.error()); }
+          });
+        });
       })
     );
   }

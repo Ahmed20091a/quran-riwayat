@@ -1067,6 +1067,21 @@
 
   /* ---------- service worker (offline reading) ---------- */
   if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
+    var hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+      function check() { try { reg.update(); } catch (e) {} }
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+      setInterval(check, 30 * 60 * 1000);
+    }).catch(function () {});
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController) { hadController = true; return; }
+      if (reloaded) return;
+      var t = document.createElement('div');
+      t.className = 'upd-toast';
+      t.innerHTML = '<span>✨ تحديث جديد جاهز</span><button type="button">حدّث الآن</button>';
+      t.querySelector('button').addEventListener('click', function () { reloaded = true; location.reload(); });
+      document.body.appendChild(t);
+    });
   }
 })();

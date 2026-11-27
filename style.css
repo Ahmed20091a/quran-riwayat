@@ -542,3 +542,8 @@ body.ay-on { padding-bottom: 150px; }
 .ay-dots { flex: 1; text-align: center; font-size: .8rem; color: var(--muted); }
 
 .ay-seek span { direction: ltr; unicode-bidi: isolate; min-width: 2.4em; text-align: center; }
+
+.upd-toast { position: fixed; z-index: 120; left: 50%; top: 70px; transform: translateX(-50%); display: flex; gap: .8rem; align-items: center;
+  background: linear-gradient(180deg,#1d4a3a,#0f2a21); color: var(--ink); border: 1px solid rgba(212,177,94,.6); border-radius: 999px;
+  padding: .5rem .6rem .5rem 1rem; box-shadow: 0 10px 30px rgba(0,0,0,.5); font-size: .9rem; }
+.upd-toast button { background: var(--gold); color: #14211a; border: 0; border-radius: 999px; padding: .4rem 1rem; font: inherit; font-weight: 800; cursor: pointer; }
