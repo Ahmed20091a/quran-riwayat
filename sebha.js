@@ -7,7 +7,7 @@
   function $(s) { return document.querySelector(s); }
   function today() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
   var ICO = {
-    check: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    check: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true"><path d="M6.5 12.8l3.6 3.6 7.4-8.2" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     del: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     plus: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
   };
@@ -85,6 +85,7 @@
     $('#sbOf').textContent = t ? 'من ' + ar(t) : '';
     $('#sbTap').classList.toggle('done', !!(t && n >= t));
     $('#sbBar').style.width = t ? Math.min(100, n / t * 100) + '%' : '0%';
+    $('#sbTap').style.setProperty('--p', t ? Math.min(100, n / t * 100) : (n % 33) / 33 * 100);
     var sel = $('#sbTarget'), pre = ['0', '33', '100'];
     sel.value = pre.indexOf(String(t)) !== -1 ? String(t) : 'x';
     var ci = $('#sbCustomT'); ci.hidden = sel.value !== 'x'; if (!ci.hidden && document.activeElement !== ci) ci.value = t || '';

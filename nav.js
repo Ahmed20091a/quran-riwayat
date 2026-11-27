@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var IDS = ['mushaf', 'tilawa', 'riwayat', 'tajweed', 'sebha', 'adhkar', 'duas', 'salah'];
-  var NAMES = { mushaf: 'المصحف', tilawa: 'التلاوة', riwayat: 'الروايات', tajweed: 'التجويد', sebha: 'السبحة', adhkar: 'الأذكار', duas: 'الأدعية', salah: 'المواقيت' };
+  var NAMES = { mushaf: 'المصحف', tilawa: 'التلاوة', riwayat: 'الروايات', tajweed: 'أحكام التجويد', sebha: 'السبحة', adhkar: 'الأذكار', duas: 'الأدعية', salah: 'المواقيت' };
   var hero = document.querySelector('header.hero');
   var secs = {};
   IDS.forEach(function (i) { secs[i] = document.getElementById(i); });

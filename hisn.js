@@ -32,26 +32,28 @@
     }
     return d;
   }
-  /* الأذكار */
-  var TABS = ['أذكار الصباح والمساء', 'الأذكار بعد السلام من الصلاة', 'أذكار النوم', 'أذكار الاستيقاظ من النوم'];
-  var adSel = 0;
-  function adPaint() {
-    var tabs = $('#adTabs'); tabs.innerHTML = '';
-    TABS.forEach(function (t, i) {
-      var b = document.createElement('button'); b.className = 'sb-chip' + (i === adSel ? ' on' : ''); b.setAttribute('role', 'tab');
-      b.innerHTML = '<span></span>'; b.firstChild.textContent = t.replace(/^الأذكار |^أذكار /, '');
-      b.addEventListener('click', function () { adSel = i; adPaint(); }); tabs.appendChild(b);
-    });
+  var sheet = null;
+  function mkTile(c, i, counter, unit) {
+        var t = document.createElement('button'); t.type = 'button'; t.className = 'hs-tile';
+        t.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2l4.6 8.4 8.9-3.1-1.6 9.3 9.1 2.4-7 6.2 4.8 8-9.4-.7-2.3 9.1L20 33l-7.1 5.6-2.3-9.1-9.4.7 4.8-8-7-6.2 9.1-2.4-1.6-9.3 8.9 3.1z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><i></i><span></span><small></small>';
+        t.querySelector('i').textContent = ar(i + 1);
+        t.querySelector('span').textContent = c.t;
+        t.querySelector('small').textContent = ar(c.a.length) + unit;
+        t.addEventListener('click', function () { openSheet(c, counter); });
+    return t;
+  }
+  var ADHKAR_SKIP = { 49: 1 };
+  function adGrid() {
     var box = $('#adBody'); box.innerHTML = '';
-    var c = byTitle(TABS[adSel]);
-    if (!c) return;
-    var h = document.createElement('h3'); h.className = 'sb-h'; h.textContent = c.t; box.appendChild(h);
-    c.a.forEach(function (it) { box.appendChild(card(it, true)); });
+    var grid = document.createElement('div'); grid.className = 'hs-grid';
+    DATA.forEach(function (c, i) {
+      if (!/ذكر|أذكار|التسبيح|التكبير|الصلاة على النبي/.test(c.t) || ADHKAR_SKIP[i]) return;
+      grid.appendChild(mkTile(c, i, true, c.a.length === 1 ? ' ذكر' : c.a.length === 2 ? ' ذكران' : c.a.length > 10 ? ' ذكرًا' : ' أذكار'));
+    });
+    box.appendChild(grid);
     $('#adSrc').textContent = SRC;
   }
-
-  var sheet = null;
-  function openSheet(c) {
+  function openSheet(c, counter) {
     if (!sheet) {
       sheet = document.createElement('div'); sheet.className = 'hs-sheet'; sheet.hidden = true;
       sheet.innerHTML = '<div class="hs-sh-bar"><button type="button" class="hs-back" aria-label="رجوع"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><h3></h3></div><div class="hs-sh-body"></div>';
@@ -62,7 +64,7 @@
     sheet.querySelector('h3').textContent = c.t;
     var body = sheet.querySelector('.hs-sh-body'); body.innerHTML = '';
     c.a.forEach(function (it, i) {
-      var d = card(it, false); d.classList.add('big');
+      var d = card(it, !!counter); d.classList.add('big');
       var n = document.createElement('div'); n.className = 'hs-no'; n.textContent = ar(i + 1) + ' / ' + ar(c.a.length); d.insertBefore(n, d.firstChild);
       body.appendChild(d);
     });
@@ -77,12 +79,7 @@
     if (!nq) {
       var grid = document.createElement('div'); grid.className = 'hs-grid';
       DATA.forEach(function (c, i) {
-        var t = document.createElement('button'); t.type = 'button'; t.className = 'hs-tile';
-        t.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2l4.6 8.4 8.9-3.1-1.6 9.3 9.1 2.4-7 6.2 4.8 8-9.4-.7-2.3 9.1L20 33l-7.1 5.6-2.3-9.1-9.4.7 4.8-8-7-6.2 9.1-2.4-1.6-9.3 8.9 3.1z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><i></i><span></span><small></small>';
-        t.querySelector('i').textContent = ar(i + 1);
-        t.querySelector('span').textContent = c.t;
-        t.querySelector('small').textContent = ar(c.a.length) + (c.a.length > 10 ? ' دعاء' : c.a.length > 2 ? ' أدعية' : c.a.length === 2 ? ' دعاءان' : ' دعاء');
-        t.addEventListener('click', function () { openSheet(c); });
+        var t = mkTile(c, i, false, c.a.length > 10 ? ' دعاء' : c.a.length > 2 ? ' أدعية' : c.a.length === 2 ? ' دعاءان' : ' دعاء');
         grid.appendChild(t);
       });
       box.appendChild(grid);
@@ -103,7 +100,7 @@
   }
   function init() {
     load().then(function () {
-      adPaint(); duaList(''); $('#duaSrc').textContent = SRC;
+      adGrid(); duaList(''); $('#duaSrc').textContent = SRC;
       var t = null; $('#duaSearch').addEventListener('input', function (e) { clearTimeout(t); var v = e.target.value; t = setTimeout(function () { duaList(v); }, 150); });
     }).catch(function () {
       $('#adBody').innerHTML = '<div class="sb-empty">تعذّر تحميل الأذكار. افتح الموقع مرة واحدة بالإنترنت.</div>';

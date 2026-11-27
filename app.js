@@ -1568,6 +1568,19 @@
       l1.insertAdjacentHTML('beforeend', '<div class="ex"><div class="ex-t">' + tajHl(ex.t) + '</div><div class="ex-w">' + ex.why + '</div></div>');
     });
     card.appendChild(l1);
+    var pbox = document.createElement('div'); card.appendChild(pbox);
+    fetch('data/taj-poem.json').then(function (x) { return x.json(); }).then(function (d) {
+      var vs = d.rules[r.name];
+      if (!vs || !vs.length) return;
+      var ph = document.createElement('h5'); ph.className = 'ex-h'; ph.textContent = 'من المتن: ' + d.src; pbox.appendChild(ph);
+      vs.forEach(function (v) {
+        var q = document.createElement('div'); q.className = 'poem-v';
+        var l1 = document.createElement('div'); l1.textContent = v.a;
+        var l2 = document.createElement('div'); l2.textContent = v.b;
+        var no = document.createElement('small'); no.textContent = 'البيت ' + arNum(v.n);
+        q.appendChild(l1); q.appendChild(l2); q.appendChild(no); pbox.appendChild(q);
+      });
+    }).catch(function () {});
     var mh = document.createElement('h5'); mh.className = 'ex-h'; mh.textContent = 'أمثلة من المصحف'; card.appendChild(mh);
     var mbox = document.createElement('div'); card.appendChild(mbox);
     body.appendChild(card);
@@ -1723,3 +1736,5 @@
     });
   }
 })();
+
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
