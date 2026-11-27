@@ -617,16 +617,34 @@
     row.appendChild(sel);
     box.appendChild(row);
     var row2 = document.createElement('div'); row2.className = 'sheet-row play-choice';
-    var b2 = document.createElement('button'); b2.className = 'btn primary';
-    b2.innerHTML = ico('play') + '<span>تشغيل متواصل من هذه الآية</span>';
-    var b1 = document.createElement('button'); b1.className = 'btn';
+    var b1 = document.createElement('button');
     b1.innerHTML = ico('play') + '<span>هذه الآية فقط</span>';
     b1.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'ayah'); });
-    b2.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'surah'); });
-    row2.appendChild(b2); row2.appendChild(b1);
-    box.appendChild(row2);
     var hint = document.createElement('div'); hint.className = 'hint';
-    hint.textContent = '«تشغيل متواصل» بيكمّل لوحده آية بعد آية وسورة بعد سورة (مع البسملة) لحد ما توقفه. «هذه الآية فقط» بيشغّل الآية دي ويقف. بتتحمّل من الإنترنت وقت التشغيل بس، ومش بتتحفظ على الجهاز.';
+    function paintChoice() {
+      row2.innerHTML = '';
+      var f = FULLMAP[sel.value];
+      if (f) {
+        var b2 = document.createElement('button'); b2.className = 'btn primary';
+        b2.innerHTML = ico('play') + '<span>السورة كاملة</span>';
+        b2.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'full'); });
+        b1.className = 'btn';
+        row2.appendChild(b2); row2.appendChild(b1);
+        hint.textContent = '«السورة كاملة» بتشغّل ملف السورة كله من غير وصلات بين الآيات وتكمّل على السورة اللي بعدها. ' +
+          (f.c ? 'الآية بتتعلّم وقت ما تتقرأ حسب توقيت الملف نفسه' + (f.w ? '، وكل كلمة كمان.' : '.') : 'الملف ده معندوش توقيت للآيات، فمفيش تعليم أثناء التشغيل.') +
+          ' «هذه الآية فقط» بيشغّل الآية دي ويقف. بتتحمّل من الإنترنت وقت التشغيل بس.';
+      } else {
+        b1.className = 'btn primary';
+        var b3 = document.createElement('button'); b3.className = 'btn';
+        b3.innerHTML = ico('play') + '<span>آية بآية متتابعة (ممكن يظهر فاصل)</span>';
+        b3.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'surah'); });
+        row2.appendChild(b1); row2.appendChild(b3);
+        hint.textContent = 'القارئ ده مفيش له ملف سورة كاملة بتوقيت مضمون، فمتاح آية واحدة، أو تشغيل آية بآية ممكن يظهر فيه فاصل بسيط بين الآيات.';
+      }
+    }
+    sel.addEventListener('change', paintChoice);
+    paintChoice();
+    box.appendChild(row2);
     box.appendChild(hint);
   }
 
@@ -641,7 +659,7 @@
     ayBar.innerHTML =
       '<div class="ay-top"><div class="ay-ring" id="ayRing"><button class="ay-play" id="ayPlay" aria-label="تشغيل / إيقاف">' + ico('play') + '</button></div>' +
       '<div class="ay-info"><b id="ayTitle">—</b><small id="ayRec">—</small></div>' +
-      '<div class="ay-mode" id="ayMode" role="group"><button data-m="surah">متواصل</button><button data-m="ayah">آية</button></div>' +
+      '<div class="ay-mode" id="ayMode" role="group"><button data-m="full">السورة</button><button data-m="ayah">آية</button></div>' +
       '<button class="ay-x" id="ayClose" aria-label="إغلاق">' + ico('close') + '</button></div>' +
       '<div class="ay-seek"><span id="ayCur">٠:٠٠</span><input id="aySlider" type="range" min="0" max="1000" value="0" dir="rtl" aria-label="التحكم في موضع التلاوة"><span id="ayDur">٠:٠٠</span></div>' +
       '<div class="ay-ctrl"><button class="ay-b" id="ayPrev" aria-label="الآية السابقة">' + ico('prev') + '<span>السابقة</span></button><button class="ay-b" id="ayBack" aria-label="رجوع ١٠ ثواني">' + ico('back') + '<span>١٠</span></button><div class="ay-dots" id="ayDots"></div><button class="ay-b" id="ayFwd" aria-label="تقدّم ١٠ ثواني"><span>١٠</span>' + ico('fwd') + '</button><button class="ay-b" id="ayNext" aria-label="الآية التالية"><span>التالية</span>' + ico('next') + '</button></div>';
@@ -659,7 +677,15 @@
     document.getElementById('ayPrev').addEventListener('click', function () { ayStep(-1, true); });
     document.getElementById('ayClose').addEventListener('click', ayStop);
     ayBar.querySelectorAll('#ayMode button').forEach(function (b) {
-      b.addEventListener('click', function () { AY.mode = b.getAttribute('data-m'); ayPaintMode(); ayPreload(); });
+      b.addEventListener('click', function () {
+        var m = b.getAttribute('data-m');
+        if (m === 'full' && AY.mode !== 'full') {
+          if (FULLMAP[AY.rec.id]) { fullStart(AY.rec, AY.s, AY.a || 1); return; }
+          m = 'surah';
+        }
+        if (m === 'ayah' && AY.mode === 'full') { AY.mode = 'ayah'; AY.full = null; AY.fpre = null; ayAlt.removeAttribute('src'); if (!AY.a) AY.a = 1; ayLoad(); return; }
+        AY.mode = m; ayPaintMode(); ayPreload();
+      });
     });
     ayWire(ayahAudioEl); ayWire(ayAlt);
     var inf = ayBar.querySelector('.ay-info');
@@ -684,7 +710,8 @@
     el.addEventListener('pause', cur(ayPaintPlay));
     el.addEventListener('ended', cur(function () {
       if (!AY.on) return;
-      if (AY.mode === 'surah') ayStep(1, false);
+      if (AY.mode === 'full') fullNext();
+      else if (AY.mode === 'surah') ayStep(1, false);
       else ayPaintPlay();
     }));
     el.addEventListener('error', cur(function () { if (AY.on) { var t = document.getElementById('ayRec'); t.textContent = 'تعذّر تحميل التلاوة. تأكد من النت وجرّب تاني.'; } }));
@@ -774,7 +801,11 @@
     if (isFinite(d) && d > 0 && ayahAudioEl.currentTime >= d - c.trail) { c.done = true; ayStep(1, false); }
   }
   function ayPaintMode() {
-    ayBar.querySelectorAll('#ayMode button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-m') === AY.mode); });
+    ayBar.querySelectorAll('#ayMode button').forEach(function (b) {
+      var m = b.getAttribute('data-m'), chain = AY.rec && !FULLMAP[AY.rec.id];
+      if (m === 'full') b.textContent = chain ? 'متتابع' : 'السورة';
+      b.classList.toggle('on', m === 'full' ? (AY.mode === 'full' || (chain && AY.mode === 'surah')) : AY.mode === 'ayah');
+    });
   }
   function ayPaintPlay() {
     if (!ayBar) return;
@@ -793,7 +824,8 @@
   }
   function ayDots() {
     var n = MANIFEST.surahs[AY.s - 1].count, box = document.getElementById('ayDots');
-    box.textContent = AY.a === 0 ? 'البسملة' : 'آية ' + arNum(AY.a) + ' من ' + arNum(n);
+    if (AY.mode === 'full' && !(AY.full && AY.full.ts)) box.textContent = 'السورة كاملة';
+    else box.textContent = AY.a === 0 ? 'البسملة' : 'آية ' + arNum(AY.a) + ' من ' + arNum(n);
   }
   function ayHighlight() {
     kUnwrap();
@@ -867,10 +899,12 @@
   function kLoop() {
     if (!AY.on) { kUnwrap(); kRun = false; return; }
     ayCheckTrim();
-    var want = (AY.a > 0 && AY.rec && AY.rec.q) ? AY.s + ':' + AY.a : '';
+    if (AY.mode === 'full') fullSync();
+    var fsegs = AY.mode === 'full' && AY.full && AY.full.segs && AY.full.segs[AY.a];
+    var want = AY.a > 0 && AY.rec && (AY.mode === 'full' ? fsegs : AY.rec.q) ? AY.s + ':' + AY.a : '';
     if (K && K.key !== want) kUnwrap();
     if (!K && want && kBad !== want) {
-      var segs = qSegs(AY.rec.q, AY.s, AY.a);
+      var segs = AY.mode === 'full' ? fsegs : qSegs(AY.rec.q, AY.s, AY.a);
       var el = segs && document.querySelector('#readerBody .ayah[data-s="' + AY.s + '"][data-a="' + AY.a + '"]');
       if (el) kWrap(el, segs, want);
     }
@@ -924,7 +958,7 @@
       try {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: 'سورة ' + MANIFEST.surahs[AY.s - 1].name + (AY.a === 0 ? ' · البسملة' : ' · آية ' + arNum(AY.a)),
-          artist: r.name, album: 'روايات',
+          artist: r.name, album: 'قرآن كريم',
           artwork: [{ src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
         });
       } catch (e) {}
@@ -934,7 +968,11 @@
     buildAyBar();
     var r = AYAH_RECITERS.filter(function (x) { return x.id === recId; })[0] || AYAH_RECITERS.filter(function (x) { return x.id === AYAH_DEFAULT; })[0];
     lsSet('quran.ayahReciter', r.id);
+    if (!ayUnlocked) ayUnlock();
+    if (mode === 'full' && FULLMAP[r.id]) { AY.on = true; ayBar.hidden = false; document.body.classList.add('ay-on'); closeSheet(true); fullStart(r, s, a || 1); return; }
+    if (mode === 'full') mode = 'surah';
     if (mode === 'surah' && a === 1 && hasBsm(s)) a = 0;
+    AY.full = null; AY.fpre = null;
     AY.rec = r; AY.s = s; AY.a = a; AY.mode = mode; AY.on = true;
     ayBar.hidden = false;
     document.body.classList.add('ay-on');
@@ -942,6 +980,7 @@
     ayLoad();
   }
   function ayStep(d, force) {
+    if (AY.mode === 'full') { fullStep(d); return; }
     var s = AY.s, a = AY.a;
     if (d > 0) {
       var np = ayNextPos(s, a); s = np[0]; a = np[1];
@@ -956,8 +995,157 @@
     AY.s = s; AY.a = a;
     ayLoad();
   }
+  /* ---------- whole-surah mode: the reciter's own full-surah file, no joins inside a surah ---------- */
+  /* c = quran.com chapter recording id (gives the file URL and its own ayah timings), w = that file also has word timings,
+     mq = full-surah file from mp3quran (no timings, so no highlight while playing) */
+  var FULLMAP = {
+    'ar.alafasy': { c: 7, w: 1 }, 'ar.husary': { c: 6, w: 1 }, 'ar.minshawi': { c: 9, w: 1 }, 'ar.shaatree': { c: 4, w: 1 },
+    'ar.abdulbasitmurattal': { c: 2, w: 1 }, 'ar.abdurrahmaansudais': { c: 3, w: 1 }, 'ar.saoodshuraym': { c: 10, w: 1 },
+    'ea:Husary_Muallim_128kbps': { c: 12, w: 1 }, 'ea:Abdul_Basit_Mujawwad_128kbps': { c: 1, w: 1 }, 'ea:Minshawy_Mujawwad_192kbps': { c: 8, w: 1 },
+    'ea:Hani_Rifai_192kbps': { c: 5, w: 1 }, 'ea:khalefa_al_tunaiji_64kbps': { c: 161, w: 1 }, 'ea:Yasser_Ad-Dussary_128kbps': { c: 97, w: 1 },
+    'ar.mahermuaiqly': { c: 159 }, 'ar.ahmedajamy': { c: 19 }, 'ea:mahmoud_ali_al_banna_32kbps': { c: 129 }, 'ea:Muhammad_Jibreel_128kbps': { c: 169 },
+    'ea:Mohammad_al_Tablaway_128kbps': { c: 91 }, 'ea:Abdullah_Basfar_192kbps': { c: 163 }, 'ea:Salah_Al_Budair_128kbps': { c: 43 },
+    'ea:Abdullah_Matroud_128kbps': { c: 124 }, 'ea:Ahmed_Neana_128kbps': { c: 126 }, 'ea:Salaah_AbdulRahman_Bukhatir_128kbps': { c: 18 },
+    'ea:Muhsin_Al_Qasim_192kbps': { c: 11 }, 'ea:Abdullaah_3awwaad_Al-Juhaynee_128kbps': { c: 162 }, 'ea:Ali_Hajjaj_AlSuesy_128kbps': { c: 128 },
+    'ea:Sahl_Yassin_128kbps': { c: 17 }, 'ea:Akram_AlAlaqimy_128kbps': { c: 127 }, 'ea:Ali_Jaber_64kbps': { c: 158 }, 'ea:Fares_Abbad_64kbps': { c: 14 },
+    'ea:Ghamadi_40kbps': { c: 13 }, 'ea:Nasser_Alqatami_128kbps': { c: 104 },
+    'ar.hudhaify': { c: 167 }, 'ar.muhammadayyoub': { c: 22 }, 'ea:Muhammad_AbdulKareem_128kbps': { c: 70 }, 'ea:Khaalid_Abdullaah_al-Qahtaanee_192kbps': { c: 166 },
+    'ar.aymanswoaid': { mq: 'https://server15.mp3quran.net/a-rushdi/Almusshaf-Al-Mo-lim/' },
+    'ea:Husary_128kbps_Mujawwad': { mq: 'https://cdn.mp3quran.net/audio/mahmoud-husary/r2/' },
+    'ea:Yaser_Salamah_128kbps': { mq: 'https://cdn.mp3quran.net/audio/yasser-salama/r1/' }
+  };
+  var FC = {};
+  function fullInfo(rec, s) {
+    var f = FULLMAP[rec.id], key = rec.id + ':' + s;
+    if (FC[key]) return FC[key];
+    var pad = String(s).padStart(3, '0');
+    if (!f.c) return (FC[key] = Promise.resolve({ src: f.mq + pad + '.mp3', ts: null, segs: null }));
+    var n = MANIFEST.surahs[s - 1].count;
+    FC[key] = fetch('https://api.quran.com/api/v4/chapter_recitations/' + f.c + '/' + s + '?segments=true')
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+      .then(function (j) {
+        var af = j.audio_file, ts = af.timestamps || [], out = { src: af.audio_url, ts: null, segs: null };
+        var ok = ts.length === n && ts[0].timestamp_from < 20000;
+        for (var i = 0; ok && i < n; i++) {
+          if (ts[i].timestamp_from > ts[i].timestamp_to) ok = false;
+          if (i && ts[i].timestamp_from < ts[i - 1].timestamp_from) ok = false;
+        }
+        if (ok) {
+          out.ts = ts.map(function (x) { return [x.timestamp_from, x.timestamp_to]; });
+          if (f.w) {
+            out.segs = {};
+            ts.forEach(function (x, i) {
+              var g = (x.segments || []).filter(function (q) { return q.length >= 3; }).map(function (q, k) { return [k, q[0], q[1], q[2]]; });
+              if (g.length) out.segs[i + 1] = g;
+            });
+          }
+        }
+        return out;
+      });
+    FC[key].catch(function () { delete FC[key]; });
+    return FC[key];
+  }
+  function fullTitle() {
+    var t = 'سورة ' + MANIFEST.surahs[AY.s - 1].name;
+    if (AY.full && AY.full.ts) t += ' · آية ' + arNum(AY.a);
+    document.getElementById('ayTitle').textContent = t;
+    document.getElementById('ayRec').textContent = AY.rec.name;
+  }
+  function fullStart(rec, s, a) {
+    buildAyBar();
+    var tok = AY.tok = (AY.tok || 0) + 1;
+    lsSet('quran.ayahReciter', rec.id);
+    AY.rec = rec; AY.s = s; AY.a = a || 1; AY.mode = 'full'; AY.on = true; AY.full = null; AY.fpre = null; ayPre = null;
+    ayBar.hidden = false; document.body.classList.add('ay-on');
+    try { ayahAudioEl.pause(); } catch (e) {}
+    if (audio && !audio.paused) { audio.pause(); playing = false; var pp = $('#playPause'); if (pp) pp.innerHTML = ico('play'); }
+    $('#player').classList.remove('on');
+    kUnwrap(); ayPaintMode();
+    document.getElementById('ayTitle').textContent = 'سورة ' + MANIFEST.surahs[s - 1].name;
+    document.getElementById('ayRec').textContent = 'جارٍ التحميل…';
+    fullInfo(rec, s).then(function (info) {
+      if (AY.tok !== tok || !AY.on) return;
+      fullPlay(info, a || 1, false);
+    }).catch(function () {
+      if (AY.tok !== tok) return;
+      document.getElementById('ayRec').textContent = 'تعذّر تحميل بيانات السورة. تأكد من النت وجرّب تاني.';
+    });
+  }
+  function fullPlay(info, a, swapped) {
+    AY.full = info; AY.a = a; AY.fcheck = false;
+    var startMs = info.ts && a > 1 ? info.ts[a - 1][0] : 0;
+    var el = ayahAudioEl;
+    if (!swapped) {
+      el.src = info.src;
+    }
+    var seek = function () {
+      var d = el.duration;
+      if (info.ts && isFinite(d) && d > 0 && info.ts[info.ts.length - 1][1] > d * 1000 + 3000) { info.ts = null; info.segs = null; }   /* timings don't fit this file: no highlight */
+      if (startMs > 0 && info.ts) { try { el.currentTime = startMs / 1000; } catch (e) {} }
+      fullTitle(); ayDots();
+    };
+    if (el.readyState >= 1) seek(); else el.addEventListener('loadedmetadata', function h() { el.removeEventListener('loadedmetadata', h); seek(); });
+    fullTitle(); ayDots(); ayTick();
+    var pr = el.play(); if (pr && pr.catch) pr.catch(function () { ayPaintPlay(); });
+    ayHighlight(); kStart();
+    if ('mediaSession' in navigator && window.MediaMetadata) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: 'سورة ' + MANIFEST.surahs[AY.s - 1].name, artist: AY.rec.name, album: 'قرآن كريم',
+          artwork: [{ src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }] });
+      } catch (e) {}
+    }
+  }
+  function fullNextS() { return AY.s >= 114 ? 1 : AY.s + 1; }
+  function fullSync() {
+    var info = AY.full, el = ayahAudioEl;
+    if (!info) return;
+    var d = el.duration, ct = el.currentTime;
+    if (info.ts) {
+      var t = ct * 1000, k = 0, ts = info.ts;
+      for (var i = 0; i < ts.length; i++) { if (ts[i][0] <= t) k = i; else break; }
+      if (k + 1 !== AY.a) { AY.a = k + 1; fullTitle(); ayDots(); ayHighlight(); }
+    }
+    /* last 25 s: warm up the next surah's file so the hand-over has no gap */
+    if (isFinite(d) && d > 0 && d - ct < 25 && !AY.fpre) {
+      var ns = fullNextS(), rec = AY.rec, pre = AY.fpre = { s: ns, ready: false };
+      fullInfo(rec, ns).then(function (inf) {
+        if (AY.fpre !== pre || !AY.on) return;
+        pre.info = inf; pre.ready = true;
+        ayAlt.preload = 'auto'; ayAlt.src = inf.src; ayAlt.load();
+      }).catch(function () {});
+    }
+  }
+  function fullNext() {
+    if (!AY.on) return;
+    var ns = fullNextS(), pre = AY.fpre;
+    if (pre && pre.ready && pre.s === ns) {
+      var old = ayahAudioEl; ayahAudioEl = ayAlt; ayAlt = old;
+      try { old.pause(); } catch (e) {}
+      try { ayAlt.removeAttribute('src'); } catch (e) {}
+      AY.fpre = null; AY.s = ns; AY.tok = (AY.tok || 0) + 1;
+      kUnwrap();
+      fullPlay(pre.info, 1, true);
+    } else fullStart(AY.rec, ns, 1);
+  }
+  function fullStep(d) {
+    var info = AY.full, el = ayahAudioEl;
+    if (!info) return;
+    if (info.ts) {
+      var k = AY.a - 1, t = el.currentTime * 1000;
+      if (d > 0) { if (k + 1 < info.ts.length) el.currentTime = info.ts[k + 1][0] / 1000; else fullNext(); }
+      else if (t - info.ts[k][0] > 3000) el.currentTime = info.ts[k][0] / 1000;
+      else if (k > 0) el.currentTime = info.ts[k - 1][0] / 1000;
+      else if (AY.s > 1) fullStart(AY.rec, AY.s - 1, 1);
+      else el.currentTime = 0;
+      return;
+    }
+    if (d > 0) fullNext();
+    else if (el.currentTime > 5) el.currentTime = 0;
+    else if (AY.s > 1) fullStart(AY.rec, AY.s - 1, 1);
+  }
+
   function ayStop() {
-    AY.on = false;
+    AY.on = false; AY.full = null; AY.fpre = null; AY.tok = (AY.tok || 0) + 1;
     kUnwrap();
     try { ayahAudioEl.pause(); } catch (e) {}
     ayahAudioEl.removeAttribute('src');
