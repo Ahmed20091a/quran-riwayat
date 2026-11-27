@@ -1429,3 +1429,8 @@ html[data-site=light] .qb-dial.aligned { box-shadow: 0 0 0 3px rgba(138,101,22,.
 .nav-links .nav-home { display: none; }
 @media (max-width: 980px) { .nav-links .nav-home { display: block; } }
 .qb-dial { border-radius: 50%; }
+html.in-inner footer.site-foot, html.in-mushaf footer.site-foot { display: none !important; }
+/* Mushaf page mode: the page stays fixed on screen, no site scroll, no hint line; swipe or arrows turn the page */
+html.in-mushaf:has(#mushaf .mushaf-page:not(.sc-wrap)), html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) { overflow: hidden; overscroll-behavior: none; }
+html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) .tap-hint, html.in-mushaf body:has(#mushaf .mushaf-page:not(.sc-wrap)) .reader-hint { display: none; }
+html.in-mushaf #readerBody { touch-action: pan-y; }

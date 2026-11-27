@@ -400,7 +400,7 @@
   function viewState() {
     var v; try { v = JSON.parse(localStorage.getItem('quran.view') || 'null'); } catch (e) {}
     v = v && typeof v === 'object' ? v : {};
-    return { scale: [1, 1.12, 1.25, 1.4].indexOf(v.scale) !== -1 ? v.scale : 1, theme: ['green', 'light'].indexOf(v.theme) !== -1 ? v.theme : 'green', flow: v.flow === 'page' ? 'page' : 'scroll', font: ['sch', 'amiri', 'noto'].indexOf(v.font) !== -1 ? v.font : 'sch' };
+    return { scale: [1, 1.12, 1.25, 1.4].indexOf(v.scale) !== -1 ? v.scale : 1, theme: ['green', 'light'].indexOf(v.theme) !== -1 ? v.theme : 'green', flow: v.flow === 'scroll' ? 'scroll' : 'page', font: ['sch', 'amiri', 'noto'].indexOf(v.font) !== -1 ? v.font : 'sch' };
   }
   function viewSave(v) { try { localStorage.setItem('quran.view', JSON.stringify(v)); } catch (e) {} }
   function applyTheme() { var rb0 = document.documentElement; if (rb0.getAttribute('data-site') !== viewState().theme && window.qrSetTheme) window.qrSetTheme(viewState().theme); var rb = document.getElementById('reader'); if (rb) { rb.setAttribute('data-th', viewState().theme); rb.setAttribute('data-font', viewState().font); } }
