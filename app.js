@@ -564,16 +564,16 @@
     row.appendChild(sel);
     box.appendChild(row);
     var row2 = document.createElement('div'); row2.className = 'sheet-row play-choice';
-    var b1 = document.createElement('button'); b1.className = 'btn primary';
+    var b2 = document.createElement('button'); b2.className = 'btn primary';
+    b2.innerHTML = ico('play') + '<span>تشغيل متواصل من هذه الآية</span>';
+    var b1 = document.createElement('button'); b1.className = 'btn';
     b1.innerHTML = ico('play') + '<span>هذه الآية فقط</span>';
-    var b2 = document.createElement('button'); b2.className = 'btn';
-    b2.innerHTML = ico('play') + '<span>السورة كاملة من هذه الآية</span>';
     b1.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'ayah'); });
     b2.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'surah'); });
-    row2.appendChild(b1); row2.appendChild(b2);
+    row2.appendChild(b2); row2.appendChild(b1);
     box.appendChild(row2);
     var hint = document.createElement('div'); hint.className = 'hint';
-    hint.textContent = 'التلاوة تتحمّل من الإنترنت آية بآية وقت التشغيل بس، ومش بتتحفظ على الجهاز. هيظهر شريط تشغيل تحت تتحكم منه.';
+    hint.textContent = '«تشغيل متواصل» بيكمّل لوحده آية بعد آية وسورة بعد سورة (مع البسملة) لحد ما توقفه. «هذه الآية فقط» بيشغّل الآية دي ويقف. بتتحمّل من الإنترنت وقت التشغيل بس، ومش بتتحفظ على الجهاز.';
     box.appendChild(hint);
   }
 
@@ -588,7 +588,7 @@
     ayBar.innerHTML =
       '<div class="ay-top"><div class="ay-ring" id="ayRing"><button class="ay-play" id="ayPlay" aria-label="تشغيل / إيقاف">' + ico('play') + '</button></div>' +
       '<div class="ay-info"><b id="ayTitle">—</b><small id="ayRec">—</small></div>' +
-      '<div class="ay-mode" id="ayMode" role="group"><button data-m="ayah">آية</button><button data-m="surah">سورة</button></div>' +
+      '<div class="ay-mode" id="ayMode" role="group"><button data-m="surah">متواصل</button><button data-m="ayah">آية</button></div>' +
       '<button class="ay-x" id="ayClose" aria-label="إغلاق">' + ico('close') + '</button></div>' +
       '<div class="ay-seek"><span id="ayCur">٠:٠٠</span><input id="aySlider" type="range" min="0" max="1000" value="0" dir="rtl" aria-label="التحكم في موضع التلاوة"><span id="ayDur">٠:٠٠</span></div>' +
       '<div class="ay-ctrl"><button class="ay-b" id="ayPrev" aria-label="الآية السابقة">' + ico('prev') + '<span>السابقة</span></button><button class="ay-b" id="ayBack" aria-label="رجوع ١٠ ثواني">' + ico('back') + '<span>١٠</span></button><div class="ay-dots" id="ayDots"></div><button class="ay-b" id="ayFwd" aria-label="تقدّم ١٠ ثواني"><span>١٠</span>' + ico('fwd') + '</button><button class="ay-b" id="ayNext" aria-label="الآية التالية"><span>التالية</span>' + ico('next') + '</button></div>';
@@ -894,7 +894,7 @@
     var bs = (t && t.closest) ? t.closest('[data-bs]') : null;
     if (bs && !(t.closest('.ayah'))) {
       var r0 = lsGet('quran.ayahReciter', AYAH_RECITERS[0].id);
-      startAy(r0, +bs.getAttribute('data-bs'), 0, 'ayah');
+      startAy(r0, +bs.getAttribute('data-bs'), 0, 'surah');
       return;
     }
     var el = (t && t.closest) ? t.closest('.ayah') : null;
