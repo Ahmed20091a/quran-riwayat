@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' https://cdn.mp3quran.net; connect-src 'self' https://cdn.mp3quran.net; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<title>روايات — القرآن الكريم بجميع الروايات</title>
+<meta name="description" content="اقرأ القرآن الكريم واستمع إليه بجميع الروايات والقراءات العشر، مع شرح أحكام التجويد والروايات.">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <path d="M20 2l4.5 9.5L34 13l-7 7 1.7 10L20 25.5 11.3 30 13 20l-7-7 9.5-1.5z" fill="#d4b15e" opacity=".9"/>
+    </svg>
+    روايات
+  </div>
+  <div class="nav-links">
+    <a href="#mushaf">المصحف</a>
+    <a href="#tilawa">التلاوة</a>
+    <a href="#riwayat">الروايات</a>
+    <a href="#tajweed">التجويد</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <canvas id="stars"></canvas>
+  <div class="hero-inner">
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    <svg class="ornament" viewBox="0 0 200 20" fill="none" aria-hidden="true">
+      <line x1="0" y1="10" x2="80" y2="10" stroke="#d4b15e" stroke-width="1" opacity=".6"/>
+      <rect x="93" y="3" width="14" height="14" transform="rotate(45 100 10)" stroke="#d4b15e" stroke-width="1.4"/>
+      <rect x="97" y="7" width="6" height="6" transform="rotate(45 100 10)" fill="#d4b15e"/>
+      <line x1="120" y1="10" x2="200" y2="10" stroke="#d4b15e" stroke-width="1" opacity=".6"/>
+    </svg>
+    <h1>القرآن الكريم</h1>
+    <p class="sub">اقرأ واستمع بجميع الروايات والقراءات العشر، وتعلّم أحكام التجويد — نص موثّق وتلاوات بأصوات أشهر القرّاء.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="#mushaf">ابدأ القراءة</a>
+      <a class="btn" href="#tilawa">استمع للتلاوات</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>١١٤</b><span>سورة</span></div>
+      <div class="stat"><b>٦٢٣٦</b><span>آية</span></div>
+      <div class="stat"><b>١٠</b><span>قراءات</span></div>
+      <div class="stat"><b>٢٠</b><span>رواية</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="mushaf">
+  <div class="sec-head reveal">
+    <div class="kicker">المصحف الشريف</div>
+    <h2>اقرأ القرآن الكريم</h2>
+    <p>النص بالرسم العثماني برواية حفص عن عاصم، مصحّح وموثّق رقميًا — يُفحص تلقائيًا قبل العرض حتى لا يصلك حرف مغيّر.</p>
+  </div>
+  <div class="reader-shell reveal">
+    <div class="reader-bar">
+      <select id="surahSelect" aria-label="اختر السورة"></select>
+      <input id="surahSearch" type="search" placeholder="ابحث باسم السورة…" aria-label="بحث عن سورة">
+      <button class="btn offline-btn" id="offlineBtn" title="حمّل المصحف كاملًا لقراءته بدون إنترنت">⬇ حفظ للقراءة بدون نت</button>
+      <span class="verified" id="verifyBadge" hidden>✓ نص موثّق</span>
+    </div>
+    <div id="readerBody">
+      <div class="reader-loading">جارٍ تحميل المصحف…</div>
+    </div>
+  </div>
+</section>
+
+<section id="tilawa">
+  <div class="sec-head reveal">
+    <div class="kicker">التلاوة</div>
+    <h2>استمع بأي رواية</h2>
+    <p>تلاوات كاملة للمصحف بأصوات كبار القرّاء، مرتبة حسب الرواية. الصوت يُحمَّل فقط عند الضغط على التشغيل توفيرًا للإنترنت.</p>
+  </div>
+  <div class="chips reveal" id="riwayahChips"></div>
+  <div class="reciter-grid reveal" id="reciterGrid"></div>
+</section>
+
+<section id="riwayat">
+  <div class="sec-head reveal">
+    <div class="kicker">القراءات والروايات</div>
+    <h2>القراءات العشر المتواترة</h2>
+    <p>القرآن نزل بسبعة أحرف، وتواترت عن النبي ﷺ عشر قراءات، لكل قارئ راويان. كلها قرآن منزّل لا تناقض بينها بل تكامل.</p>
+  </div>
+  <div class="riwayat-grid reveal">
+    <div class="qari"><h4>نافع المدني</h4><div class="rawis">روايتاه: <b>ورش</b> و <b>قالون</b></div><small>المنتشرة في المغرب العربي وليبيا وأفريقيا</small></div>
+    <div class="qari"><h4>ابن كثير المكي</h4><div class="rawis">روايتاه: <b>البزي</b> و <b>قنبل</b></div><small>من قراءة أهل مكة</small></div>
+    <div class="qari"><h4>أبو عمرو البصري</h4><div class="rawis">روايتاه: <b>الدوري</b> و <b>السوسي</b></div><small>منتشرة في السودان ومناطق من أفريقيا</small></div>
+    <div class="qari"><h4>ابن عامر الشامي</h4><div class="rawis">روايتاه: <b>هشام</b> و <b>ابن ذكوان</b></div><small>قراءة أهل الشام</small></div>
+    <div class="qari"><h4>عاصم الكوفي</h4><div class="rawis">روايتاه: <b>شعبة</b> و <b>حفص</b></div><small>رواية حفص هي الأكثر انتشارًا في العالم اليوم</small></div>
+    <div class="qari"><h4>حمزة الكوفي</h4><div class="rawis">روايتاه: <b>خلف</b> و <b>خلاد</b></div><small>من القراءات الكوفية</small></div>
+    <div class="qari"><h4>الكسائي الكوفي</h4><div class="rawis">روايتاه: <b>أبو الحارث</b> و <b>الدوري</b></div><small>من القراءات الكوفية</small></div>
+    <div class="qari"><h4>أبو جعفر المدني</h4><div class="rawis">روايتاه: <b>ابن وردان</b> و <b>ابن جماز</b></div><small>من القراءات المدنية</small></div>
+    <div class="qari"><h4>يعقوب الحضرمي</h4><div class="rawis">روايتاه: <b>رويس</b> و <b>روح</b></div><small>من القراءات البصرية</small></div>
+    <div class="qari"><h4>خلف البزار</h4><div class="rawis">روايتاه: <b>إسحاق</b> و <b>إدريس</b></div><small>العاشر من العشرة الصغرى</small></div>
+  </div>
+
+  <table class="diff-table reveal">
+    <thead><tr><th>الآية</th><th>رواية حفص</th><th>روايات أخرى</th></tr></thead>
+    <tbody>
+      <tr><td class="ayah-ref">﴿مَالِكِ يَوْمِ الدِّينِ﴾ الفاتحة ٤</td><td>«مَالِكِ» بالألف</td><td>«مَلِكِ» بدون ألف — ورش وقالون وغيرهما</td></tr>
+      <tr><td class="ayah-ref">﴿يُخَادِعُونَ اللَّهَ﴾ البقرة ٩</td><td>«يُخَادِعُونَ» بالألف</td><td>«يَخْدَعُونَ» بدون ألف — حمزة والكسائي وخلف</td></tr>
+      <tr><td class="ayah-ref">﴿وَإِذْ قَالَ إِبْرَاهِيمُ رَبِّ﴾ البقرة ١٢٦</td><td>بالإفراد في الفعل هنا</td><td>تثنية وغيرها في مواضع أخرى — تختلف الأوجه</td></tr>
+      <tr><td class="ayah-ref">﴿فَتَبَيَّنُوا﴾ الحجرات ٦</td><td>«فَتَبَيَّنُوا»</td><td>«فَتَثَبَّتُوا» — قالون وأبو جعفر</td></tr>
+    </tbody>
+  </table>
+  <p class="diff-note reveal">هذه الاختلافات من السعة والرحمة؛ جميعها متواتر عن النبي ﷺ ومعانيها متكاملة لا متناقضة.</p>
+</section>
+
+<section id="tajweed">
+  <div class="sec-head reveal">
+    <div class="kicker">أحكام التجويد</div>
+    <h2>تعلّم أحكام التلاوة</h2>
+    <p>خلاصة أهم الأحكام بالأمثلة من المصحف، والحروف المقصودة ملوّنة.</p>
+  </div>
+  <div class="taj-grid reveal">
+    <div class="rule">
+      <h4>١ — الإظهار الحلقي</h4>
+      <p>إذا جاء بعد النون الساكنة أو التنوين أحد حروف الحلق الستة (ء، هـ، ع، ح، غ، خ) تُنطق النون واضحة بلا غنة.</p>
+      <div class="example">مِنْ <span class="hl">هَادٍ</span> ۝ <span class="hl">عَذَابٍ</span> أَلِيمٍ</div>
+    </div>
+    <div class="rule">
+      <h4>٢ — الإدغام</h4>
+      <p>إذا جاء بعدها أحد حروف «يرملون» تُدغم: بغنة عند (ي، ن، م، و)، وبغير غنة عند (ل، ر).</p>
+      <div class="example">مَنْ <span class="hl">يَعْمَلْ</span> ۝ مِنْ <span class="hl">رَبِّهِمْ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٣ — الإقلاب</h4>
+      <p>إذا جاءت الباء بعد النون الساكنة أو التنوين تُقلب النون ميمًا مع الغنة والإخفاء.</p>
+      <div class="example">مِنْ <span class="hl">بَعْدِ</span> ۝ سَمِيعٌ <span class="hl">بَصِيرٌ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٤ — الإخفاء الحقيقي</h4>
+      <p>عند باقي الحروف الخمسة عشر تُخفى النون بغنة مقدارها حركتان، ولا تُشدَّد الشفة.</p>
+      <div class="example">مِنْ <span class="hl">شَرِّ</span> ۝ أَنْ <span class="hl">تَقُولُوا</span></div>
+    </div>
+    <div class="rule">
+      <h4>٥ — أحكام الميم الساكنة</h4>
+      <p>إخفاء شفوي عند الباء، وإدغام شفوي عند الميم، وإظهار عند باقي الحروف.</p>
+      <div class="example">لَهُمْ <span class="hl">بِالْآخِرَةِ</span> ۝ تَرْمِي<span class="hl">هِمْ بِحِجَارَةٍ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٦ — المدود</h4>
+      <p>الطبيعي حركتان، والمتصل أربع إلى خمس، والمنفصل يجوز قصره ومدّه، واللازم ست حركات.</p>
+      <div class="example">قَالُو<span class="hl">ٓا</span> ۝ <span class="hl">يَا</span> أَيُّهَا ۝ الْآ<span class="hl">نَ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٧ — القلقلة</h4>
+      <p>اضطراب الصوت عند سكون حروف «قطب جد» — صغرى في وسط الكلمة وكبرى عند الوقف.</p>
+      <div class="example">يَ<span class="hl">قْ</span>طَعُ ۝ الْفَلَ<span class="hl">قْ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٨ — لام لفظ الجلالة</h4>
+      <p>تُفخَّم بعد الفتح أو الضم، وتُرقَّق بعد الكسر.</p>
+      <div class="example">قَالَ <span class="hl2">اللَّهُ</span> ۝ بِسْمِ <span class="hl">اللَّهِ</span></div>
+    </div>
+    <div class="rule">
+      <h4>٩ — الراءات</h4>
+      <p>تُفخَّم الراء المفتوحة والمضمومة والساكنة بعد فتح أو ضم، وتُرقَّق المكسورة والساكنة بعد كسر.</p>
+      <div class="example"><span class="hl2">رَبِّ</span> الْعَالَمِينَ ۝ خَيْ<span class="hl">رٌ</span> مِّنْهُ</div>
+    </div>
+    <div class="rule">
+      <h4>١٠ — اللام الشمسية والقمرية</h4>
+      <p>الشمسية تُدغم في أربعة عشر حرفًا أولها التاء وآخرها النون، والقمرية تُظهر في الباقي.</p>
+      <div class="example">ا<span class="hl">لشَّمْسُ</span> ۝ الْ<span class="hl">قَمَرَ</span></div>
+    </div>
+    <div class="rule">
+      <h4>١١ — الغنة</h4>
+      <p>صوت يخرج من الخيشوم عند النون والميم المشددتين وفي الإخفاء والإقلاب، مقدارها حركتان.</p>
+      <div class="example">إِ<span class="hl">نَّ</span> ۝ ثُ<span class="hl">مَّ</span></div>
+    </div>
+    <div class="rule">
+      <h4>١٢ — الوقف والابتداء</h4>
+      <p>الوقف التام أحسن المواضع، ويحرم الوقف على ما يُفسد المعنى، ويُراعى الابتداء بما يتمّ الكلام.</p>
+      <div class="example">وَقِفُوا ۝ ثُمَّ ابْتَدِئُوا</div>
+    </div>
+  </div>
+</section>
+
+<div class="player" id="player">
+  <button class="p-btn main" id="playPause" aria-label="تشغيل">▶</button>
+  <div class="p-info">
+    <b id="pTitle">—</b>
+    <small id="pSub">—</small>
+  </div>
+  <select id="pSurah" aria-label="السورة"></select>
+  <button class="p-btn" id="prevBtn" aria-label="السابقة">⏭</button>
+  <button class="p-btn" id="nextBtn" aria-label="التالية">⏮</button>
+  <button class="p-btn" id="closePlayer" aria-label="إغلاق">✕</button>
+</div>
+<audio id="audio" preload="none"></audio>
+
+<footer>
+  <p><b>روايات</b> — موقع للقرآن الكريم وتلاوته.</p>
+  <p>النص: مصحف المدينة بالرسم العثماني (رواية حفص عن عاصم) عبر واجهة AlQuran Cloud · الصوتيات: شبكة Mp3Quran.</p>
+  <p>نص كل سورة محمي ببصمة تحقق رقمية تُفحص قبل العرض.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
