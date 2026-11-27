@@ -267,3 +267,76 @@ html.shot .hero { min-height: 640px; }
   .player { flex-wrap: wrap; }
   .reader-bar select { max-width: 100%; flex: 1; }
 }
+
+/* ---------- mushaf page mode ---------- */
+.mode-btn { font-size: .8rem; padding: .4rem .9rem; white-space: nowrap; }
+.page-nav {
+  display: flex; align-items: center; justify-content: space-between; gap: .8rem;
+  padding: .7rem 1.2rem; border-bottom: 1px solid var(--line);
+  background: var(--card2); flex-wrap: wrap;
+}
+.pnav {
+  border: 1px solid var(--gold); background: transparent; color: var(--gold2);
+  border-radius: 999px; padding: .4rem 1.2rem; font-family: inherit;
+  font-size: .9rem; font-weight: 700; cursor: pointer; transition: all .25s;
+}
+.pnav:hover { background: rgba(212, 177, 94, .12); }
+.pnav:disabled { opacity: .35; cursor: default; }
+.page-jump { display: flex; align-items: center; gap: .45rem; font-size: .85rem; color: var(--muted); }
+.page-jump input {
+  width: 64px; text-align: center; background: #0d1814; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 10px; padding: .35rem .4rem;
+  font-family: inherit; font-size: .95rem;
+}
+.pj-go { font-size: .78rem; padding: .3rem .8rem; }
+
+.mushaf-wrap { display: flex; justify-content: center; padding: 1.4rem 1rem 1.8rem; }
+.mushaf-page {
+  width: min(100%, 560px);
+  height: clamp(500px, calc(100vh - 330px), 900px);
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(63, 122, 99, .10), transparent 60%),
+    linear-gradient(160deg, #152a20, #101f18);
+  border: 1px solid var(--gold);
+  outline: 1px solid rgba(212, 177, 94, .35);
+  outline-offset: 5px;
+  border-radius: 6px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45), inset 0 0 80px rgba(212, 177, 94, .05);
+  padding: .9rem 1.3rem .6rem;
+  user-select: none;
+}
+.mp-head {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .82rem; color: var(--gold2); font-weight: 700;
+  border-bottom: 1px solid var(--line); padding-bottom: .45rem; margin-bottom: .3rem;
+}
+.mp-juz { color: var(--muted); font-weight: 600; }
+.mp-body {
+  flex: 1; overflow: hidden;
+  font-family: 'Amiri Quran', serif;
+  font-size: 26px; line-height: 2; text-align: justify; color: #f4efe3;
+  padding: .2rem .15rem;
+}
+.mp-body .an {
+  color: var(--gold); font-size: .72em; padding: 0 .3rem; white-space: nowrap;
+  font-family: 'Amiri Quran', serif;
+}
+.mp-shead {
+  text-align: center; font-family: 'Cairo', sans-serif; font-weight: 800;
+  color: var(--gold2); font-size: .68em; letter-spacing: .5px;
+  border: 1px solid rgba(212, 177, 94, .55); border-radius: 8px;
+  padding: .1em 1.2em; margin: .25em auto .3em; width: fit-content;
+  background: rgba(212, 177, 94, .08);
+}
+.mp-bsm { text-align: center; font-size: .92em; margin: .1em 0 .25em; }
+.mp-foot {
+  text-align: center; color: var(--gold); font-weight: 800; font-size: .9rem;
+  border-top: 1px solid var(--line); padding-top: .4rem; margin-top: .3rem;
+}
+
+@media (max-width: 640px) {
+  .mushaf-page { padding: .7rem .85rem .5rem; height: clamp(440px, calc(100vh - 300px), 760px); }
+  .page-nav { justify-content: center; }
+}
+.reader-shell { scroll-margin-top: 76px; }
