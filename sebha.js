@@ -85,7 +85,9 @@
     $('#sbOf').textContent = t ? 'من ' + ar(t) : '';
     $('#sbTap').classList.toggle('done', !!(t && n >= t));
     $('#sbBar').style.width = t ? Math.min(100, n / t * 100) + '%' : '0%';
-    $('#sbTap').style.setProperty('--p', t ? Math.min(100, n / t * 100) : (n % 33) / 33 * 100);
+    var m100 = n === 0 ? 0 : (n % 100 === 0 ? 100 : n % 100);
+    $('#sbTap').style.setProperty('--p', m100);
+    $('#sbTap').style.setProperty('--r', (m100 * 3.6) + 'deg');
     var sel = $('#sbTarget'), pre = ['0', '33', '100'];
     sel.value = pre.indexOf(String(t)) !== -1 ? String(t) : 'x';
     var ci = $('#sbCustomT'); ci.hidden = sel.value !== 'x'; if (!ci.hidden && document.activeElement !== ci) ci.value = t || '';

@@ -1,8 +1,8 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://cdn.aladhan.com https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; form-action 'none'; upgrade-insecure-requests; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self' blob: https://cdn.aladhan.com https://download.quranicaudio.com https://server15.mp3quran.net https://cdn.mp3quran.net https://cdn.islamic.network https://everyayah.com https://verses.quran.com https://mirrors.quranicaudio.com https://backup.qurango.net https://stream.radiojar.com https://*.radiojar.com https://service.webvideocore.net https://cdnvideo.webvideocore.net; connect-src 'self' https://cdn.mp3quran.net https://raw.githubusercontent.com https://api.quran.com https://verses.quran.com https://mirrors.quranicaudio.com https://everyayah.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; form-action 'none'; upgrade-insecure-requests; frame-ancestors 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: no-referrer
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self)
   Cross-Origin-Opener-Policy: same-origin

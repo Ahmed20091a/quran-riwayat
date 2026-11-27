@@ -146,6 +146,9 @@
     });
   }
 
+  var ORN = '<svg class="orn" viewBox="0 0 60 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M60 20H30"/><path d="M60 11H38M60 29H38"/><path d="M30 20c-3-8-9-11-14-9-4 2-4 7 0 8 3 1 5-1 4-3"/><path d="M30 20c-3 8-9 11-14 9-4-2-4-7 0-8 3-1 5 1 4 3"/><path d="M12 20l5-5 5 5-5 5z"/><path d="M2 14v12"/></g></svg>';
+  var CAP = '<svg class="cap" viewBox="0 0 48 56" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><g><path d="M16 28C11.5 21 11.5 15 16 10.5C20.5 15 20.5 21 16 28Z"/><path d="M16 28C11.5 35 11.5 41 16 45.5C20.5 41 20.5 35 16 28Z"/></g><path d="M16 28L21.5 22.5M16 28L10.5 22.5M16 28L21.5 33.5M16 28L10.5 33.5" opacity=".6"/><circle cx="16" cy="28" r="2.4"/><path d="M26 28H46"/><path d="M30 28c3-6.5 8-7.5 11.5-4.5"/><path d="M30 28c3 6.5 8 7.5 11.5 4.5"/><circle cx="46" cy="28" r="1.4" fill="currentColor"/></g></svg>';
+  function banner(n) { return '<div class="mp-shead"><span class="orn-l">' + ORN + '</span><span class="cap-r">' + CAP + '</span><span class="mp-sname">سورة ' + MANIFEST.surahs[n - 1].name + '</span><span class="cap-l">' + CAP + '</span><span class="orn-r">' + ORN + '</span></div>'; }
   function setMode(m) {
     if (m === 'page' && !PAGES) return;
     MODE = m;
@@ -190,6 +193,7 @@
     if (p < 1) p = 1;
     if (p > PAGES.length) p = PAGES.length;
     if (MODE !== 'page') return;
+    if (viewState().flow === 'scroll') return renderScroll(p);
     currentPage = p;
     if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#p=' + p);
     $('#pageInput').value = p;
@@ -226,7 +230,7 @@
     segs.forEach(function (sg) {
       var d = loaded[sg.s];
       if (sg.fa === 1) {
-        html += '<div class="mp-shead">سورة ' + MANIFEST.surahs[sg.s - 1].name + '</div>';
+        html += banner(sg.s);
         var sb = splitBsm(sg.s, d.ayahs[0])[0];
         if (sb) html += '<div class="mp-bsm" data-bs="' + sg.s + '">' + sb + '</div>';
       }
@@ -236,10 +240,10 @@
           continue;
         }
         html += '<span class="ayah" data-s="' + sg.s + '" data-a="' + a + '">' + (a === 1 ? splitBsm(sg.s, d.ayahs[0])[1] : d.ayahs[a - 1]) +
-          ' <span class="an">﴿' + arNum(a) + '﴾</span></span> ';
+          ' <span class="an"><i>' + arNum(a) + '</i></span></span> ';
       }
     });
-    html += '</div></div><div class="mp-foot">— ' + arNum(p) + ' —</div>';
+    html += '</div></div><div class="mp-foot"><span class="pg-no">' + arNum(p) + '</span><span class="pg-juz">الجزء ' + arNum(PAGES[p - 1].j) + '</span></div>';
     $('#readerBody').innerHTML = '<div class="mushaf-wrap"><div class="mushaf-page">' + html + '</div></div>';
     badge.hidden = false;
     sizePageBox();
@@ -247,6 +251,103 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPageText);
     setTimeout(fitPageText, 150);
     setTimeout(fitPageText, 700);
+    watchPageSize();
+  }
+
+
+  /* ---------- continuous vertical scroll through mushaf pages ---------- */
+  var scState = null;
+  function applyScrollScale() { var w = document.getElementById('scWrap'); if (w) w.style.fontSize = (25 * viewState().scale).toFixed(1) + 'px'; }
+  async function pageBlock(p) {
+    var segs = pageSegments(p), loaded = {};
+    for (var k = 0; k < segs.length; k++) {
+      var sj = await loadSurahFile(segs[k].s);
+      if (!sj) return null;
+      loaded[segs[k].s] = sj;
+    }
+    var html = '';
+    segs.forEach(function (sg) {
+      var d = loaded[sg.s];
+      if (sg.fa === 1) {
+        html += banner(sg.s);
+        var sb = splitBsm(sg.s, d.ayahs[0])[0];
+        if (sb) html += '<div class="mp-bsm" data-bs="' + sg.s + '">' + sb + '</div>';
+      }
+      for (var a = sg.fa; a <= sg.ta; a++) {
+        if (sg.s === 1 && a === 1) { html += '<div class="mp-bsm"><span class="ayah" data-s="1" data-a="1">' + d.ayahs[0] + '</span></div>'; continue; }
+        html += '<span class="ayah" data-s="' + sg.s + '" data-a="' + a + '">' + (a === 1 ? splitBsm(sg.s, d.ayahs[0])[1] : d.ayahs[a - 1]) +
+          ' <span class="an"><i>' + arNum(a) + '</i></span></span> ';
+      }
+    });
+    var el = document.createElement('div');
+    el.className = 'sc-page'; el.setAttribute('data-p', p);
+    el.innerHTML = '<div class="sc-text">' + html + '</div><div class="sc-no"><span>الجزء ' + arNum(PAGES[p - 1].j) + '</span><b>' + arNum(p) + '</b></div>';
+    return el;
+  }
+  async function renderScroll(p) {
+    if (scState && scState.io) scState.io.disconnect();
+    var token = {}; scState = token;
+    $('#readerBody').innerHTML = '<div class="mushaf-wrap"><div class="mushaf-page sc-wrap" id="scWrap"><div class="reader-loading">جارٍ تحميل الصفحة…</div></div></div>';
+    $('#verifyBadge').hidden = true;
+    var wrap = document.getElementById('scWrap');
+    applyScrollScale();
+    var next = p, busy = false, end = false;
+    var sentinel = document.createElement('div'); sentinel.className = 'sc-sentinel';
+    async function more(n) {
+      if (busy || end || scState !== token) return;
+      busy = true;
+      for (var i = 0; i < n && next <= PAGES.length; i++) {
+        var el = await pageBlock(next);
+        if (scState !== token) return;
+        if (!el) { end = true; break; }
+        if (sentinel.parentNode) wrap.insertBefore(el, sentinel); else wrap.appendChild(el);
+        io.observe(el); next++;
+      }
+      if (next > PAGES.length) end = true;
+      busy = false;
+    }
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var pp = +en.target.getAttribute('data-p');
+        if (pp !== currentPage) setCurrentFromScroll(pp);
+        if (pp >= next - 2) more(2);
+      });
+    }, { rootMargin: '-35% 0px -55% 0px' });
+    token.io = io;
+    var ls = new IntersectionObserver(function (es) { if (es[0].isIntersecting) more(2); }, { rootMargin: '600px' });
+    wrap.innerHTML = ''; wrap.appendChild(sentinel); ls.observe(sentinel);
+    token.ls = ls;
+    currentPage = p; $('#pageInput').value = p; $('#pagePrev').disabled = (p === 1); $('#pageNext').disabled = (p === PAGES.length);
+    await more(3);
+    $('#verifyBadge').hidden = false;
+    var first = wrap.querySelector('.sc-page'); if (first) { var segs0 = pageSegments(p); var st = segs0[0].s; segs0.forEach(function (sg) { if (sg.fa === 1) st = sg.s; }); currentSurah = st; $('#surahSelect').value = st; $('#pSurah').value = st; rememberPage(st, segs0[0].fa, p); updatePlayerInfo(); }
+    var cs = document.querySelector('#reader'); if (cs && cs.scrollIntoView && SHOT === false && !wrap.getAttribute('data-ok')) wrap.setAttribute('data-ok', '1');
+  }
+  function setCurrentFromScroll(pp) {
+    currentPage = pp;
+    $('#pageInput').value = pp; $('#pagePrev').disabled = (pp === 1); $('#pageNext').disabled = (pp === PAGES.length);
+    var segs = pageSegments(pp), st = segs[0].s;
+    segs.forEach(function (sg) { if (sg.fa === 1) st = sg.s; });
+    currentSurah = st; $('#surahSelect').value = st; $('#pSurah').value = st;
+    rememberPage(st, segs[0].fa, pp);
+    if (document.querySelector('#mushaf.scr')) history.replaceState(null, '', '#p=' + pp);
+  }
+
+  /* the page may be rendered while its screen is hidden (zero height): refit as soon as it gets a real size */
+  var pageRO = null, roRaf = 0, lastKey = '';
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', function () { if (MODE === 'page') { lastKey = ''; fitPageText(); setTimeout(fitPageText, 120); } });
+  function watchPageSize() {
+    if (!window.ResizeObserver) return;
+    var rb = document.getElementById('readerBody'), body = document.getElementById('mpBody');
+    if (!rb || !body) return;
+    if (pageRO) pageRO.disconnect();
+    pageRO = new ResizeObserver(function () {
+      cancelAnimationFrame(roRaf);
+      roRaf = requestAnimationFrame(function () { var mb = document.getElementById('mpBody'); if (MODE === 'page' && mb && mb.clientHeight > 40) { var key = mb.clientHeight + ':' + (document.getElementById('mpInner') || {}).scrollHeight + ':' + mb.style.fontSize; if (key === lastKey) return; sizePageBox(); fitPageText(); lastKey = mb.clientHeight + ':' + (document.getElementById('mpInner') || {}).scrollHeight + ':' + mb.style.fontSize; } });
+    });
+    pageRO.observe(rb); pageRO.observe(body);
+    var inn = document.getElementById('mpInner'); if (inn) pageRO.observe(inn);
   }
 
   function sizePageBox() {
@@ -288,7 +389,90 @@
       best = fitOnce(body, inner);
     }
     body.style.fontSize = best.toFixed(2) + 'px';
+    var sc = viewState().scale;
+    if (sc !== 1) { body.style.fontSize = (best * sc).toFixed(2) + 'px'; body.classList.add('scaled'); } else body.classList.remove('scaled');
   }
+  function viewState() {
+    var v; try { v = JSON.parse(localStorage.getItem('quran.view') || 'null'); } catch (e) {}
+    v = v && typeof v === 'object' ? v : {};
+    return { scale: [1, 1.12, 1.25, 1.4].indexOf(v.scale) !== -1 ? v.scale : 1, theme: ['green', 'black', 'light'].indexOf(v.theme) !== -1 ? v.theme : 'green', flow: v.flow === 'page' ? 'page' : 'scroll', font: ['sch', 'amiri', 'noto'].indexOf(v.font) !== -1 ? v.font : 'sch' };
+  }
+  function viewSave(v) { try { localStorage.setItem('quran.view', JSON.stringify(v)); } catch (e) {} }
+  function applyTheme() { var rb = document.getElementById('reader'); if (rb) { rb.setAttribute('data-th', viewState().theme); rb.setAttribute('data-font', viewState().font); } }
+  function initViewOptions() {
+    var btn = document.getElementById('voBtn'), pan = document.getElementById('voPanel');
+    if (!btn || !pan) return;
+    applyTheme();
+    function sync() {
+      var v = viewState();
+      pan.querySelectorAll('[data-mode]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-mode') === MODE); });
+      pan.querySelectorAll('[data-font]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-font') === v.font); });
+      pan.querySelectorAll('[data-flow]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-flow') === v.flow); });
+      pan.querySelectorAll('[data-th]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-th') === v.theme); });
+      pan.querySelectorAll('[data-sc]').forEach(function (b) { b.classList.toggle('on', parseFloat(b.getAttribute('data-sc')) === v.scale); });
+    }
+    function openIdx() {
+      var scr = document.getElementById('idxScreen'), lst = document.getElementById('idxList');
+      if (!MANIFEST || !scr) return;
+      if (!lst.childNodes.length) {
+        MANIFEST.surahs.forEach(function (s, i) {
+          var b = document.createElement('button'); b.type = 'button'; b.className = 'idx-row'; b.setAttribute('data-sj', i + 1);
+          var n = document.createElement('span'); n.className = 'idx-n'; n.textContent = arNum(i + 1);
+          var nm = document.createElement('span'); nm.className = 'idx-name'; nm.textContent = s.name;
+          var meta = document.createElement('span'); meta.className = 'idx-meta'; meta.innerHTML = '<b>' + s.type + '</b><i>' + arNum(s.count) + ' آية</i>';
+          b.appendChild(n); b.appendChild(nm); b.appendChild(meta); lst.appendChild(b);
+        });
+        lst.addEventListener('click', function (e) { var b = e.target.closest('.idx-row'); if (!b) return; document.getElementById('idxScreen').hidden = true; document.body.classList.remove('idx-open'); gotoSurah(+b.getAttribute('data-sj')); var r = document.getElementById('reader'); if (r && r.scrollIntoView) r.scrollIntoView(); });
+      }
+      var cur = lst.querySelector('.idx-row.on'); if (cur) cur.classList.remove('on');
+      var c2 = lst.children[currentSurah - 1]; if (c2) c2.classList.add('on');
+      scr.hidden = false; document.body.classList.add('idx-open');
+      if (c2 && c2.scrollIntoView) c2.scrollIntoView({ block: 'center' });
+    }
+    document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('#idxBack')) { document.getElementById('idxScreen').hidden = true; document.body.classList.remove('idx-open'); } });
+    (function readBar() {
+      var bar = document.querySelector('#reader > .reader-bar'), wrap = btn.parentNode;
+      if (!bar || bar.querySelector('.rb-back')) return;
+      var back = document.createElement('button'); back.type = 'button'; back.className = 'rb-back'; back.setAttribute('aria-label', 'رجوع');
+      back.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+      var ind = document.createElement('div'); ind.className = 'rb-ind'; ind.id = 'rbInd';
+      var pg = document.createElement('div'); pg.className = 'rb-pg'; pg.id = 'rbPg';
+      bar.insertBefore(back, bar.firstChild); bar.insertBefore(pg, wrap); bar.insertBefore(ind, wrap);
+      back.addEventListener('click', function () { pan.hidden = true; if (window.__quranBack) window.__quranBack(); else location.hash = ''; });
+      var card = document.createElement('div'); card.className = 'vo-card vo-nav';
+      var h = document.createElement('div'); h.className = 'vo-h'; h.textContent = 'التنقل';
+      card.appendChild(h);
+      var sel = document.getElementById('surahSelect'), pn = document.getElementById('pageNav');
+      if (sel) card.appendChild(sel);
+      if (pn) card.appendChild(pn);
+      pan.insertBefore(card, pan.firstChild);
+      function upd() { var i = document.getElementById('pageInput'), s = document.getElementById('surahSelect'); var nm = s && s.options[s.selectedIndex] ? s.options[s.selectedIndex].text.replace(/^[\u0660-\u0669\d]+\s*[—-]\s*/, '') : ''; ind.textContent = nm; pg.textContent = (i ? i.value : ''); }
+      upd(); setInterval(upd, 600);
+    })();
+    var vib = document.getElementById('voIdxBtn');
+    if (vib) vib.addEventListener('click', function () { pan.hidden = true; openIdx(); });
+    var ix = null;
+    function buildIdx() {
+      if (!ix || ix.childNodes.length || !MANIFEST) return;
+      MANIFEST.surahs.forEach(function (s) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('data-sj', s.n || (MANIFEST.surahs.indexOf(s) + 1)); b.textContent = arNum(s.n || (MANIFEST.surahs.indexOf(s) + 1)) + '  ' + s.name; ix.appendChild(b); });
+    }
+    var vs = document.getElementById('voSearch'), vf = document.getElementById('voOffline');
+    if (vs) vs.addEventListener('click', function () { pan.hidden = true; var t = document.getElementById('rbTools'); if (t) t.click(); });
+    if (vf) vf.addEventListener('click', function () { pan.hidden = true; var o = document.getElementById('offlineBtn'); if (o) o.click(); });
+    btn.addEventListener('click', function (e) { e.stopPropagation(); buildIdx(); pan.hidden = !pan.hidden; btn.setAttribute('aria-expanded', String(!pan.hidden)); sync(); });
+    document.addEventListener('click', function (e) { if (!pan.hidden && !pan.contains(e.target) && e.target !== btn) { pan.hidden = true; btn.setAttribute('aria-expanded', 'false'); } });
+    pan.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return; var v = viewState();
+      if (b.hasAttribute('data-sj')) { pan.hidden = true; gotoSurah(+b.getAttribute('data-sj')); return; }
+      if (b.hasAttribute('data-mode')) setMode(b.getAttribute('data-mode'));
+      if (b.hasAttribute('data-th')) { v.theme = b.getAttribute('data-th'); viewSave(v); applyTheme(); }
+      if (b.hasAttribute('data-font')) { v.font = b.getAttribute('data-font'); viewSave(v); applyTheme(); setTimeout(fitPageText, 80); setTimeout(fitPageText, 500); }
+      if (b.hasAttribute('data-flow')) { v.flow = b.getAttribute('data-flow'); viewSave(v); if (MODE === 'page' && PAGES) renderPage(currentPage); }
+      if (b.hasAttribute('data-sc')) { v.scale = parseFloat(b.getAttribute('data-sc')); viewSave(v); if (v.flow === 'scroll') applyScrollScale(); else fitPageText(); }
+      sync();
+    });
+  }
+  initViewOptions();
 
   /* refit after the Quran font swaps in (metrics change height) */
   if (document.fonts && document.fonts.ready) {
@@ -330,7 +514,7 @@
     s.ayahs.forEach(function (t, i) {
       if (s.n === 1 && i === 0) return;
       html += '<span class="ayah" data-i="' + i + '" data-s="' + s.n + '" data-a="' + (i + 1) + '">' + (i === 0 ? splitBsm(s.n, t)[1] : t) +
-        ' <span class="an">﴿' + arNum(i + 1) + '﴾</span></span> ';
+        ' <span class="an"><i>' + arNum(i + 1) + '</i></span></span> ';
     });
     $('#readerBody').innerHTML = html + '</div>';
   }
@@ -550,6 +734,9 @@
     { slug: 'tafsir-al-alusi', name: 'روح المعاني للآلوسي' }
   ];
 
+  /* slugs listed here are hidden from the tafsir list (licensing not verified); decided with the owner */
+  var TAF_HIDE = ['ar-tafsir-al-mukhtasar', 'ar-tafsir-al-wasit', 'ar-tafsir-muyassar', 'ar-tafsir-ibn-kathir'];
+  TAFSIRS = TAFSIRS.filter(function (t) { return TAF_HIDE.indexOf(t.slug) === -1; });
   var TAF_BASE = 'https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/';
   var sheetState = { s: 0, a: 0, tab: 'play', cache: {} };
   var ayahAudioEl = document.getElementById('ayahAudio');
@@ -586,17 +773,55 @@
 
   function openSheet(s, a) {
     sheetState.s = s; sheetState.a = a;
+    if (!(AY.on && sheetState.o && sheetState.following)) { sheetState.o = { s: s, a: a }; }
+    sheetState.following = false;
     document.getElementById('sheetRef').textContent = 'سورة ' + MANIFEST.surahs[s - 1].name + ' · آية ' + arNum(a);
     var ay = document.getElementById('sheetAyah');
     ay.textContent = '';
-    document.getElementById('ayahSheet').hidden = false;
+    document.getElementById('ayahSheet').hidden = false; document.body.classList.add('sheet-open'); nowPaint();
     loadSurahFile(s).then(function (sj) { if (sj) ay.textContent = a === 1 ? splitBsm(s, sj.ayahs[0])[1] : sj.ayahs[a - 1]; });
     sheetTab('play');
   }
 
   function closeSheet(keepAudio) {
-    document.getElementById('ayahSheet').hidden = true;
+    document.getElementById('ayahSheet').hidden = true; document.body.classList.remove('sheet-open');
     if (ayahAudioEl && keepAudio !== true && !AY.on) { try { ayahAudioEl.pause(); } catch (e) {} }
+  }
+
+
+  /* now-playing controls inside the ayah sheet: the sheet follows the ayah being recited */
+  function nowBuild() {
+    var n = document.getElementById('sheetNow'); if (n) return n;
+    n = document.createElement('div'); n.id = 'sheetNow'; n.className = 'sheet-now'; n.hidden = true;
+    n.innerHTML = '<button type="button" data-k="prev" aria-label="الآية السابقة">' + ico('prev') + '<span>السابقة</span></button><button type="button" data-k="play" class="np" aria-label="تشغيل / إيقاف"></button><button type="button" data-k="next" aria-label="الآية التالية">' + ico('next') + '<span>التالية</span></button>';
+    var ay = document.getElementById('sheetAyah'); ay.parentNode.insertBefore(n, ay.nextSibling);
+    n.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || !AY.on) return; var k = b.getAttribute('data-k');
+      if (k === 'play') { if (ayahAudioEl.paused) ayahAudioEl.play(); else ayahAudioEl.pause(); }
+      else ayStep(k === 'next' ? 1 : -1, true);
+    });
+    return n;
+  }
+  function nowPaint() {
+    var n = nowBuild(), sh = document.getElementById('ayahSheet');
+    n.hidden = !(AY.on && sh && !sh.hidden);
+    var p = n.querySelector('.np'); if (p) p.innerHTML = ayahAudioEl.paused ? ico('play') : ico('pause');
+  }
+  function backToOrigin() {
+    var o = sheetState.o; if (!o) return;
+    if (AY.on) ayStop();
+    sheetState.following = false;
+    openSheet(o.s, o.a);
+    var el = document.querySelector('#readerBody .ayah[data-s="' + o.s + '"][data-a="' + o.a + '"]');
+    if (el) aimAyah(el);
+  }
+  function sheetFollow() {
+    var sh = document.getElementById('ayahSheet'); if (!sh || sh.hidden || !AY.on) return;
+    sheetState.s = AY.s; sheetState.a = AY.a; sheetState.following = true;
+    document.getElementById('sheetRef').textContent = 'سورة ' + MANIFEST.surahs[AY.s - 1].name + ' · ' + (AY.a === 0 ? 'البسملة' : 'آية ' + arNum(AY.a));
+    var ay = document.getElementById('sheetAyah'), s = AY.s, a = AY.a;
+    loadSurahFile(s).then(function (sj) { if (!sj || AY.s !== s || AY.a !== a) return; ay.textContent = a === 0 ? splitBsm(s, sj.ayahs[0])[0] : (a === 1 ? splitBsm(s, sj.ayahs[0])[1] : sj.ayahs[a - 1]); });
+    nowPaint();
   }
 
   function sheetTab(tab) {
@@ -649,7 +874,6 @@
     sel.addEventListener('change', paintChoice);
     paintChoice();
     box.appendChild(row2);
-    box.appendChild(hint);
   }
 
   /* ---------- ayah player bar ---------- */
@@ -814,7 +1038,7 @@
   function ayPaintPlay() {
     if (!ayBar) return;
     document.getElementById('ayPlay').innerHTML = ayahAudioEl.paused ? ico('play') : ico('pause');
-    ayBar.classList.toggle('is-playing', !ayahAudioEl.paused);
+    ayBar.classList.toggle('is-playing', !ayahAudioEl.paused); nowPaint();
   }
   function ayTick() {
     if (!ayBar || !AY.on) return;
@@ -831,18 +1055,27 @@
     if (AY.mode === 'full' && !(AY.full && AY.full.ts)) box.textContent = 'السورة كاملة';
     else box.textContent = AY.a === 0 ? 'البسملة' : 'آية ' + arNum(AY.a) + ' من ' + arNum(n);
   }
+  function aimAyah(el) {
+    try {
+      var sh = document.querySelector('#ayahSheet .sheet-card'), open = sh && !document.getElementById('ayahSheet').hidden;
+      if (!open) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+      var r = el.getBoundingClientRect(), top = sh.getBoundingClientRect().top, mid = Math.max(90, top / 2);
+      window.scrollBy({ top: (r.top + r.height / 2) - mid, behavior: 'smooth' });
+    } catch (e) {}
+  }
   function ayHighlight() {
     kUnwrap();
     document.querySelectorAll('.ayah.playing,[data-bs].playing').forEach(function (e) { e.classList.remove('playing'); });
     var sel0 = AY.a === 0 ? '#readerBody [data-bs="' + AY.s + '"]' : '#readerBody .ayah[data-s="' + AY.s + '"][data-a="' + AY.a + '"]';
     var el = document.querySelector(sel0);
-    if (el) { el.classList.add('playing'); try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} return; }
+    sheetFollow();
+    if (el) { el.classList.add('playing'); aimAyah(el); return; }
     /* reader is showing something else: bring the ayah into view */
     if (MODE === 'page' && PAGES) renderPage(pageOfAyah(AY.s, AY.a));
     else loadSurah(AY.s, true);
     setTimeout(function () {
       var e2 = document.querySelector(sel0);
-      if (e2) { e2.classList.add('playing'); try { e2.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} }
+      if (e2) { e2.classList.add('playing'); aimAyah(e2); }
     }, 900);
   }
 
@@ -973,14 +1206,13 @@
     var r = AYAH_RECITERS.filter(function (x) { return x.id === recId; })[0] || AYAH_RECITERS.filter(function (x) { return x.id === AYAH_DEFAULT; })[0];
     lsSet('quran.ayahReciter', r.id);
     if (!ayUnlocked) ayUnlock();
-    if (mode === 'full' && FULLMAP[r.id]) { AY.on = true; ayBar.hidden = false; document.body.classList.add('ay-on'); closeSheet(true); fullStart(r, s, a || 1); return; }
+    if (mode === 'full' && FULLMAP[r.id]) { AY.on = true; ayBar.hidden = false; document.body.classList.add('ay-on'); fullStart(r, s, a || 1); return; }
     if (mode === 'full') mode = 'surah';
     if (mode === 'surah' && a === 1 && hasBsm(s)) a = 0;
     AY.full = null; AY.fpre = null;
     AY.rec = r; AY.s = s; AY.a = a; AY.mode = mode; AY.on = true;
     ayBar.hidden = false;
     document.body.classList.add('ay-on');
-    closeSheet(true);
     ayLoad();
   }
   function ayStep(d, force) {
@@ -1163,7 +1395,7 @@
     var row = document.createElement('div'); row.className = 'sheet-row';
     var sel = document.createElement('select');
     TAFSIRS.forEach(function (t) { sel.add(new Option(t.name, t.slug)); });
-    sel.value = lsGet('quran.tafsir', TAFSIRS[0].slug);
+    sel.value = lsGet('quran.tafsir', TAFSIRS[0].slug); if (!sel.value) sel.value = TAFSIRS[0].slug;
     if (!sel.value) sel.selectedIndex = 0;
     row.appendChild(sel);
     box.appendChild(row);
@@ -1290,6 +1522,7 @@
     if (s && a) openSheet(s, a);
   });
   document.getElementById('sheetClose').addEventListener('click', closeSheet);
+  (function () { var r = document.getElementById('sheetRef'); if (r) { r.style.cursor = 'pointer'; r.setAttribute('role', 'button'); r.addEventListener('click', backToOrigin); } })();
   document.getElementById('ayahSheet').addEventListener('click', function (e) {
     if (e.target && e.target.id === 'ayahSheet') closeSheet();
   });
@@ -1754,3 +1987,24 @@
 })();
 
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+
+/* copy protection (best effort): block copy/cut/context menu/drag outside the allowed areas */
+(function () {
+  var ALLOW = '#readerBody, .ayahs, .mushaf-page, #tajBody, #duaBody, .hs-sheet, .hs-text, #riwayat, .hs-wrap .hs-item';
+  function ok(n) {
+    if (!n) return false;
+    var e = n.nodeType === 1 ? n : n.parentElement;
+    return !!(e && e.closest && (e.closest(ALLOW) || e.closest('input,textarea')));
+  }
+  function selOk() {
+    var ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return true;
+    var s = window.getSelection && window.getSelection();
+    if (!s || s.isCollapsed) return false;
+    return ok(s.anchorNode) && ok(s.focusNode);
+  }
+  ['copy', 'cut'].forEach(function (t) { document.addEventListener(t, function (e) { if (!selOk()) { e.preventDefault(); } }, true); });
+  document.addEventListener('contextmenu', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
+  document.addEventListener('dragstart', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
+  document.addEventListener('selectstart', function (e) { if (!ok(e.target)) e.preventDefault(); }, true);
+})();
