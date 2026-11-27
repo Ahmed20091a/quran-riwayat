@@ -547,3 +547,15 @@ body.ay-on { padding-bottom: 150px; }
   background: linear-gradient(180deg,#1d4a3a,#0f2a21); color: var(--ink); border: 1px solid rgba(212,177,94,.6); border-radius: 999px;
   padding: .5rem .6rem .5rem 1rem; box-shadow: 0 10px 30px rgba(0,0,0,.5); font-size: .9rem; }
 .upd-toast button { background: var(--gold); color: #14211a; border: 0; border-radius: 999px; padding: .4rem 1rem; font: inherit; font-weight: 800; cursor: pointer; }
+
+/* gold svg icons */
+.ic { width: 1.15em; height: 1.15em; fill: currentColor; flex: none; vertical-align: -.2em; }
+.ic-x { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.ay-play .ic { width: 52%; height: 52%; margin-inline-start: 6%; }
+.ay-play .ic path { fill: #14211a; }
+.ay-b { display: inline-flex; align-items: center; gap: .35rem; }
+.ay-b .ic { width: 1.1em; height: 1.1em; }
+.ay-x .ic { width: 1.2em; height: 1.2em; }
+.p-btn .ic { width: 1.1em; height: 1.1em; }
+.play-choice .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
+.sheet-tab { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; }

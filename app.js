@@ -3,6 +3,10 @@
   'use strict';
 
   var AR = '٠١٢٣٤٥٦٧٨٩';
+  var IC = {
+    play: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a.6.6 0 0 0 .9.5l10.7-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5z"/></svg>', pause: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/></svg>', prev: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6h2.2v12H16zM6 18l8.8-6L6 6z"/></svg>', next: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.8 6H8v12H5.8zM18 18V6l-8.8 6z"/></svg>', back: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2.2L7.6 6 12 9.8V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>', fwd: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="transform:scaleX(-1)"><path d="M12 5V2.2L7.6 6 12 9.8V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>', close: '<svg class="ic ic-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>'
+  };
+  function ico(k) { return IC[k]; }
   function arNum(n) { return String(n).replace(/\d/g, function (d) { return AR[+d]; }); }
   function toLatinDigits(s) { return s.replace(/[٠-٩]/g, function (d) { return String(AR.indexOf(d)); }); }
   function normAr(s) {
@@ -376,14 +380,14 @@
     if (!currentReciter) return;
     if (typeof ayStop === 'function') ayStop();
     audio.src = audioURL();
-    audio.play().then(function () { playing = true; $('#playPause').textContent = '⏸'; })
-      .catch(function () { playing = false; $('#playPause').textContent = '▶'; });
+    audio.play().then(function () { playing = true; $('#playPause').innerHTML = ico('pause'); })
+      .catch(function () { playing = false; $('#playPause').innerHTML = ico('play'); });
   }
 
   $('#playPause').addEventListener('click', function () {
     if (!currentReciter) return;
-    if (playing) { audio.pause(); playing = false; $('#playPause').textContent = '▶'; }
-    else if (audio.src) { audio.play(); playing = true; $('#playPause').textContent = '⏸'; }
+    if (playing) { audio.pause(); playing = false; $('#playPause').innerHTML = ico('play'); }
+    else if (audio.src) { audio.play(); playing = true; $('#playPause').innerHTML = ico('pause'); }
     else playAudio();
   });
   audio.addEventListener('ended', function () { step(1); });
@@ -523,9 +527,9 @@
     box.appendChild(row);
     var row2 = document.createElement('div'); row2.className = 'sheet-row play-choice';
     var b1 = document.createElement('button'); b1.className = 'btn primary';
-    b1.textContent = '▶ هذه الآية فقط';
+    b1.innerHTML = ico('play') + '<span>هذه الآية فقط</span>';
     var b2 = document.createElement('button'); b2.className = 'btn';
-    b2.textContent = '▶ السورة كاملة من هذه الآية';
+    b2.innerHTML = ico('play') + '<span>السورة كاملة من هذه الآية</span>';
     b1.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'ayah'); });
     b2.addEventListener('click', function () { startAy(sel.value, sheetState.s, sheetState.a, 'surah'); });
     row2.appendChild(b1); row2.appendChild(b2);
@@ -544,12 +548,12 @@
     ayBar = document.createElement('div');
     ayBar.id = 'ayPlayer'; ayBar.className = 'ay-player'; ayBar.hidden = true;
     ayBar.innerHTML =
-      '<div class="ay-top"><div class="ay-ring" id="ayRing"><button class="ay-play" id="ayPlay" aria-label="تشغيل / إيقاف">▶</button></div>' +
+      '<div class="ay-top"><div class="ay-ring" id="ayRing"><button class="ay-play" id="ayPlay" aria-label="تشغيل / إيقاف">' + ico('play') + '</button></div>' +
       '<div class="ay-info"><b id="ayTitle">—</b><small id="ayRec">—</small></div>' +
       '<div class="ay-mode" id="ayMode" role="group"><button data-m="ayah">آية</button><button data-m="surah">سورة</button></div>' +
-      '<button class="ay-x" id="ayClose" aria-label="إغلاق">✕</button></div>' +
+      '<button class="ay-x" id="ayClose" aria-label="إغلاق">' + ico('close') + '</button></div>' +
       '<div class="ay-seek"><span id="ayCur">٠:٠٠</span><input id="aySlider" type="range" min="0" max="1000" value="0" dir="rtl" aria-label="التحكم في موضع التلاوة"><span id="ayDur">٠:٠٠</span></div>' +
-      '<div class="ay-ctrl"><button class="ay-b" id="ayPrev" aria-label="الآية السابقة">⏮ السابقة</button><button class="ay-b" id="ayBack" aria-label="رجوع ١٠ ثواني">↺ ١٠ث</button><div class="ay-dots" id="ayDots"></div><button class="ay-b" id="ayFwd" aria-label="تقدّم ١٠ ثواني">١٠ث ↻</button><button class="ay-b" id="ayNext" aria-label="الآية التالية">التالية ⏭</button></div>';
+      '<div class="ay-ctrl"><button class="ay-b" id="ayPrev" aria-label="الآية السابقة">' + ico('prev') + '<span>السابقة</span></button><button class="ay-b" id="ayBack" aria-label="رجوع ١٠ ثواني">' + ico('back') + '<span>١٠</span></button><div class="ay-dots" id="ayDots"></div><button class="ay-b" id="ayFwd" aria-label="تقدّم ١٠ ثواني"><span>١٠</span>' + ico('fwd') + '</button><button class="ay-b" id="ayNext" aria-label="الآية التالية"><span>التالية</span>' + ico('next') + '</button></div>';
     document.body.appendChild(ayBar);
     var sl = ayBar.querySelector('#aySlider');
     document.getElementById('ayPlay').addEventListener('click', function () {
@@ -582,7 +586,7 @@
   }
   function ayPaintPlay() {
     if (!ayBar) return;
-    document.getElementById('ayPlay').textContent = ayahAudioEl.paused ? '▶' : '⏸';
+    document.getElementById('ayPlay').innerHTML = ayahAudioEl.paused ? ico('play') : ico('pause');
     ayBar.classList.toggle('is-playing', !ayahAudioEl.paused);
   }
   function ayTick() {
@@ -614,7 +618,7 @@
   function ayLoad() {
     var r = AY.rec;
     var url = 'https://cdn.islamic.network/quran/audio/' + r.br + '/' + r.id + '/' + ayahGlobal(AY.s, AY.a) + '.mp3';
-    if (audio && !audio.paused) { audio.pause(); playing = false; var pp = $('#playPause'); if (pp) pp.textContent = '▶'; }
+    if (audio && !audio.paused) { audio.pause(); playing = false; var pp = $('#playPause'); if (pp) pp.innerHTML = ico('play'); }
     $('#player').classList.remove('on');
     ayahAudioEl.src = url;
     document.getElementById('ayTitle').textContent = 'سورة ' + MANIFEST.surahs[AY.s - 1].name + ' · آية ' + arNum(AY.a);
@@ -1079,7 +1083,7 @@
       if (reloaded) return;
       var t = document.createElement('div');
       t.className = 'upd-toast';
-      t.innerHTML = '<span>✨ تحديث جديد جاهز</span><button type="button">حدّث الآن</button>';
+      t.innerHTML = '<span>تحديث جديد جاهز</span><button type="button">حدّث الآن</button>';
       t.querySelector('button').addEventListener('click', function () { reloaded = true; location.reload(); });
       document.body.appendChild(t);
     });

@@ -157,7 +157,7 @@
 
 <div class="taj-page" id="tajPage" hidden>
   <div class="taj-page-head">
-    <button class="taj-back" id="tajBack" aria-label="رجوع">✕</button>
+    <button class="taj-back" id="tajBack" aria-label="رجوع"><svg class="ic ic-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
     <div class="taj-page-title">
       <small>أحكام التجويد</small>
       <b id="tajTitle">—</b>
@@ -168,15 +168,15 @@
 </div>
 
 <div class="player" id="player">
-  <button class="p-btn main" id="playPause" aria-label="تشغيل">▶</button>
+  <button class="p-btn main" id="playPause" aria-label="تشغيل"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a.6.6 0 0 0 .9.5l10.7-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5z"/></svg></button>
   <div class="p-info">
     <b id="pTitle">—</b>
     <small id="pSub">—</small>
   </div>
   <select id="pSurah" aria-label="السورة"></select>
-  <button class="p-btn" id="prevBtn" aria-label="السابقة">⏭</button>
-  <button class="p-btn" id="nextBtn" aria-label="التالية">⏮</button>
-  <button class="p-btn" id="closePlayer" aria-label="إغلاق">✕</button>
+  <button class="p-btn" id="prevBtn" aria-label="السابقة"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6h2.2v12H16zM6 18l8.8-6L6 6z"/></svg></button>
+  <button class="p-btn" id="nextBtn" aria-label="التالية"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.8 6H8v12H5.8zM18 18V6l-8.8 6z"/></svg></button>
+  <button class="p-btn" id="closePlayer" aria-label="إغلاق"><svg class="ic ic-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
 </div>
 <audio id="audio" preload="none"></audio>
 
@@ -190,11 +190,11 @@
   <div class="sheet-card" role="dialog" aria-modal="true" aria-label="خيارات الآية">
     <div class="sheet-head">
       <span class="sheet-ref" id="sheetRef"></span>
-      <button class="sheet-close" id="sheetClose" aria-label="إغلاق">✕</button>
+      <button class="sheet-close" id="sheetClose" aria-label="إغلاق"><svg class="ic ic-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
     </div>
     <div class="sheet-ayah" id="sheetAyah"></div>
     <div class="sheet-tabs" id="sheetTabs">
-      <button class="sheet-tab" data-tab="play">▶ تلاوة الآية</button>
+      <button class="sheet-tab" data-tab="play"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a.6.6 0 0 0 .9.5l10.7-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5z"/></svg><span>تلاوة الآية</span></button>
       <button class="sheet-tab" data-tab="taf">التفسير</button>
       <button class="sheet-tab" data-tab="stop">وقف هنا</button>
     </div>
