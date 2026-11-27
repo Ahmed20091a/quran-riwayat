@@ -88,14 +88,102 @@
     times.nextFajr = next.fajr;
     var list = $('#slList'); list.innerHTML = '';
     ORDER.forEach(function (k) {
-      var r = document.createElement('div'); r.className = 'sl-r'; r.id = 'sl-' + k;
-      r.innerHTML = '<span></span><b></b>'; r.firstChild.textContent = NAMES[k]; r.lastChild.textContent = T(times[k]);
+      var r = document.createElement('button'); r.type = 'button'; r.className = 'sl-r'; r.id = 'sl-' + k;
+      r.innerHTML = '<span class="sl-mini"></span><span class="sl-nm"></span><b></b>';
+      r.querySelector('.sl-nm').textContent = NAMES[k]; r.lastChild.textContent = T(times[k]);
+      r.firstChild.innerHTML = mini(k);
+      r.addEventListener('click', function () { selectView(k); });
       list.appendChild(r);
     });
     $('#slG').textContent = fmtG.format(new Date(now));
     $('#slH').textContent = fmtH ? fmtH.format(new Date(now)) + ' (حساب أم القرى، قد يختلف يومًا عن الرؤية)' : '';
     $('#slMethod').textContent = 'طريقة الحساب: الهيئة المصرية العامة للمساحة (الفجر ١٩٫٥° والعشاء ١٧٫٥°)، العصر بظل مثل الشيء. الأوقات محسوبة داخل الموقع بإحداثيات ' + cur()[1] + ' بتوقيت القاهرة. قد يختلف التقويم الرسمي بدقيقة أو دقيقتين.';
   }
+
+  /* ---------- sky scene (decorative, approximate) ---------- */
+  var SKY = {
+    night: ['#050b1f', '#12214a'], fajr: ['#14214f', '#c9856b'], sunrise: ['#4a6aa8', '#f7b267'],
+    dhuhr: ['#2f7fd1', '#9bd3f5'], asr: ['#3f86c8', '#ecd49b'], maghrib: ['#3a2a63', '#f2683a'], isha: ['#0b1230', '#26346b']
+  };
+  function hex(c) { return [parseInt(c.substr(1, 2), 16), parseInt(c.substr(3, 2), 16), parseInt(c.substr(5, 2), 16)]; }
+  function mixc(a, b, f) { a = hex(a); b = hex(b); return 'rgb(' + [0, 1, 2].map(function (i) { return Math.round(a[i] + (b[i] - a[i]) * f); }).join(',') + ')'; }
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+  function frames() {
+    var M = 60000;
+    return [[times.fajr - 40 * M, 'night'], [times.fajr, 'fajr'], [times.sunrise + 10 * M, 'sunrise'], [times.dhuhr, 'dhuhr'], [times.asr, 'asr'],
+      [times.maghrib - 8 * M, 'maghrib'], [times.maghrib + 12 * M, 'maghrib'], [times.isha, 'isha'], [times.isha + 70 * M, 'night']];
+  }
+  function colors(t) {
+    var F = frames(), i;
+    if (t <= F[0][0]) return SKY.night; if (t >= F[F.length - 1][0]) return SKY.night;
+    for (i = 0; i < F.length - 1; i++) if (t < F[i + 1][0]) break;
+    var f = (t - F[i][0]) / (F[i + 1][0] - F[i][0]), A = SKY[F[i][1]], B = SKY[F[i + 1][1]];
+    return [mixc(A[0], B[0], f) , mixc(A[1], B[1], f)];
+  }
+  function rgbOf(c) { return c.charAt(0) === '#' ? hex(c) : c.match(/\d+/g).map(Number); }
+  function dark(c) { var r = rgbOf(c); return 'rgb(' + r.map(function (v) { return Math.round(v * 0.22); }).join(',') + ')'; }
+  function state(t) {
+    var D = 86400000, sr = times.sunrise, ss = times.sunset, o = { col: colors(t) };
+    var f = (t - sr) / (ss - sr), h = Math.sin(Math.PI * f);
+    o.sunOn = f > -0.07 && f < 1.07; o.sx = 30 + 300 * clamp(f, -0.07, 1.07); o.sy = 150 - h * 118; o.h = o.sunOn ? Math.max(h, 0) : 0;
+    var nsr = sr + D, pss = ss - D, g;
+    if (t >= ss) g = (t - ss) / (nsr - ss); else g = (t - pss) / (sr - pss);
+    var day = t >= sr && t <= ss;
+    o.moonOn = !day; o.mx = 30 + 300 * clamp(g, 0, 1); o.my = 150 - Math.sin(Math.PI * clamp(g, 0, 1)) * 100;
+    var dusk = clamp((t - ss) / (70 * 60000), 0, 1), dawn = clamp((sr - t) / (70 * 60000), 0, 1);
+    o.stars = day ? 0 : Math.max(dusk, dawn);
+    if (t > ss + D / 2) o.stars = 1;
+    return o;
+  }
+  var svg = document.getElementById('slSky'), starsG = document.getElementById('skStars');
+  (function () {
+    var x = 17, i, out = '';
+    for (i = 0; i < 46; i++) { x = (x * 9301 + 49297) % 233280; var a = x / 233280; x = (x * 9301 + 49297) % 233280; var b = x / 233280;
+      out += '<circle class="st s' + (i % 3) + '" cx="' + (a * 360).toFixed(1) + '" cy="' + (b * 120).toFixed(1) + '" r="' + (0.5 + (i % 4) * 0.35).toFixed(2) + '" fill="#fff"/>'; }
+    starsG.innerHTML = out;
+  })();
+  function setA(id, o) { var e = document.getElementById(id); for (var k in o) e.setAttribute(k, o[k]); }
+  function sunCol(h) { return mixc('#ff7a2e', '#fff3b0', clamp(h * 2.2, 0, 1)); }
+  function drawSky(t) {
+    var o = state(t);
+    setA('skT', { 'stop-color': o.col[0] }); setA('skB', { 'stop-color': o.col[1] });
+    starsG.setAttribute('opacity', o.stars.toFixed(2));
+    document.getElementById('skClouds').setAttribute('opacity', (0.15 + 0.5 * (1 - o.stars)).toFixed(2));
+    var vis = o.sunOn ? 1 : 0;
+    setA('sunDisc', { cx: o.sx, cy: o.sy, r: (14 + 9 * (1 - o.h)).toFixed(1), fill: sunCol(o.h), opacity: vis });
+    setA('sunGlow', { cx: o.sx, cy: o.sy, opacity: vis * (0.55 + 0.4 * (1 - o.h)) });
+    setA('moonDisc', { cx: o.mx, cy: o.my, opacity: o.moonOn ? 1 : 0 });
+    setA('moonCut', { cx: o.mx + 6, cy: o.my - 3 });
+    var d = dark(o.col[1]); document.getElementById('skHill').setAttribute('fill', d); document.getElementById('skMosque').setAttribute('fill', d);
+  }
+  function mini(k) {
+    var t = times[k] + (k === 'isha' ? 25 * 60000 : 0), o = state(t), id = 'm' + k;
+    var sx = (o.sx / 360 * 56).toFixed(1), sy = (o.sy / 190 * 56).toFixed(1), mx = (o.mx / 360 * 56).toFixed(1), my = (o.my / 190 * 56).toFixed(1);
+    var body = '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + o.col[0] + '"/><stop offset="1" stop-color="' + o.col[1] + '"/></linearGradient></defs><rect width="56" height="56" fill="url(#' + id + ')"/>';
+    if (o.stars > 0.3) body += '<circle cx="10" cy="9" r=".8" fill="#fff"/><circle cx="40" cy="7" r=".7" fill="#fff"/><circle cx="26" cy="15" r=".6" fill="#fff"/><circle cx="48" cy="19" r=".7" fill="#fff"/>';
+    if (o.sunOn) body += '<circle cx="' + sx + '" cy="' + Math.min(sy, 50) + '" r="' + (5 + 3 * (1 - o.h)).toFixed(1) + '" fill="' + sunCol(o.h) + '"/>';
+    else body += '<circle cx="' + mx + '" cy="' + my + '" r="4.2" fill="#f3efd8"/>';
+    body += '<path d="M0 46Q14 40 28 45T56 43V56H0Z" fill="' + dark(o.col[1]) + '"/>';
+    return '<svg viewBox="0 0 56 56" aria-hidden="true">' + body + '</svg>';
+  }
+  var vt = null, tgt = null, raf = 0, viewK = null;
+  function frame() {
+    raf = 0; if (tgt == null) return;
+    var d = tgt - vt;
+    if (Math.abs(d) < 20000) { vt = tgt; drawSky(vt); return; }
+    vt += d * 0.07; drawSky(vt); raf = requestAnimationFrame(frame);
+  }
+  function setTarget(t) { tgt = t; if (vt == null) vt = t; if (!raf && !document.hidden) raf = requestAnimationFrame(frame); }
+  function caption(k, t) {
+    document.getElementById('slSkyCap').textContent = k ? 'السماء وقت ' + NAMES[k] + ' (رسم تقريبي)' : 'السماء الآن (رسم تقريبي)';
+    document.getElementById('slLive').hidden = !k;
+    ORDER.forEach(function (n) { var e = $('#sl-' + n); if (e) e.classList.toggle('sel', n === k); });
+  }
+  function selectView(k) {
+    viewK = k; setTarget(times[k] + (k === 'isha' ? 25 * 60000 : 0)); caption(k);
+    document.getElementById('slSkyBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  document.getElementById('slLive').addEventListener('click', function () { viewK = null; setTarget(Date.now()); caption(null); });
   var adhanEl = null;
   function url() { return MUEZ.filter(function (m) { return m[0] === st.muez; })[0][2]; }
   function play() { if (!adhanEl) adhanEl = new Audio(); adhanEl.src = url(); var p = adhanEl.play(); if (p && p.catch) p.catch(function () {}); }
@@ -111,6 +199,7 @@
     $('#slCount').textContent = p2(h) + ':' + p2(m) + ':' + p2(x);
     $('#slNextAt').textContent = 'عند ' + T(nxt);
     ORDER.forEach(function (k) { var e = $('#sl-' + k); if (e) e.classList.toggle('next', k === nk); });
+    if (!viewK) { if (tgt == null || !raf) { vt = now; tgt = now; drawSky(now); } else tgt = now; caption(null); } else { caption(viewK); }
     if (st.auto) ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(function (k) {
       var id = day + k;
       if (!played[id] && now >= times[k] && now - times[k] < 60000) { played[id] = 1; play(); }

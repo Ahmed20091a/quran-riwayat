@@ -49,18 +49,43 @@
     c.a.forEach(function (it) { box.appendChild(card(it, true)); });
     $('#adSrc').textContent = SRC;
   }
+
+  var sheet = null;
+  function openSheet(c) {
+    if (!sheet) {
+      sheet = document.createElement('div'); sheet.className = 'hs-sheet'; sheet.hidden = true;
+      sheet.innerHTML = '<div class="hs-sh-bar"><button type="button" class="hs-back" aria-label="رجوع"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button><h3></h3></div><div class="hs-sh-body"></div>';
+      document.body.appendChild(sheet);
+      sheet.querySelector('.hs-back').addEventListener('click', closeSheet);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheet.hidden) closeSheet(); });
+    }
+    sheet.querySelector('h3').textContent = c.t;
+    var body = sheet.querySelector('.hs-sh-body'); body.innerHTML = '';
+    c.a.forEach(function (it, i) {
+      var d = card(it, false); d.classList.add('big');
+      var n = document.createElement('div'); n.className = 'hs-no'; n.textContent = ar(i + 1) + ' / ' + ar(c.a.length); d.insertBefore(n, d.firstChild);
+      body.appendChild(d);
+    });
+    var src = document.createElement('div'); src.className = 'hs-src'; src.textContent = SRC; body.appendChild(src);
+    sheet.hidden = false; body.scrollTop = 0; document.documentElement.classList.add('hs-lock');
+  }
+  function closeSheet() { if (sheet) { sheet.hidden = true; document.documentElement.classList.remove('hs-lock'); } }
   /* الأدعية */
   function duaList(q) {
     var box = $('#duaBody'); box.innerHTML = '';
     var nq = norm(q.trim());
     if (!nq) {
-      DATA.forEach(function (c) {
-        var d = document.createElement('details'); d.className = 'hs-cat';
-        var s = document.createElement('summary'); s.textContent = c.t; d.appendChild(s);
-        var filled = false;
-        d.addEventListener('toggle', function () { if (d.open && !filled) { filled = true; c.a.forEach(function (it) { d.appendChild(card(it, false)); }); } });
-        box.appendChild(d);
+      var grid = document.createElement('div'); grid.className = 'hs-grid';
+      DATA.forEach(function (c, i) {
+        var t = document.createElement('button'); t.type = 'button'; t.className = 'hs-tile';
+        t.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2l4.6 8.4 8.9-3.1-1.6 9.3 9.1 2.4-7 6.2 4.8 8-9.4-.7-2.3 9.1L20 33l-7.1 5.6-2.3-9.1-9.4.7 4.8-8-7-6.2 9.1-2.4-1.6-9.3 8.9 3.1z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><i></i><span></span><small></small>';
+        t.querySelector('i').textContent = ar(i + 1);
+        t.querySelector('span').textContent = c.t;
+        t.querySelector('small').textContent = ar(c.a.length) + (c.a.length > 10 ? ' دعاء' : c.a.length > 2 ? ' أدعية' : c.a.length === 2 ? ' دعاءان' : ' دعاء');
+        t.addEventListener('click', function () { openSheet(c); });
+        grid.appendChild(t);
       });
+      box.appendChild(grid);
       return;
     }
     var shown = 0, MAX = 40;

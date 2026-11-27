@@ -216,7 +216,27 @@
     <label class="sl-city">المدينة <select id="slCity"></select></label>
     <div class="sl-date"><span id="slG"></span><span id="slH"></span></div>
     <div class="sl-clock" id="slClock">--:--:--</div>
+    <div class="sl-sky" id="slSkyBox">
+      <svg id="slSky" viewBox="0 0 360 190" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="skG" x1="0" y1="0" x2="0" y2="1"><stop id="skT" offset="0" stop-color="#2f7fd1"/><stop id="skB" offset="1" stop-color="#8ec9f0"/></linearGradient>
+          <radialGradient id="sunG"><stop offset="0" stop-color="#fff6c8" stop-opacity=".95"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+          <mask id="moonM"><rect width="360" height="190" fill="#fff"/><circle id="moonCut" cx="0" cy="0" r="11" fill="#000"/></mask>
+        </defs>
+        <rect width="360" height="190" fill="url(#skG)"/>
+        <g id="skStars"></g>
+        <g id="skClouds" opacity=".5"><g class="cl c1"><ellipse cx="60" cy="48" rx="34" ry="8" fill="#fff"/><ellipse cx="80" cy="43" rx="22" ry="8" fill="#fff"/></g><g class="cl c2"><ellipse cx="220" cy="78" rx="40" ry="9" fill="#fff"/><ellipse cx="240" cy="72" rx="24" ry="8" fill="#fff"/></g><g class="cl c3"><ellipse cx="320" cy="34" rx="28" ry="7" fill="#fff"/></g></g>
+        <circle id="sunGlow" r="46" fill="url(#sunG)" class="pulse"/>
+        <circle id="sunDisc" r="15" fill="#fff3b0"/>
+        <circle id="moonDisc" r="11" fill="#f3efd8" mask="url(#moonM)"/>
+        <path id="skHill" d="M0 160 Q60 140 120 156 T250 152 T360 150 V190 H0Z" fill="#0a1410"/>
+        <g id="skMosque" fill="#0a1410"><rect x="262" y="132" width="3.4" height="30"/><path d="M260.6 132h6.2l-3.1-9z"/><rect x="286" y="148" width="40" height="14"/><path d="M290 148a16 16 0 0 1 32 0z"/><rect x="305.2" y="126" width="1.6" height="8"/></g>
+      </svg>
+      <div class="sl-sky-cap" id="slSkyCap"></div>
+      <button class="sl-live" id="slLive" hidden>الآن</button>
+    </div>
     <div class="sl-next"><small id="slNextName">—</small><b id="slCount">--:--:--</b><small id="slNextAt"></small></div>
+    <p class="sl-hint">دوس على أي صلاة تشوف شكل السماء وقتها</p>
     <div class="sl-list" id="slList"></div>
     <div class="sl-adhan">
       <h3 class="sb-h">الأذان</h3>
